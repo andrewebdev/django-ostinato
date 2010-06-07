@@ -6,7 +6,7 @@ setup(
     version="0.01",
     url="",
     author="Andre Engelbrecht",
-    authot_email="andre@teh-node.co.za",
+    author_email="andre@teh-node.co.za",
     packages=['ostinato'],
     package_dir={'': 'src'},
 )
