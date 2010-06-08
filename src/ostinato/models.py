@@ -56,10 +56,10 @@ class ContentItem(models.Model):
     status = models.IntegerField(choices=STATE, default=DRAFT)
     allow_comments = models.BooleanField(default=True)
     show_in_nav = models.BooleanField(default=True)
-    location = models.URLField(
+    location = models.CharField(
         null=True,
         blank=True,
-        verify_exists=False,
+        max_length=250,
         help_text="The location of the item on the site, ie: /article/hello-world/",
     )
     # show_in_sitemap may confuse developers into thinking it refers to the
@@ -101,6 +101,16 @@ class ContentItem(models.Model):
 
     def __unicode__(self):
         return "%s" % self.title
+
+    def save(self, *args, **kwargs):
+        """
+        Override the save method so that we can determine if the item was
+        published or not.
+
+        """
+        if not self.publish_date and self.status == self.PUBLISHED:
+            self.action_publish()
+        super(ContentItem, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         """
