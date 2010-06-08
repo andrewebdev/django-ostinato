@@ -30,7 +30,9 @@ class ContentItemManager(models.Manager):
 
     def get_breadcrumbs(self, content_item):
         """
-        Returns the breadcrumbs for the current ``contnet_item``
+        Returns the breadcrumbs for the current ``content_item``
+        The returned value is a list containing a dictionary for each
+        item.
 
         """
         to_return = []
