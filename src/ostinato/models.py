@@ -1,7 +1,29 @@
+from datetime import datetime
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+
+from ostinato.signals import *
+from ostinato.managers import ContentItemManager
+
+# Snippet of code borrowed from django-photologue
+# attempt to load the django-tagging TagField from default location,
+# otherwise we substitude a dummy TagField.
+try:
+    from tagging.fields import TagField
+    tagfield_help_text = 'Separate tags with spaces, put quotes around multiple-word tags.'
+except ImportError:
+    class TagField(models.CharField):
+        def __init__(self, **kwargs):
+            default_kwargs = {'max_length': 255, 'blank': True}
+            default_kwargs.update(kwargs)
+            super(TagField, self).__init__(**default_kwargs)
+        def get_internal_type(self):
+            return 'CharField'
+    tagfield_help_text = 'Django-tagging was not found, tags will be treated as plain text.'
+## End snippet
 
 class ContentItem(models.Model):
     """
@@ -23,6 +45,12 @@ class ContentItem(models.Model):
     )
 
     title = models.CharField(max_length=150)
+    short_title = models.CharField(
+        max_length=15,
+        null=True,
+        blank=True,
+        help_text="A shorter title which can be used in menus etc. If this is not supplied then the normal title field will be used.",
+    )
     description = models.TextField(null=True, blank=True)
     tags = TagField()
     status = models.IntegerField(choices=STATE, default=DRAFT)
@@ -40,15 +68,36 @@ class ContentItem(models.Model):
     #
     # show_in_sitemap = models.BooleanField(default=True)
     #
-    authors = models.ManyToManyField(User, null=True, blank=True)
-    contributors = models.ManyToManyField(User, null=True, blank=True)
-    parent = models.ForeignKey('self', null=True, blank=True)
+    created_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True)
+    publish_date = models.DateTimeField(null=True, blank=True)
+
+    authors = models.ManyToManyField(
+        User,
+        null=True,
+        blank=True,
+        related_name="contentitems_authored",
+    )
+    contributors = models.ManyToManyField(
+        User,
+        null=True,
+        blank=True,
+        related_name="contentitems_contributed",
+    )
+    parent = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+    )
 
     # Our ContentItem relations, these may be omitted, in which case only
     # the location field will be used.
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    # Custom Managers
+    objects = ContentItemManager()
 
     def __unicode__(self):
         return "%s" % self.title
@@ -63,20 +112,42 @@ class ContentItem(models.Model):
         definde, then we use the ``location`` field to determine the url.
 
         """
-        return self.location
+        try:
+            return self.content_object.get_absolute_url()
+        except AttributeError:
+            if self.location:
+                return "%s" % self.location
+            else:
+                return None
+
+    def get_short_title(self):
+        if self.short_title:
+            return self.short_title
+        else:
+            return self.title
 
     def action_publish(self):
         """ A method to publish the current content_item """
-        pass
+        if not self.publish_date:
+            self.publish_date = datetime.now()
+        self.status = self.PUBLISHED
+        self.save()
+        post_action_publish.send(sender=self)
 
     def action_review(self):
         """ A method to mark the item for review """
-        pass
+        self.status = self.REVIEW
+        self.save()
+        post_action_review.send(sender=self)
 
     def action_hide(self):
         """ A method to hide the content item """
-        pass
+        self.status = self.HIDDEN
+        self.save()
+        post_action_hide.send(sender=self)
 
     def action_draft(self):
         """ A method to set the item in the Draft state """
-        pass
+        self.status = self.DRAFT
+        self.save()
+        post_action_draft.send(sender=self)
