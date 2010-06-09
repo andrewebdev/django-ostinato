@@ -37,12 +37,12 @@ class ContentItemTestCase(CMSTestCase):
         self.assertEquals(self.item.get_absolute_url(), '/')
 
     def testNavBar(self):
-        nav_menu = ContentItem.objects.get_nav_bar()
+        nav_menu = ContentItem.objects.get_navbar()
         self.assertEquals(
             nav_menu,
             [{'title': 'Home', 'url': '/'}],
         )
-        sub_menu = ContentItem.objects.get_nav_bar(parent=self.item)
+        sub_menu = ContentItem.objects.get_navbar(parent=self.item)
         self.assertEquals(
             sub_menu,
             [{'title': 'Test', 'url': '/test/'}],
