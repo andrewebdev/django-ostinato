@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.contenttypes import generic
 
 from ostinato.models import ContentItem
 
@@ -38,6 +39,11 @@ action_show_in_nav.short_description = "Navigation - Show Items in Nav"
 def action_dont_show_in_nav(modeladmin, request, queryset):
     queryset.update(show_in_nav=False)
 action_dont_show_in_nav.short_description = "Navigation - Dont show in Nav"
+
+## Inline Classes
+class ContentItemInline(generic.GenericStackedInline):
+    model = ContentItem
+    extra = 0
 
 ## ModelAdmin Classes
 class ContentItemAdmin(admin.ModelAdmin):
