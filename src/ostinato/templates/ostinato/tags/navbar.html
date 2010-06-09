@@ -1,0 +1,9 @@
+{# Renders a very standard navbar. Override this template if you wish. #}
+
+{% if navbar %}
+<ul>
+    {% for navitem in navbar %}
+    <li><a href="{{ navitem.url }}">{{ navitem.title }}</a></li>
+    {% endfor %}
+</ul>
+{% endif %}
