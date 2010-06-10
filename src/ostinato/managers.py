@@ -6,7 +6,7 @@ class ContentItemManager(models.Manager):
             yield item.parent
             self._get_parents(item.parent)
 
-    def get_navbar(self, parent=False):
+    def get_navbar(self, parent=None):
         """
         Returns a dictionary of items with their titles and urls.
 
@@ -15,11 +15,7 @@ class ContentItemManager(models.Manager):
 
         """
         to_return = []
-        if not parent:
-            nav_items = self.get_query_set().filter(parent=None)
-        else:
-            nav_items = self.get_query_set().filter(parent=parent)
-
+        nav_items = self.get_query_set().filter(parent=parent, show_in_nav=True)
         if nav_items:
             for item in nav_items:
                 to_return.append({
