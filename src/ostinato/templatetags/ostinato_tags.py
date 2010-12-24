@@ -9,6 +9,8 @@ register = template.Library()
 def render_navbar(parent=None):
     """
     Renders the standard navigation bar.
+    ``parent`` specifies the start level for the navbar
+    ``depth`` specifies how deep we should show navbar elements. 
 
     """
     if parent:

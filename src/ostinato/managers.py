@@ -6,7 +6,7 @@ class ContentItemManager(models.Manager):
             yield item.parent
             self._get_parents(item.parent)
 
-    def get_navbar(self, parent=None):
+    def get_navbar(self, parent=None, depth=0):
         """
         Returns a dictionary of items with their titles and urls.
 
