@@ -5,25 +5,9 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 
+from tagging.fields import TagField
 from ostinato.signals import *
 from ostinato.managers import ContentItemManager
-
-# Snippet of code borrowed from django-photologue
-# attempt to load the django-tagging TagField from default location,
-# otherwise we substitude a dummy TagField.
-try:
-    from tagging.fields import TagField
-    tagfield_help_text = 'Separate tags with spaces, put quotes around multiple-word tags.'
-except ImportError:
-    class TagField(models.CharField):
-        def __init__(self, **kwargs):
-            default_kwargs = {'max_length': 255, 'blank': True}
-            default_kwargs.update(kwargs)
-            super(TagField, self).__init__(**default_kwargs)
-        def get_internal_type(self):
-            return 'CharField'
-    tagfield_help_text = 'Django-tagging was not found, tags will be treated as plain text.'
-## End snippet
 
 class ContentItem(models.Model):
     """
