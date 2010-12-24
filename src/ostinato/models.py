@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+from django.utils.translation import ugettext as _
 
 from tagging.fields import TagField
 from ostinato.signals import *
@@ -40,18 +41,15 @@ class ContentItem(models.Model):
     status = models.IntegerField(choices=STATE, default=DRAFT)
     allow_comments = models.BooleanField(default=True)
     show_in_nav = models.BooleanField(default=True)
+    show_in_sitemap = models.BooleanField(default=True)
+
     location = models.CharField(
         null=True,
         blank=True,
         max_length=250,
         help_text="The location of the item on the site, ie: /article/hello-world/",
     )
-    # show_in_sitemap may confuse developers into thinking it refers to the
-    # standard django sitemaps framework. So till we decide what to do with
-    # this I'll just keep it commented out for now.
-    #
-    # show_in_sitemap = models.BooleanField(default=True)
-    #
+
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
     publish_date = models.DateTimeField(null=True, blank=True)
@@ -98,12 +96,13 @@ class ContentItem(models.Model):
 
     def get_absolute_url(self):
         """
-        First we check if we are pointint to another content_type directly.
-        If so, check if that item has a ``get_absolute_url`` method, and use
-        it's own method.
+        First we check if we are pointing to another content_type
+        directly. If so, check if that item has a ``get_absolute_url``
+        method, and use it's own method.
 
-        If the target content_item does not have a ``get_absolute_url`` method
-        definde, then we use the ``location`` field to determine the url.
+        If the target content_item does not have a ``get_absolute_url``
+        method definded, then we use the ``location`` field to determine
+        the url.
 
         """
         try:

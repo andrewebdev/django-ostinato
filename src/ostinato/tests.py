@@ -28,16 +28,16 @@ class CMSTestCase(TestCase):
             description="The Home Page",
             location="/",
         )
-        # Define a ContentItem with a parent and custom location
-        self.os_aboutus = ContentItem.objects.create(
+        # Define a ContentItem that points directly to another
+        # ContentType
+        self.os_aboutus = ContentItem.objects.create_for(
+            self.aboutus,
             title="About Us",
             short_title="About",
             description="About Us Page",
-            location="/about-us/",
             parent=self.os_homepage,
         )
-        # Define a ContentItem with a parent and pointing to another
-        # django app
+        # One more standard item
         self.os_contact = ContentItem.objects.create(
             title="Contact Us",
             short_title="Contact",
@@ -47,18 +47,8 @@ class CMSTestCase(TestCase):
         )
 
 class ContentItemTestCase(CMSTestCase):
-    # def testStatus(self):
-    #     self.assertEquals(self.item.status, self.item.DRAFT,
-    #         "Incorrect status (%s) for item." % self.item.status)
-    #     self.assertEquals(self.item.publish_date, None)
-    #     self.item.action_publish()
-    #     self.assertEquals(self.item.status, self.item.PUBLISHED,
-    #         "Incorrect status (%s) for item after action_publish()" % self.item.status)
-    #     self.failUnless(self.item.publish_date != None,
-    #         "Publish Date should not be none")
-
-    # def testURL(self):
-    #     self.assertEquals(self.item.get_absolute_url(), '/')
+    def testURL(self):
+        self.assertEquals(self.os_homepage.get_absolute_url(), '/')
 
     def testNavBar(self):
         root = ContentItem.objects.get_navbar()
