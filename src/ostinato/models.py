@@ -9,7 +9,6 @@ from django.conf import settings
 from django.dispatch import Signal
 
 from tagging.fields import TagField
-from ostinato.signals import *
 from ostinato.managers import ContentItemManager
 
 class InvalidAction(Exception):

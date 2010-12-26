@@ -11,7 +11,6 @@ def render_navbar(parent=None):
     Renders the standard navigation bar.
     ``parent`` specifies the start level for the navbar
     ``depth`` specifies how deep we should show navbar elements. 
-
     """
     if parent:
         navbar = ContentItem.objects.get_navbar(parent=parent)
@@ -27,13 +26,8 @@ class GetContentItemNode(template.Node):
     def render(self, context):
         for_object = self.for_object.resolve(context)
         for_object_type = ContentType.objects.get_for_model(for_object)
-        try:
-            content_item = ContentItem.objects.get(
-                content_type=for_object_type,
-                object_id=for_object.id
-            )
-        except:
-            content_item = None
+        content_item, created = ContentItem.objects.get_or_create(
+            content_type=for_object_type, object_id=for_object.id)
         context[self.as_varname] = content_item
         return ''
 
