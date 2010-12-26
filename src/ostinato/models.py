@@ -5,10 +5,15 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.translation import ugettext as _
+from django.conf import settings
+from django.dispatch import Signal
 
 from tagging.fields import TagField
 from ostinato.signals import *
 from ostinato.managers import ContentItemManager
+
+pre_action = Signal(providing_args=['action', 'user'])
+post_action = Signal(providing_args=['action', 'user'])
 
 class ContentItem(models.Model):
     """
@@ -16,18 +21,34 @@ class ContentItem(models.Model):
     location where the content item is located. It will also function
     as a 'meta' model that contains various fields required by any
     standard CMS.
-
     """
-    DRAFT = 0
-    REVIEW = 1
-    PUBLISHED = 2
-    HIDDEN = 3
-    STATE = (
-        (DRAFT, 'Draft'),
-        (REVIEW, 'To Review'),
-        (PUBLISHED, 'Published'),
-        (HIDDEN, 'Hidden'),
-    )
+    DEFAULT_ACTIONS = [
+        {'action': 'submit',
+         'help_text': 'Submit document for review',
+         'target': 'review'
+        },
+        {'action': 'publish',
+         'help_text': 'Publish this document',
+         'target': 'published'
+        },
+        {'action': 'reject',
+         'help_text': 'Reject the document based',
+         'target': 'private'
+        },
+        {'action': 'archive',
+         'help_text': 'Archive this document',
+         'target': 'archived'
+        },
+    ]
+    DEFAULT_STATEMACHINE = [
+        {'state': 'private', 'actions': ['submit', 'publish']},
+        {'state': 'review', 'actions': ['publish', 'reject']},
+        {'state': 'published', 'actions': ['retract', 'archive']},
+        {'state': 'archived', 'actions': ['retract']},
+    ]
+    ACTIONS = getattr(settings, 'OSTINATO_ACTIONS', DEFAULT_ACTIONS)
+    STATEMACHINE = getattr(settings, 'OSTINATO_STATEMACHINE',
+                           DEFAULT_STATEMACHINE)
 
     title = models.CharField(max_length=150)
     short_title = models.CharField(
@@ -40,7 +61,7 @@ class ContentItem(models.Model):
 
     tags = TagField()
 
-    status = models.IntegerField(choices=STATE, default=DRAFT)
+    state = models.CharField(max_length=100, default="private", editable=False)
     allow_comments = models.BooleanField(default=True)
     show_in_nav = models.BooleanField(default=True)
     show_in_sitemap = models.BooleanField(default=True)
@@ -91,8 +112,8 @@ class ContentItem(models.Model):
         return "%s" % self.title
 
     def save(self, *args, **kwargs):
-        if not self.publish_date and self.status == self.PUBLISHED:
-            self.action_publish()
+        # if not self.publish_date and self.status == self.PUBLISHED:
+        #     self.action_publish()
         super(ContentItem, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -120,28 +141,21 @@ class ContentItem(models.Model):
         else:
             return self.title
 
-    def action_publish(self):
-        """ A method to publish the current content_item """
-        if not self.publish_date:
-            self.publish_date = datetime.now()
-        self.status = self.PUBLISHED
-        self.save()
-        post_action_publish.send(sender=self)
+    def get_actions(self):
+        """
+        Returns a list of actions available for the current state.
+        """
+        for state in self.STATEMACHINE:
+            if self.state == state['state']:
+                return state['actions']
 
-    def action_review(self):
-        """ A method to mark the item for review """
-        self.status = self.REVIEW
-        self.save()
-        post_action_review.send(sender=self)
-
-    def action_hide(self):
-        """ A method to hide the content item """
-        self.status = self.HIDDEN
-        self.save()
-        post_action_hide.send(sender=self)
-
-    def action_draft(self):
-        """ A method to set the item in the Draft state """
-        self.status = self.DRAFT
-        self.save()
-        post_action_draft.send(sender=self)
+    def do_action(self, action, user=None):
+        """
+        Take an action to change the state and send the apropriate signals.
+        """
+        if action in self.get_actions():
+            for _action in self.ACTIONS:
+                if action == _action['action']:
+                    pre_action.send(sender=self, action=action, user=user)
+                    self.state = _action['target']
+                    post_action.send(sender=self, action=action, user=user)

@@ -135,4 +135,24 @@ We can also request a navbar from a specific level, by passing the
     >>> home_nav
     [{'url': u'/about-us/', 'title': u'About'}, {'url': u'/contact/', 'title': u'Contact'}]
 
+The statemachine.
+
+ContentItems come with an attached statemachine so that we can create custom
+workflows.
+
+Example API Usage.
+
+    >>> os_homepage.state
+    u'private'
+    >>> os_homepage.get_actions()
+    ['submit', 'publish']
+
+We can perform an action on the ContentItem, and it will move to the next state.
+Note that thiss will also send pre- and post action signals which you can use
+for email notifications etc.
+
+    >>> os_homepage.do_action('submit')
+    >>> os_homepage.state
+    'review'
+
 """}
