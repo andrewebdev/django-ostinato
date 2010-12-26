@@ -155,4 +155,7 @@ for email notifications etc.
     >>> os_homepage.state
     'review'
 
+If you try perform an action that isn't available to the current state, a
+``InvalidAction`` Exception will be raised.
+
 """}

@@ -12,6 +12,13 @@ from tagging.fields import TagField
 from ostinato.signals import *
 from ostinato.managers import ContentItemManager
 
+class InvalidAction(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
 pre_action = Signal(providing_args=['action', 'user'])
 post_action = Signal(providing_args=['action', 'user'])
 
@@ -159,3 +166,5 @@ class ContentItem(models.Model):
                     pre_action.send(sender=self, action=action, user=user)
                     self.state = _action['target']
                     post_action.send(sender=self, action=action, user=user)
+                    return None
+        raise InvalidAction('Invalid action, %s' % action)
