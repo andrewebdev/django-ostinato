@@ -37,11 +37,14 @@ class ContentItem(models.Model):
         help_text="A shorter title which can be used in menus etc. If this is not supplied then the normal title field will be used.",
     )
     description = models.TextField(null=True, blank=True)
+
     tags = TagField()
+
     status = models.IntegerField(choices=STATE, default=DRAFT)
     allow_comments = models.BooleanField(default=True)
     show_in_nav = models.BooleanField(default=True)
     show_in_sitemap = models.BooleanField(default=True)
+    order = models.IntegerField(null=True, blank=True)
 
     location = models.CharField(
         null=True,
@@ -81,15 +84,13 @@ class ContentItem(models.Model):
     # Custom Managers
     objects = ContentItemManager()
 
+    class Meta:
+        ordering = ['order', 'title']
+
     def __unicode__(self):
         return "%s" % self.title
 
     def save(self, *args, **kwargs):
-        """
-        Override the save method so that we can determine if the item was
-        published or not.
-
-        """
         if not self.publish_date and self.status == self.PUBLISHED:
             self.action_publish()
         super(ContentItem, self).save(*args, **kwargs)

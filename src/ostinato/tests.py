@@ -79,20 +79,28 @@ __test__ = {
 
 First we create some flatpages which will be our content to work with.
 
-    >>> homepage = FlatPage.objects.create(url="/", title="Home", content="Lorem Ipsum dolor set...")
-    >>> aboutus = FlatPage.objects.create(url="/about-us/", title="About Us", content="Lorem Ipsum dolor set...")
-    >>> contact = FlatPage.objects.create(url="/contact/", title="Contact Us", content="Lorem Ipsum dolor set...")
+    >>> homepage = FlatPage.objects.create(url="/", title="Home",
+    ...     content="Lorem Ipsum dolor set...")
+    >>> aboutus = FlatPage.objects.create(url="/about-us/", title="About Us",
+    ...     content="Lorem Ipsum dolor set...")
+    >>> contact = FlatPage.objects.create(url="/contact/", title="Contact Us",
+    ...     content="Lorem Ipsum dolor set...")
 
 We can create ContentItem instances, and specify the location for these
 items.
 
-    >>> os_homepage = ContentItem.objects.create(title="Home", description="The Home Page", location="/")
-    >>> os_contact = ContentItem.objects.create(title="Contact Us", short_title="Contact", description="Contact us page", location="/contact/", parent=os_homepage)
+    >>> os_homepage = ContentItem.objects.create(title="Home",
+    ...     description="The Home Page", location="/")
+    >>> os_contact = ContentItem.objects.create(title="Contact Us",
+    ...     short_title="Contact", description="Contact us page",
+    ...     location="/contact/", parent=os_homepage, order=2)
 
 We can also create a ContentItem that is generically related to another
 ContentType, like a flatpage.
 
-    >>> os_aboutus = ContentItem.objects.create_for(aboutus, title="About Us", short_title="About", description="About Us Page", parent=os_homepage)
+    >>> os_aboutus = ContentItem.objects.create_for(aboutus, title="About Us",
+    ...     short_title="About", description="About Us Page",
+    ...     parent=os_homepage)
 
 The url for a ContentItem can be looked up using ``get_absolute_url()``
 
@@ -109,5 +117,22 @@ generically related to another contenttype that has a
 returned from that original method. If it cannot find a
 get_absolute_url() method on the target contenttype, then it will fall
 back to the url specified in the ``location`` field.
+
+Ostinato also provides a way to return ContentItems as a Nav, sitemap and
+breadcrumbs.
+
+To get the root navbar you use the manager method ``get_navbar()`` without any
+arguments.
+
+    >>> root_nav = ContentItem.objects.get_navbar()
+    >>> root_nav
+    [{'url': u'/', 'title': u'Home'}]
+
+We can also request a navbar from a specific level, by passing the
+``ContentItem`` instance as the ``parent`` argument.
+
+    >>> home_nav = ContentItem.objects.get_navbar(parent=os_homepage)
+    >>> home_nav
+    [{'url': u'/about-us/', 'title': u'About'}, {'url': u'/contact/', 'title': u'Contact'}]
 
 """}
