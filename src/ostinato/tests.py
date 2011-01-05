@@ -142,7 +142,6 @@ workflows.
 
 Example API Usage.
 
-    >>> os_homepage.init_statemachine() # Initialize our statemachine
     >>> os_homepage.sm_state
     'private'
     >>> os_homepage.sm_state_actions()

@@ -16,13 +16,6 @@ class InvalidAction(Exception):
     def __str__(self):
         return repr(self.value)
 
-class StateMachineSleeping(Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-
 pre_action = Signal(providing_args=['action', 'user'])
 post_action = Signal(providing_args=['action', 'user'])
 
@@ -59,24 +52,14 @@ class StateMachine(object):
         {'state': 'archived', 'actions': ['retract']},
     ]
 
-    def init_statemachine(self):
-        """
-        ``actions`` - list of actions definded by a dict containing
-        the following keys:
-            'action' - The name of the action
-            'description' - A brief description of the action
-            'target' - The target state for the action
-
-        ``statemachine`` - describes each state and it's available actions.
-        Each state has the following keys:
-            'state' - The name of the state
-            'actions' - A list containing the names of actions available to
-                this state
-        """
-        self.actions = self.SM_ACTIONS
-        self.statemachine = self.SM_STATEMACHINE
+    def __init__(self, *args, **kwargs):
+        super(StateMachine, self).__init__()
         if not self.sm_state: # Set default state
-            self.sm_state = self.statemachine[0]['state']
+            self.sm_state = self.SM_STATEMACHINE[0]['state']
+
+    def init_statemachine(self):
+        if not self.sm_state: # Set default state
+            self.sm_state = self.SM_STATEMACHINE[0]['state']
 
     def sm_state_actions(self):
         """
@@ -85,30 +68,25 @@ class StateMachine(object):
         return self._get_state(self.sm_state)['actions']
 
     def _get_action(self, action):
-        for item in self.actions:
+        for item in self.SM_ACTIONS:
             if action == item['action']: return item
 
     def _get_state(self, state):
         """ Get a specific state dict from the statemachine """
-        for item in self.statemachine:
+        for item in self.SM_STATEMACHINE:
             if state == item['state']: return item
 
     def sm_take_action(self, action, user=None):
         """
         Take an action to change the state and send the apropriate signals.
         """
-        # Check if the statemachine has been initialized, if not raise error
-        if self.actions and self.statemachine:
-            if action in self.sm_state_actions():
-                pre_action.send(sender=self, instance=self,
-                                action=action, user=user)
-                self.sm_state = self._get_action(action)['target']
-                self.save()
-                post_action.send(sender=self, instance=self,
-                                 action=action, user=user)
-            else:
-                raise InvalidAction('Invalid action, %s. Choices are, %s' % (
-                    action, ','.join(self.sm_state_actions())))
+        if action in self.sm_state_actions():
+            pre_action.send(sender=self, instance=self,
+                            action=action, user=user)
+            self.sm_state = self._get_action(action)['target']
+            self.save()
+            post_action.send(sender=self, instance=self,
+                             action=action, user=user)
         else:
-            raise StateMachineSleeping(
-                'Please initialize the statemachine before using it.')
+            raise InvalidAction('Invalid action, %s. Choices are, %s' % (
+                action, ','.join(self.sm_state_actions())))
