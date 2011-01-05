@@ -41,8 +41,8 @@ class ContentItem(models.Model, StateMachine):
     )
 
     # Required field for the statemachine to work
-    sm_state = models.CharField(max_length=100, null=True, blank=True,
-                                default='private', editable=False)
+    _sm_state = models.CharField(max_length=100, null=True, blank=True,
+                                 default='private', editable=False)
 
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)

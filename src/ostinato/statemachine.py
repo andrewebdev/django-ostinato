@@ -51,17 +51,28 @@ class StateMachine(object):
         {'state': 'archived', 'actions': ['retract']},
     ]
 
+    def _get_state(self):
+        self.pre_get_state()
+        return self._sm_state
+
+    def _set_state(self, what):
+        self.pre_set_state()
+        self._sm_state = what
+        self.save()
+
+    sm_state = property(_get_state, _set_state)
+
     def sm_state_actions(self):
         """
         Returns a list of actions available for the current state.
         """
-        return self._get_state(self.sm_state)['actions']
+        return self._get_state_obj(self.sm_state)['actions']
 
     def _get_action(self, action):
         for item in self.SM_ACTIONS:
             if action == item['action']: return item
 
-    def _get_state(self, state):
+    def _get_state_obj(self, state):
         """ Get a specific state dict from the statemachine """
         for item in self.SM_STATEMACHINE:
             if state == item['state']: return item
@@ -73,11 +84,23 @@ class StateMachine(object):
         if action in self.sm_state_actions():
             self.sm_pre_action(action, user)
             self.sm_state = self._get_action(action)['target']
-            self.save()
             self.sm_post_action(action, user)
         else:
             raise InvalidAction('Invalid action, %s. Choices are, %s' % (
                 action, ','.join(self.sm_state_actions())))
+
+    def pre_get_state(self):
+        """
+        Can be used to do some extra stuff like formatting text, or even
+        changing state before we show the state.
+        """
+        pass
+
+    def pre_set_state(self):
+        """
+        Can be used to do some extra stuff before setting the state
+        """
+        pass
 
     def sm_pre_action(self, *args, **kwargs):
         """
