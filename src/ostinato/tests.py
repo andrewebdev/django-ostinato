@@ -143,7 +143,7 @@ workflows.
 Example API Usage.
 
     >>> os_homepage.sm_state
-    'private'
+    u'private'
     >>> os_homepage.sm_state_actions()
     ['submit', 'publish']
 

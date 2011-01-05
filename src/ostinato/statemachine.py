@@ -1,7 +1,6 @@
 from django.dispatch import Signal
 from django.conf import settings
 
-
 class InvalidStateMachine(Exception):
     def __init__(self, value):
         self.value = value
@@ -52,10 +51,6 @@ class StateMachine(object):
         {'state': 'archived', 'actions': ['retract']},
     ]
 
-    def init_statemachine(self):
-        if not self.sm_state: # Set default state
-            self.sm_state = self.SM_STATEMACHINE[0]['state']
-
     def sm_state_actions(self):
         """
         Returns a list of actions available for the current state.
@@ -76,12 +71,26 @@ class StateMachine(object):
         Take an action to change the state and send the apropriate signals.
         """
         if action in self.sm_state_actions():
-            pre_action.send(sender=self, instance=self,
-                            action=action, user=user)
+            self.sm_pre_action(action, user)
             self.sm_state = self._get_action(action)['target']
             self.save()
-            post_action.send(sender=self, instance=self,
-                             action=action, user=user)
+            self.sm_post_action(action, user)
         else:
             raise InvalidAction('Invalid action, %s. Choices are, %s' % (
                 action, ','.join(self.sm_state_actions())))
+
+    def sm_pre_action(self, *args, **kwargs):
+        """
+        Method can be used to do some extra stuff to our model before the
+        action is taken and saved.
+        Just override in your model if you need it.
+        """
+        pre_action.send(sender=self, instance=self, **kwargs)
+
+    def sm_post_action(self, *args, **kwargs):
+        """
+        Method can be used to do some extra stuff to our model after the
+        action is saved.
+        Just override in your model if you need it.
+        """
+        post_action.send(sender=self, instance=self, **kwargs)

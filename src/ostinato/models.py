@@ -42,7 +42,7 @@ class ContentItem(models.Model, StateMachine):
 
     # Required field for the statemachine to work
     sm_state = models.CharField(max_length=100, null=True, blank=True,
-                                editable=False)
+                                default='private', editable=False)
 
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
@@ -77,22 +77,6 @@ class ContentItem(models.Model, StateMachine):
 
     class Meta:
         ordering = ['order', 'title']
-
-    def __init__(self, *args, **kwargs):
-        """
-        TODO: Find a better way.
-
-        I dont like this workaround. Ideally we shouldn't have to do anything
-        extra to get the statemachine to work.
-
-        For some reason the __init__ method of the second super_class
-        does not have access to the fields defined.
-
-        I had to override the __init__ method and manually call the, now
-        renamed, init_statemachine() method.
-        """
-        super(ContentItem, self).__init__(*args, **kwargs)
-        super(ContentItem, self).init_statemachine()
 
     def __unicode__(self):
         return "%s" % self.title
