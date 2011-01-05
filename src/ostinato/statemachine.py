@@ -52,11 +52,6 @@ class StateMachine(object):
         {'state': 'archived', 'actions': ['retract']},
     ]
 
-    def __init__(self, *args, **kwargs):
-        super(StateMachine, self).__init__()
-        if not self.sm_state: # Set default state
-            self.sm_state = self.SM_STATEMACHINE[0]['state']
-
     def init_statemachine(self):
         if not self.sm_state: # Set default state
             self.sm_state = self.SM_STATEMACHINE[0]['state']
