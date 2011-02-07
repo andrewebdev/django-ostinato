@@ -23,7 +23,8 @@ class ContentItem(models.Model, StateMachine):
         max_length=15,
         null=True,
         blank=True,
-        help_text="A shorter title which can be used in menus etc. If this is not supplied then the normal title field will be used.",
+        help_text="A shorter title which can be used in menus etc. If this \
+                   is not supplied then the normal title field will be used.",
     )
     description = models.TextField(null=True, blank=True)
 
