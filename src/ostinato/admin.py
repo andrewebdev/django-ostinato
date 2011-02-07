@@ -4,26 +4,6 @@ from django.contrib.contenttypes import generic
 from ostinato.models import ContentItem
 
 ## Admin Actions
-def action_publish(modeladmin, request, queryset):
-    for item in queryset:
-        item.action_publish()
-action_publish.short_description = "Mark selected items as Published"
-
-def action_draft(modeladmin, request, queryset):
-    for item in queryset:
-        item.action_draft()
-action_draft.short_description = "Mark selected items as Draft"
-
-def action_review(modeladmin, request, queryset):
-    for item in queryset:
-        item.action_review()
-action_review.short_description = "Mark selected items for Review"
-
-def action_hidden(modeladmin, request, queryset):
-    for item in queryset:
-        item.action_hide()
-action_hidden.short_description = "Mark selected items as Hidden"
-
 def action_allow_comments(modeladmin, request, queryset):
     queryset.update(allow_comments=True)
 action_allow_comments.short_description = "Comments - Allow comments on items"
@@ -47,22 +27,21 @@ class ContentItemInline(generic.GenericStackedInline):
 
 ## ModelAdmin Classes
 class ContentItemAdmin(admin.ModelAdmin):
-    list_display = ['title', 'short_title', 'status',
+    list_display = ['title', 'short_title', 'sm_state_admin',
                     'allow_comments', 'show_in_nav',
                     'created_date', 'modified_date', 'publish_date'
     ]
-    list_filter = ['status', 'allow_comments', 'show_in_nav', 'publish_date']
+    list_filter = ['allow_comments', 'show_in_nav', 'publish_date']
     date_hierarchy = 'created_date'
     search_fields = ['title', 'short_title', 'description', 'location']
-    actions = [action_publish, action_draft, action_review, action_hidden,
-               action_show_in_nav, action_dont_show_in_nav,
+    actions = [action_show_in_nav, action_dont_show_in_nav,
                action_allow_comments, action_disallow_comments]
     fieldsets = (
         (None, {
             'fields': ('title', 'short_title', 'description'),
         }),
         ('Content Properties', {
-            'fields': ('parent', 'status', 'allow_comments', 'show_in_nav',
+            'fields': ('parent', 'allow_comments', 'show_in_nav',
                        'tags', 'location')
         }),
         ('Authoring and Publication', {
@@ -71,7 +50,6 @@ class ContentItemAdmin(admin.ModelAdmin):
     )
 
 ## Admin registrations
-
 admin.site.register(ContentItem, ContentItemAdmin)
 
 ## Our Custom CMS Object to handle admin registrations

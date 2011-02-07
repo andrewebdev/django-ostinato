@@ -16,6 +16,7 @@ class ContentItem(models.Model, StateMachine):
     location where the content item is located. It will also function
     as a 'meta' model that contains various fields required by any
     standard CMS.
+
     """
     title = models.CharField(max_length=150)
     short_title = models.CharField(
@@ -91,6 +92,13 @@ class ContentItem(models.Model, StateMachine):
         method definded, then we use the ``location`` field to determine
         the url.
 
+        - If we find that the objects has a ``get_absolute_url()``, we load that
+        url.
+
+        - If we use the location field to return the url, we just load that
+        location directly. This can be used to override the default
+        ``get_absolute_url()`` behavior.
+
         """
         try:
             return self.content_object.get_absolute_url()
@@ -101,7 +109,5 @@ class ContentItem(models.Model, StateMachine):
                 return None
 
     def get_short_title(self):
-        if self.short_title:
-            return self.short_title
-        else:
-            return self.title
+        if self.short_title: return self.short_title
+        else: return self.title

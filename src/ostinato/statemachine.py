@@ -1,13 +1,6 @@
 from django.dispatch import Signal
 from django.conf import settings
 
-class InvalidStateMachine(Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-
 class InvalidAction(Exception):
     def __init__(self, value):
         self.value = value
