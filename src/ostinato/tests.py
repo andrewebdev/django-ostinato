@@ -68,13 +68,13 @@ class ContentItemTestCase(CMSTestCase):
         root = ContentItem.objects.get_navbar()
         self.assertEquals(
             root,
-            [{'title': 'Home', 'url': '/'}],
+            [{'title': 'Home', 'url': '/'}]
         )
         sub = ContentItem.objects.get_navbar(parent=self.os_homepage)
         self.assertEquals(
             sub,
             [{'title': 'About', 'url': '/about-us/'},
-             {'title': 'Contact', 'url': '/contact/'}],
+             {'title': 'Contact', 'url': '/contact/'}]
         )
 
     def testBreadCrumbs(self):
@@ -82,9 +82,7 @@ class ContentItemTestCase(CMSTestCase):
         self.assertEquals(
             crumbs,
             [{'title': 'Home', 'url': '/', 'current': False},
-             {'title': 'About', 'url': '/about-us/',
-              'current': True}
-            ]
+             {'title': 'About', 'url': '/about-us/', 'current': True}]
         )
 
 ## Doctests are nice for documentation :)

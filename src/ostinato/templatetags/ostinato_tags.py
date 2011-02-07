@@ -8,7 +8,7 @@ from ostinato.models import ContentItem
 register = template.Library()
 
 @register.inclusion_tag('ostinato/tags/navbar.html')
-def render_navbar(parent=None):
+def navbar(parent=None):
     """
     Renders the standard navigation bar.
     ``parent`` specifies the start level for the navbar
@@ -18,6 +18,18 @@ def render_navbar(parent=None):
         navbar = ContentItem.objects.get_navbar(parent=parent)
     else:
         navbar = ContentItem.objects.get_navbar()
+    return locals()
+
+@register.inclusion_tag('ostinato/tags/breadcrumbs.html')
+def breadcrumbs(content_item):
+    """
+    Renders the breadcrumbs for content item.
+
+    TODO: Try to get the content_item by cycling through the urlpatterns.
+    If the urlpattern is found, get that item and return it's content_item
+    instance.
+    """
+    breadcrumbs = ContentItem.objects.get_breadcrumbs(content_item)
     return locals()
 
 @register.simple_tag

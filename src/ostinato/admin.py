@@ -27,7 +27,7 @@ class ContentItemInline(generic.GenericStackedInline):
 
 ## ModelAdmin Classes
 class ContentItemAdmin(admin.ModelAdmin):
-    list_display = ['title', 'short_title', 'sm_state_admin',
+    list_display = ['title', 'short_title', 'parent', 'order', 'sm_state_admin',
                     'allow_comments', 'show_in_nav',
                     'created_date', 'modified_date', 'publish_date']
     list_filter = ['allow_comments', 'show_in_nav', 'publish_date']
