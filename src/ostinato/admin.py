@@ -53,22 +53,15 @@ class ContentItemAdmin(admin.ModelAdmin):
 admin.site.register(ContentItem, ContentItemAdmin)
 
 ## Our Custom CMS Object to handle admin registrations
-class OstinatoCMS(object):
-    """
-    This is our main Ostinato CMS Class and will help to
-    un-register and register admin classes.
-
-    """
-    def register(self, model, modeladmin=None):
-        """
-        Register ``model`` with ostinato cms.
-        ``modeladmin`` is the standard admin.ModelAdmin class. If the
-        original app does not have one it's fine, you can just ommit it.
-
-        """
-        admin.site.unregister(model)
-        try:
-            modeladmin.inlines += [ContentItemInline]
-        except AttributeError:
-            pass
-        admin.site.register(model, modeladmin)
+# def register_cms_item(model, modeladmin=None):
+#     """
+#     Register ``model`` with ostinato cms.
+#     ``modeladmin`` is the standard admin.ModelAdmin class.
+#     If the original app does not have one it's fine, you can just ommit it.
+#     """
+#     admin.site.unregister(model)
+#     try:
+#         modeladmin.inlines += [ContentItemInline]
+#     except AttributeError:
+#         pass
+#     admin.site.register(model, modeladmin)
