@@ -99,3 +99,8 @@ class StateMachine(object):
         Just override in your model if you need it.
         """
         sm_post_action.send(sender=self, instance=self, **kwargs)
+
+    # Admin Callables
+    def sm_state_admin(self):
+        return self.sm_state
+    sm_state_admin.description = "The current state for the items"
