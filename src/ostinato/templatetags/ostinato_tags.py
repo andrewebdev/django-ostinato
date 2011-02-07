@@ -60,5 +60,9 @@ class GetContentItemNode(template.Node):
         for_object_type = ContentType.objects.get_for_model(for_object)
         content_item, created = ContentItem.objects.get_or_create(
             content_type=for_object_type, object_id=for_object.id)
+        if created:
+            title = getattr(for_object, 'title', repr(for_object))
+            content_item.title = title
+            content_item.save()
         context[self.as_varname] = content_item
         return ''
