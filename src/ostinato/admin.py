@@ -29,8 +29,7 @@ class ContentItemInline(generic.GenericStackedInline):
 class ContentItemAdmin(admin.ModelAdmin):
     list_display = ['title', 'short_title', 'sm_state_admin',
                     'allow_comments', 'show_in_nav',
-                    'created_date', 'modified_date', 'publish_date'
-    ]
+                    'created_date', 'modified_date', 'publish_date']
     list_filter = ['allow_comments', 'show_in_nav', 'publish_date']
     date_hierarchy = 'created_date'
     search_fields = ['title', 'short_title', 'description', 'location']
@@ -38,7 +37,7 @@ class ContentItemAdmin(admin.ModelAdmin):
                action_allow_comments, action_disallow_comments]
     fieldsets = (
         (None, {
-            'fields': ('title', 'short_title', 'description'),
+            'fields': ('title', 'short_title', 'description', 'order'),
         }),
         ('Content Properties', {
             'fields': ('parent', 'allow_comments', 'show_in_nav',
