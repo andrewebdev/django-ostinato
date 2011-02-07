@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.contrib.flatpages.models import FlatPage
 
 from ostinato.models import ContentItem
+from ostinato.core import OstinatoCMS
 
 class CMSTestCase(TestCase):
     def setUp(self):
@@ -19,6 +20,11 @@ class CMSTestCase(TestCase):
         self.contact = FlatPage.objects.create(
             url="/contact/",
             title="Contact Us",
+            content="Lorem Ipsum dolor set..."
+        )
+        self.services = FlatPage.objects.create(
+            url="/services/",
+            title="Services",
             content="Lorem Ipsum dolor set..."
         )
 
@@ -47,6 +53,14 @@ class CMSTestCase(TestCase):
         )
 
 class ContentItemTestCase(CMSTestCase):
+    def testRegistration(self):
+        self.assertEquals(ContentItem.objects.all().count(), 3)
+        OstinatoCMS.register(FlatPage)
+        self.assertEquals(ContentItem.objects.all().count(), 3)
+        self.services.save() # This should now create a new ContentItem
+        self.assertEquals(ContentItem.objects.all().count(), 4)
+        OstinatoCMS.unregister(FlatPage)
+
     def testURL(self):
         self.assertEquals(self.os_homepage.get_absolute_url(), '/')
 
