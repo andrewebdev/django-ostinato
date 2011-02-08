@@ -19,13 +19,11 @@ class ContentItem(models.Model, StateMachine):
     standard CMS.
 
     """
-    # Layout choices is a tuple with ('<layout_name>', '<layout_template>')
-    LAYOUT_CHOICES = getattr(settings, 'OSTINATO_LAYOUTS', (('None', ''),))
-
     title = models.CharField(max_length=150)
     short_title = models.CharField(max_length=15, null=True, blank=True,
         help_text="A shorter title which can be used in menus etc. If this \
                    is not supplied then the normal title field will be used.")
+    slug = models.SlugField(unique=True, required=False)
     description = models.TextField(null=True, blank=True)
 
     tags = TagField()
@@ -65,36 +63,28 @@ class ContentItem(models.Model, StateMachine):
     objects = ContentItemManager()
 
     class Meta:
-        ordering = ['order', 'title']
+        ordering = ['order', 'id', 'title']
 
     def __unicode__(self):
         return "%s" % self.title
 
     def get_absolute_url(self):
         """
-        First we check if we are pointing to another content_type
-        directly. If so, check if that item has a ``get_absolute_url``
-        method, and use it's own method.
+        The urls are determined by 3 factors and we will look for them in the
+        following order.
 
-        If the target content_item does not have a ``get_absolute_url``
-        method definded, then we use the ``location`` field to determine
-        the url.
+        1. If we use the location field to return the url, we just load that
+        location directly.
 
-        - If we find that the objects has a ``get_absolute_url()``, we load that
+        2. If we find that the objects has a ``get_absolute_url()``, we load that
         url.
 
-        - If we use the location field to return the url, we just load that
-        location directly. This can be used to override the default
-        ``get_absolute_url()`` behavior.
-
         """
+        if self.location: return "%s" % self.location
         try:
             return self.content_object.get_absolute_url()
         except AttributeError:
-            if self.location:
-                return "%s" % self.location
-            else:
-                return None
+            return None
 
     def get_short_title(self):
         if self.short_title: return self.short_title

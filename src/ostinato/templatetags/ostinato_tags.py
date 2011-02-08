@@ -25,7 +25,8 @@ def breadcrumbs(content_item):
     """
     Renders the breadcrumbs for content item.
 
-    TODO: Try to get the content_item by cycling through the urlpatterns.
+    TODO: Dynamically discover content item
+    Try to get the content_item by cycling through the urlpatterns.
     If the urlpattern is found, get that item and return it's content_item
     instance.
     """
