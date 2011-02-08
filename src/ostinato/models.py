@@ -23,7 +23,7 @@ class ContentItem(models.Model, StateMachine):
     short_title = models.CharField(max_length=15, null=True, blank=True,
         help_text="A shorter title which can be used in menus etc. If this \
                    is not supplied then the normal title field will be used.")
-    slug = models.SlugField(unique=True, required=False)
+    slug = models.SlugField(unique=True, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
 
     tags = TagField()
@@ -46,8 +46,6 @@ class ContentItem(models.Model, StateMachine):
     contributors = models.ManyToManyField(User, null=True, blank=True,
         related_name="contentitems_contributed")
     parent = models.ForeignKey('self', null=True, blank=True)
-    layout = models.CharField(choices=LAYOUT_CHOICES,
-                              max_length=150, null=True, blank=True)
 
     # Required field for the statemachine
     _sm_state = models.CharField(max_length=100, null=True, blank=True,
