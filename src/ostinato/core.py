@@ -28,7 +28,8 @@ class OstinatoCMS(object):
         # Connect the post_save signal for the model
         global create_contentitem
         if receiver:
-            create_contentitem = receiver(create_contentitem, post_save, sender=model)
+            create_contentitem = receiver(post_save,
+                                          sender=model)(create_contentitem)
         else:
             post_save.connect(create_contentitem, sender=model)
 
