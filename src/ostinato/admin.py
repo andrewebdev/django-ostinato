@@ -40,7 +40,7 @@ class ContentItemAdmin(admin.ModelAdmin):
             'fields': ('title', 'short_title', 'description', 'order'),
         }),
         ('Content Properties', {
-            'fields': ('parent', 'allow_comments', 'show_in_nav',
+            'fields': ('parent', '_sm_state', 'allow_comments', 'show_in_nav',
                        'tags', 'location')
         }),
         ('Authoring and Publication', {

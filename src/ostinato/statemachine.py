@@ -18,34 +18,32 @@ class StateMachine(object):
 
     Note that this model assumes you have a ``_sm_state`` CharField
     defined in your main model.
-
-    TODO: How to handle permissions?
     """
-    SM_ACTIONS = [
-        {'action': 'submit',
-         'help_text': 'Submit document for review',
-         'target': 'review',
-         'groups': '', # This is how we will define group permissions for now
-        },
-        {'action': 'publish',
-         'help_text': 'Publish this document',
-         'target': 'published'
-        },
-        {'action': 'reject',
-         'help_text': 'Reject the document based',
-         'target': 'private'
-        },
-        {'action': 'archive',
-         'help_text': 'Archive this document',
-         'target': 'archived'
-        },
-    ]
-    SM_STATEMACHINE = [
-        {'state': 'private', 'actions': ['submit', 'publish']},
-        {'state': 'review', 'actions': ['publish', 'reject']},
-        {'state': 'published', 'actions': ['retract', 'archive']},
-        {'state': 'archived', 'actions': ['retract']},
-    ]
+    class SMOptions:
+        SM_ACTIONS = [
+            {'action': 'Submit',
+             'help_text': 'Submit document for review',
+             'target': 'Review',
+            },
+            {'action': 'Publish',
+             'help_text': 'Publish this document',
+             'target': 'Published'
+            },
+            {'action': 'Reject',
+             'help_text': 'Reject the document based',
+             'target': 'Private'
+            },
+            {'action': 'Archive',
+             'help_text': 'Archive this document',
+             'target': 'Archived'
+            },
+        ]
+        SM_STATEMACHINE = [
+            {'state': 'Private', 'actions': ['Submit', 'Publish']},
+            {'state': 'Review', 'actions': ['Publish', 'Reject']},
+            {'state': 'Published', 'actions': ['Retract', 'Archive']},
+            {'state': 'Archived', 'actions': ['Retract']},
+        ]
 
     def _get_state(self):
         return self._sm_state
@@ -60,12 +58,12 @@ class StateMachine(object):
         return self._get_state_obj(self.sm_state)['actions']
 
     def _get_action(self, action):
-        for item in self.SM_ACTIONS:
+        for item in self.SMOptions.SM_ACTIONS:
             if action == item['action']: return item
 
     def _get_state_obj(self, state):
         """ Get a specific state dict from the statemachine """
-        for item in self.SM_STATEMACHINE:
+        for item in self.SMOptions.SM_STATEMACHINE:
             if state == item['state']: return item
 
     def sm_take_action(self, action, **kwargs):

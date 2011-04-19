@@ -47,8 +47,7 @@ class ContentItem(models.Model, StateMachine):
     parent = models.ForeignKey('self', null=True, blank=True)
 
     # Required field for the statemachine
-    _sm_state = models.CharField(max_length=100, null=True, blank=True,
-                                 default='private', editable=False)
+    _sm_state = models.CharField(max_length=100, default='Private')
 
     # Our ContentItem relations, these may be omitted, in which case only
     # the location field will be used.

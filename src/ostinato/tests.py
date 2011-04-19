@@ -155,19 +155,19 @@ workflows.
 Example API Usage.
 
     >>> os_homepage.sm_state
-    u'private'
+    u'Private'
     >>> os_homepage.sm_state_actions()
-    ['submit', 'publish']
+    ['Submit', 'Publish']
 
 We can perform an action on the ContentItem, and it will move to the next state.
 Note that thiss will also send pre- and post action signals which you can use
 for email notifications etc.
 
-    >>> os_homepage.sm_take_action('submit')
+    >>> os_homepage.sm_take_action('Submit')
     >>> os_homepage.sm_state
-    'review'
+    'Review'
     >>> os_homepage.sm_state_actions()
-    ['publish', 'reject']
+    ['Publish', 'Reject']
 
 If you try perform an action that isn't available to the current state, a
 ``InvalidAction`` Exception will be raised.
