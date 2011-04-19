@@ -20,7 +20,7 @@ class StateMachine(object):
     defined in your main model.
     """
     class SMOptions:
-        SM_ACTIONS = [
+        actions = [
             {'action': 'Submit',
              'help_text': 'Submit document for review',
              'target': 'Review',
@@ -38,7 +38,7 @@ class StateMachine(object):
              'target': 'Archived'
             },
         ]
-        SM_STATEMACHINE = [
+        statemachine = [
             {'state': 'Private', 'actions': ['Submit', 'Publish']},
             {'state': 'Review', 'actions': ['Publish', 'Reject']},
             {'state': 'Published', 'actions': ['Retract', 'Archive']},
@@ -58,12 +58,12 @@ class StateMachine(object):
         return self._get_state_obj(self.sm_state)['actions']
 
     def _get_action(self, action):
-        for item in self.SMOptions.SM_ACTIONS:
+        for item in self.SMOptions.actions:
             if action == item['action']: return item
 
     def _get_state_obj(self, state):
         """ Get a specific state dict from the statemachine """
-        for item in self.SMOptions.SM_STATEMACHINE:
+        for item in self.SMOptions.statemachine:
             if state == item['state']: return item
 
     def sm_take_action(self, action, **kwargs):
