@@ -29,15 +29,12 @@ class ContentItemInline(generic.GenericStackedInline):
 ## ModelAdmin Classes
 def statemachine_form(for_model=None):
     """
-    Factory function to create a special case form
+    Factory function to create a special case form that will render
+    an extra _sm_actions choice field, showing only the available actions
+    for the current state.
     """
     class _StateMachineBaseModelForm(forms.ModelForm):
         """
-        A Base ModelForm class that automatically renders the _sm_state field
-        as a choice field, returning only the available actions for the current
-        state as choices.
-
-        This can be subclassed in your own views.
         """
         _sm_action = forms.ChoiceField(choices=[], label="Take Action")
 
@@ -57,12 +54,16 @@ def statemachine_form(for_model=None):
             Override the save method so that we can take any required actions
             and move to the next state.
             """
-            super(_StateMachineBaseModelForm, self).save(*args, **kwargs)
+            action = self.cleaned_data['_sm_action']
+            if action: self.instance.sm_take_action(action)
+            return super(_StateMachineBaseModelForm, self).save(*args, **kwargs)
 
     if for_model: return _StateMachineBaseModelForm
+    else: return None
 
 class ContentItemAdmin(admin.ModelAdmin):
     form = statemachine_form(for_model=ContentItem)
+
     list_display = ['title', 'short_title', 'parent', 'order', 'sm_state_admin',
                     'allow_comments', 'show_in_nav',
                     'created_date', 'modified_date', 'publish_date']
