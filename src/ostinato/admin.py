@@ -36,18 +36,19 @@ def statemachine_form(for_model=None):
     class _StateMachineBaseModelForm(forms.ModelForm):
         """
         """
-        _sm_action = forms.ChoiceField(choices=[], label="Take Action")
+        _sm_action = forms.ChoiceField(choices=[], label="Take Action",
+                                       required=False)
 
         class Meta:
             model = for_model
 
         def __init__(self, *args, **kwargs):
             super(_StateMachineBaseModelForm, self).__init__(*args, **kwargs)
-            actions = (('', '-----------'),)
+            actions = (('', '--- No Action ---'),)
             for action in self.instance.sm_state_actions():
                 actions += ((action, action),)
-            self.fields['_sm_action'] = forms.ChoiceField(choices=actions,
-                                                          label="Take Action")
+            self.fields['_sm_action'] = forms.ChoiceField(
+                choices=actions, label="Take Action", required=False)
 
         def save(self, *args, **kwargs):
             """
