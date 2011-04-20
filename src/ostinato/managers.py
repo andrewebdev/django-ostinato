@@ -36,8 +36,8 @@ class ContentItemManager(models.Manager):
 
         """
         to_return = []
-        nav_items = self.get_query_set().filter(parent=parent,
-                                                show_in_nav=True)
+        nav_items = self.get_query_set().filter(
+            parent=parent, show_in_nav=True, _sm_state='Published')
         if nav_items:
             for item in nav_items:
                 to_return.append({
