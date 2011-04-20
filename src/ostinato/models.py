@@ -85,3 +85,12 @@ class ContentItem(models.Model, StateMachine):
     def get_short_title(self):
         if self.short_title: return self.short_title
         else: return self.title
+
+    ## Statemachine Actions
+    def sm_pre_action(self, **kwargs):
+        """ Override so that we can set the publish date """
+        if kwargs['action'] == 'Publish':
+            self.publish_date = datetime.now()
+        elif kwargs['action'] == 'Archive':
+            self.allow_comments = False
+        super(ContentItem, self).sm_pre_action(**kwargs)

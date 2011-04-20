@@ -33,6 +33,10 @@ class StateMachine(object):
              'help_text': 'Reject the document based',
              'target': 'Private'
             },
+            {'action': 'Retract',
+             'help_text': 'Retract this document',
+             'target': 'Private',
+            },
             {'action': 'Archive',
              'help_text': 'Archive this document',
              'target': 'Archived'
@@ -76,7 +80,12 @@ class StateMachine(object):
         """
         if action in self.sm_state_actions():
             self.sm_pre_action(action=action, **kwargs)
-            self.sm_state = self._get_action(action)['target']
+            try:
+                self.sm_state = self._get_action(action)['target']
+            except:
+                raise InvalidAction('Action, "%s" is listed in the Statemachine '
+                                    'but the action definition does not exist.'
+                                    % action)
             self.sm_post_action(action=action, **kwargs)
         else:
             raise InvalidAction('Invalid action, %s. Choices are, %s' % (
