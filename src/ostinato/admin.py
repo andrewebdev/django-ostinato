@@ -34,8 +34,6 @@ def statemachine_form(for_model=None):
     for the current state.
     """
     class _StateMachineBaseModelForm(forms.ModelForm):
-        """
-        """
         _sm_action = forms.ChoiceField(choices=[], label="Take Action",
                                        required=False)
 
@@ -44,7 +42,7 @@ def statemachine_form(for_model=None):
 
         def __init__(self, *args, **kwargs):
             super(_StateMachineBaseModelForm, self).__init__(*args, **kwargs)
-            actions = (('', '--- No Action ---'),)
+            actions = (('', '-- %s --' % self.instance.sm_state),)
             for action in self.instance.sm_state_actions():
                 actions += ((action, action),)
             self.fields['_sm_action'] = forms.ChoiceField(
