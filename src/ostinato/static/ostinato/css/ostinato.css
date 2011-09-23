@@ -1,0 +1,24 @@
+#ostinato_toolbar {
+	position: absolute;
+	top: 0;	
+	padding: 0.25em;
+	margin: 0 1em;
+	background-color: #555;
+
+	-webkit-border-radius: 0 0 5px 5px;
+	-moz-border-radius: 0 0 5px 5px;
+	border-radius: 0 0 5px 5px;
+}
+
+#ostinato_toolbar_toggle, #ostinato_toolbar_content { }
+
+#ostinato_toolbar_toggle { }
+#ostinato_toolbar_toggle a,
+#ostinato_toolbar_toggle a:visited {
+	color: white;
+}
+
+#ostinato_toolbar_content {
+	display: none;
+	width: 800px;
+}

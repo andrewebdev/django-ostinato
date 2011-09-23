@@ -1,0 +1,38 @@
+{% comment %}
+
+	This tag renders the ostinato toolbar that will allow the user
+	to edit the ContentItem data, as well as manage the nav items, and
+	general page structure.
+
+{% endcomment %}
+
+{% comment %}
+	
+	The editor should only show if the content actually supports editing.
+	We need to think about how we will "connect" or link up the content.
+
+{% endcomment %}
+
+
+{% if user_can_edit %}
+<div id="ostinato_toolbar">
+	<div id="ostinato_toolbar_content">
+		<h4>Ostinato Content Editor</h4>
+
+		{% if content_object %}
+		<a href="#">Add Page</a> | <a href="#">Edit Page</a>
+		{% else %}
+		<p>This page does not support direct editing. Speak to your web admin to edit this page.</p>
+		{% endif %}
+
+	</div>
+
+	<div id="ostinato_toolbar_toggle"><a href="#">Edit Content</a></div>
+</div>
+
+<script type="text/javascript">
+	$('#ostinato_toolbar_toggle a').click(function() {
+		$('#ostinato_toolbar_content').toggle();
+	});
+</script>
+{% endif %}
