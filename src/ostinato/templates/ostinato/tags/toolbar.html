@@ -6,33 +6,22 @@
 
 {% endcomment %}
 
-{% comment %}
-	
-	The editor should only show if the content actually supports editing.
-	We need to think about how we will "connect" or link up the content.
-
-{% endcomment %}
-
-
 {% if user_can_edit %}
 <div id="ostinato_toolbar">
 	<div id="ostinato_toolbar_content">
+	{% if cms_item %}
 		<h4>Ostinato Content Editor</h4>
 
-		{% if content_object %}
-		<a href="#">Add Page</a> | <a href="#">Edit Page</a>
-		{% else %}
-		<p>This page does not support direct editing. Speak to your web admin to edit this page.</p>
-		{% endif %}
-
+		{# TODO: Work on the form layout #}
+		<form action="." method="post">{% csrf_token %}
+			{{ cms_item_form.as_p }}
+			<input type="submit" name="save_cms_item" value="Save" />
+		</form>
+	{% else %}
+		<p>The current page does not support editing. Contact the site administrator if you want to edit this page.</p>
+	{% endif %}
 	</div>
 
 	<div id="ostinato_toolbar_toggle"><a href="#">Edit Content</a></div>
 </div>
-
-<script type="text/javascript">
-	$('#ostinato_toolbar_toggle a').click(function() {
-		$('#ostinato_toolbar_content').toggle();
-	});
-</script>
 {% endif %}

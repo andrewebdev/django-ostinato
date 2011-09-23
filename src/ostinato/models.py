@@ -17,7 +17,6 @@ class ContentItem(models.Model, StateMachine):
     location where the content item is located. It will also function
     as a 'meta' model that contains various fields required by any
     standard CMS.
-
     """
     title = models.CharField(max_length=150)
     short_title = models.CharField(max_length=15, null=True, blank=True,

@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from ostinato.models import ContentItem
+from ostinato.forms import ContentItemForm
 
 register = template.Library()
 
@@ -79,11 +80,15 @@ class GetContentItemNode(template.Node):
 # content editor/admin to edit page content, update pages etc.
 #
 @register.inclusion_tag('ostinato/tags/toolbar.html', takes_context=True)
-def ostinato_toolbar(context, allowed_users="is_staff=True"):
+def ostinato_toolbar(context, cms_item, allowed_users="is_staff=True"):
     """
     The ostinato toolbar is a bar that renders basic ostinato functions and
     actions that will allow users to create new pages, edit the meta for
     pages etc.
+
+    ``cms_item`` is the ostinato.ContentItem instance for the current content
+    item. The easiest way to retrieve this in the template is to use the
+    ``get_cmsitem`` template tag.
 
     We can filter what users will have permission to see the toolbar, by
     passing a django querystring to ``allowed_users``. By default, it will only
@@ -100,10 +105,16 @@ def ostinato_toolbar(context, allowed_users="is_staff=True"):
         filter_kwargs[arg[0]] = arg[1]
     if context['user'] in User.objects.filter(**filter_kwargs):
         to_return['user_can_edit'] = True
+        to_return['cms_item_form'] = ContentItemForm(instance=cms_item)
+
+    # Get the ostinato item
+    to_return['cms_item'] = cms_item 
 
     return to_return
 
 """
+    TODO:
+
     New Tag: {% ostinato_zone 'zone_name' %}
 
     This tag will render the content for a specific zone.
@@ -118,10 +129,6 @@ def ostinato_toolbar(context, allowed_users="is_staff=True"):
             'flatpages.flatpage',
             'tehblog.entry',
         ],
-        'renderer': ''
     }]
 
-    * How will we define a renderer?
-    * How will a renderer work?
-        
 """
