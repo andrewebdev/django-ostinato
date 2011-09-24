@@ -1,4 +1,6 @@
 <div class="inner">
+	<p><strong>Note:</strong> This is a demo template. It's higly recommended that you override the <em>contentitem_edit.html</em> and <em>xhr_contentitem_edit.html</em> templates, and customize them within your project.</p>
+
 	<form action="{{ form.instance.get_edit_url }}" method="post" accept-charset="utf-8">{% csrf_token %}
 		{{ form.as_p }}
 		<input type="submit" value="Save">

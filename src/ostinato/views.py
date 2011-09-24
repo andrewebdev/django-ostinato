@@ -1,7 +1,11 @@
 from django.views.generic import TemplateView
+from django.http import HttpResponseRedirect
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required, permission_required
 
 from ostinato.models import ContentItem
 from ostinato.forms import ContentItemForm
+
 
 class AjaxTemplateResponseMixin(object):
     template_name = None
@@ -17,14 +21,25 @@ class ContentItemEdit(AjaxTemplateResponseMixin, TemplateView):
 	template_name = 'ostinato/contentitem_edit.html'
 	xhr_template_name = 'ostinato/xhr_contentitem_edit.html'
 
-	## TODO: Two required decorators
-	# 1. login_required
-	# 2. can_edit permission
+	@method_decorator(permission_required('ostinato.change_contentitem'))
 	def dispatch(self, *args, **kwargs):
-		self.cms_item = ContentItem.objects.get(id=kwargs['id'])
 		return super(ContentItemEdit, self).dispatch(*args, **kwargs)
+
+	def get_context_data(self, **kwargs):
+		self.cms_item = ContentItem.objects.get(id=kwargs['id'])
+		return super(ContentItemEdit, self).get_context_data(**kwargs)
 
 	def get(self, *args, **kwargs):
 		c = self.get_context_data(**kwargs)
-		c['form'] = ContentItemForm(instance=self.cms_item)
+		form = ContentItemForm(instance=self.cms_item)
+		c['form'] = form
+		return self.render_to_response(c)
+
+	def post(self, *args, **kwargs):
+		c = self.get_context_data(**kwargs)
+		form = ContentItemForm(self.request.POST, instance=self.cms_item)
+		if form.is_valid():
+			self.cms_item = form.save()
+			return HttpResponseRedirect(self.cms_item.get_absolute_url())
+		c['form'] = form
 		return self.render_to_response(c)

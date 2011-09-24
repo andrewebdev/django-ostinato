@@ -11,6 +11,7 @@ from tagging.fields import TagField
 from ostinato.managers import ContentItemManager
 from ostinato.statemachine import StateMachine
 
+
 class ContentItem(models.Model, StateMachine):
     """
     This is the main Content Item Class to which will point to the
@@ -75,7 +76,8 @@ class ContentItem(models.Model, StateMachine):
         url.
 
         """
-        if self.location: return "%s" % self.location
+        if self.location:
+            return "%s" % self.location
         try:
             return self.content_object.get_absolute_url()
         except AttributeError:
