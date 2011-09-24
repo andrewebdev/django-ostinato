@@ -81,6 +81,10 @@ class ContentItem(models.Model, StateMachine):
         except AttributeError:
             return None
 
+    @models.permalink
+    def get_edit_url(self):
+        return ('ostinato_contentitem_edit', None, { 'id': self.id, })
+
     def get_short_title(self):
         if self.short_title: return self.short_title
         else: return self.title

@@ -7,7 +7,6 @@
 {% endcomment %}
 
 {% if user_can_edit %}
-<div id="ostinato_toolbar">
 	<div id="ostinato_toolbar_content">
 	{% if cms_item %}
 		<h4>Ostinato Content Editor</h4>
@@ -21,7 +20,4 @@
 		<p>The current page does not support editing. Contact the site administrator if you want to edit this page.</p>
 	{% endif %}
 	</div>
-
-	<div id="ostinato_toolbar_toggle"><a href="#">Edit Content</a></div>
-</div>
 {% endif %}

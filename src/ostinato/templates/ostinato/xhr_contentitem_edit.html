@@ -1,0 +1,6 @@
+<div class="inner">
+	<form action="{{ form.instance.get_edit_url }}" method="post" accept-charset="utf-8">{% csrf_token %}
+		{{ form.as_p }}
+		<input type="submit" value="Save">
+	</form>
+</div>

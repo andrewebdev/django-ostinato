@@ -113,6 +113,13 @@ def ostinato_toolbar(context, cms_item, allowed_users="is_staff=True"):
     return to_return
 
 """
+    NB
+    
+    TODO: Block Template tag that evaluates the allowed_users querystring,
+    and only shows the content inside if it evaluates to True
+"""
+
+"""
     TODO:
 
     New Tag: {% ostinato_zone 'zone_name' %}
