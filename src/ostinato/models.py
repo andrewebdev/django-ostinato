@@ -4,12 +4,22 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-from django.conf import settings
 from django.utils.translation import ugettext as _
+from django.template.defaultfilters import slugify
+from django.conf import settings
 
 from tagging.fields import TagField
 from ostinato.managers import ContentItemManager
 from ostinato.statemachine import StateMachine
+
+
+OSTINATO_HOMEPAGE_SLUG = getattr(settings, 'OSTINATO_HOMEPAGE_SLUG', 'homepage')
+OSTINATO_PAGE_TEMPLATES = getattr(settings, 'OSTINATO_PAGE_TEMPLATES', ({
+    'name': 'basic_page',
+    'template': 'ostinato/basic_page.html',
+},))
+TEMPLATE_CHOICES = [(i['name'], i['name'].replace('_', ' ').capitalize()) \
+                    for i in OSTINATO_PAGE_TEMPLATES]
 
 
 class ContentItem(models.Model, StateMachine):
@@ -20,16 +30,19 @@ class ContentItem(models.Model, StateMachine):
     standard CMS.
     """
     title = models.CharField(max_length=150)
+    slug = models.SlugField(unique=True, help_text="A url friendly slug")
     short_title = models.CharField(max_length=15, null=True, blank=True,
         help_text="A shorter title which can be used in menus etc. If this \
                    is not supplied then the normal title field will be used.")
     description = models.TextField(null=True, blank=True)
+    template = models.CharField(max_length=50,
+        choices=TEMPLATE_CHOICES, default=TEMPLATE_CHOICES[0][0])
 
     tags = TagField()
 
-    allow_comments = models.BooleanField(default=True)
-    show_in_nav = models.BooleanField(default=True)
-    show_in_sitemap = models.BooleanField(default=True)
+    allow_comments = models.BooleanField(default=False)
+    show_in_nav = models.BooleanField(default=False)
+    show_in_sitemap = models.BooleanField(default=False)
     order = models.IntegerField(null=True, blank=True)
 
     location = models.CharField(null=True, blank=True, max_length=250,
@@ -64,24 +77,27 @@ class ContentItem(models.Model, StateMachine):
     def __unicode__(self):
         return "%s" % self.title
 
+    def _get_parents(self):
+        if self.parent:
+            yield self.parent
+            self.parent._get_parents()
+
+    @models.permalink
     def get_absolute_url(self):
-        """
-        The urls are determined by 3 factors and we will look for them in the
-        following order.
+        # Cycle through the parents and generate the path
+        path = []
+        for step in self._get_parents():
+            if step.slug == OSTINATO_HOMEPAGE_SLUG:
+                path.append('')
+            else:
+                path.append(step.slug)
+        return ('ostinato_contentitem_detail', None, {
+            'path': '/'.join(path)})
 
-        1. If we use the location field to return the url, we just load that
-        location directly.
-
-        2. If we find that the objects has a ``get_absolute_url()``, we load that
-        url.
-
-        """
-        if self.location:
-            return "%s" % self.location
-        try:
-            return self.content_object.get_absolute_url()
-        except AttributeError:
-            return None
+    @models.permalink
+    def get_object_url(self):
+        """ Returns the url for the related object """
+        return self.content_object.get_absolute_url()
 
     @models.permalink
     def get_edit_url(self):
@@ -99,3 +115,29 @@ class ContentItem(models.Model, StateMachine):
         elif kwargs['action'] == 'Archive':
             self.allow_comments = False
         super(ContentItem, self).sm_post_action(**kwargs)
+
+    def save(self, *args, **kwargs):
+        # Generate a slug if we dont have one
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super(ContentItem, self).save(*args, **kwargs)
+
+
+class BasicPage(models.Model):
+    """
+    A basic page for the user to create some content. Any instance of the
+    ostinato page model will have a generic relation created in contentitem
+    automatically on save, so it integrates tightly into this.
+    """
+    title = models.CharField(max_length=150)
+    content = models.TextField()
+
+    def __unicode__(self):
+        return self.title
+
+    @models.permalink
+    def get_absolute_url(self, view_name="ostinato_page_view"):
+        return (view_name, None, { 'slug': self.slug })
+
+    def get_edit_url(self):
+        return get_absolute_url('ostinato_page_edit')

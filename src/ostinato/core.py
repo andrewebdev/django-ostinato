@@ -22,14 +22,16 @@ class OstinatoCMS(object):
     @classmethod
     def register(cls, model):
         """
-        Register a model with Ostinato. The registration will do the following:
-            - create a ContentItem instance automatically when the model is saved
+        Register a model with Ostinato. The registration will do the
+        following:
+            - create a ContentItem instance automatically when the
+            model is saved
         """
         # Connect the post_save signal for the model
         global create_contentitem
         if receiver:
             create_contentitem = receiver(post_save,
-                                          sender=model)(create_contentitem)
+                sender=model)(create_contentitem)
         else:
             post_save.connect(create_contentitem, sender=model)
 

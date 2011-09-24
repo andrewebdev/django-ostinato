@@ -1,9 +1,12 @@
 from django.views.generic import TemplateView
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required, permission_required
+from django.conf import settings
 
 from ostinato.models import ContentItem
+from ostinato.models import OSTINATO_HOMEPAGE_SLUG, OSTINATO_PAGE_TEMPLATES
 from ostinato.forms import ContentItemForm
 
 
@@ -15,6 +18,32 @@ class AjaxTemplateResponseMixin(object):
         if self.request.is_ajax():
             self.template_name = self.xhr_template_name
         return super(AjaxTemplateResponseMixin, self).get_template_names()
+
+
+class ContentItemDetail(AjaxTemplateResponseMixin, TemplateView):
+	template_name = None
+	xhr_template_name = None
+	home = False
+
+	def get_context_data(self, **kwargs):
+		c = super(ContentItemDetail, self).get_context_data(**kwargs)
+		if 'path' in kwargs:
+			path = kwargs['path'].split('/')
+			if not path[-1]:
+				path = path[:-1]
+			c['cms_item'] = get_object_or_404(ContentItem, slug=path[-1])
+		else:
+			# Use the home_page template
+			c['cms_item'] = get_object_or_404(
+				ContentItem, slug=OSTINATO_HOMEPAGE_SLUG)
+
+		# Set the templates
+		for template in OSTINATO_PAGE_TEMPLATES:
+			if template['name'] == c['cms_item'].template:
+				self.template_name = template['template']
+				self.xhr_template_name = "xhr_%s" % self.template_name
+				
+		return c
 
 
 class ContentItemEdit(AjaxTemplateResponseMixin, TemplateView):

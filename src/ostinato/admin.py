@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django import forms
 
-from ostinato.models import ContentItem
+from ostinato.models import ContentItem, BasicPage
 
 ## Admin Actions
 def action_allow_comments(modeladmin, request, queryset):
@@ -63,7 +63,8 @@ def statemachine_form(for_model=None):
 class ContentItemAdmin(admin.ModelAdmin):
     form = statemachine_form(for_model=ContentItem)
 
-    list_display = ['title', 'short_title', 'parent', 'order', 'sm_state_admin',
+    list_display = ['title', 'slug', 'short_title', 'parent', 'template',
+                    'order', 'sm_state_admin',
                     'allow_comments', 'show_in_nav',
                     'created_date', 'modified_date', 'publish_date']
     list_filter = ['allow_comments', 'show_in_nav', 'publish_date']
@@ -73,7 +74,8 @@ class ContentItemAdmin(admin.ModelAdmin):
                action_allow_comments, action_disallow_comments]
     fieldsets = (
         (None, {
-            'fields': ('title', 'short_title', 'description', 'order'),
+            'fields': ('title', 'slug', 'short_title', 'description',
+            'template', 'order'),
         }),
         ('Content Properties', {
             'fields': ('parent', 'allow_comments', 'show_in_nav',
@@ -87,3 +89,4 @@ class ContentItemAdmin(admin.ModelAdmin):
 
 ## Admin registrations
 admin.site.register(ContentItem, ContentItemAdmin)
+admin.site.register(BasicPage)
