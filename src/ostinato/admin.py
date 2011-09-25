@@ -69,21 +69,19 @@ class ContentItemAdmin(admin.ModelAdmin):
                     'created_date', 'modified_date', 'publish_date']
     list_filter = ['allow_comments', 'show_in_nav', 'publish_date']
     date_hierarchy = 'created_date'
-    search_fields = ['title', 'short_title', 'description', 'location']
+    search_fields = ['title', 'short_title', 'description']
     actions = [action_show_in_nav, action_dont_show_in_nav,
                action_allow_comments, action_disallow_comments]
     fieldsets = (
         (None, {
             'fields': ('title', 'slug', 'short_title', 'description',
-            'template', 'order'),
+                       'template', 'order'),
         }),
         ('Content Properties', {
-            'fields': ('parent', 'allow_comments', 'show_in_nav',
-                       'tags', 'location')
+            'fields': ('parent', 'allow_comments', 'show_in_nav', 'tags')
         }),
         ('Authoring and Publication', {
-            'fields': ('publish_date', 'authors', 'contributors',
-                       '_sm_action')
+            'fields': ('publish_date', 'authors', 'contributors', '_sm_action')
         }),
     )
 

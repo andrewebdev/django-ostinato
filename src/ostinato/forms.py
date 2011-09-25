@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
-from ostinato.models import ContentItem
+from ostinato.models import ContentItem, OSTINATO_PAGE_TEMPLATES
 
 
 class ContentItemForm(forms.ModelForm):
@@ -22,6 +23,21 @@ class ContentItemForm(forms.ModelForm):
                 actions += ((action, action),)
             self.fields['_sm_action'] = forms.ChoiceField(
                 choices=actions, label="State", required=False)
+            
+            # Set up the available templates, based on the content_object
+            # First filter the available templates
+            choices = []
+            for template in OSTINATO_PAGE_TEMPLATES:
+                for i in template['contenttypes']:
+                    ct_filter = i.split('.')
+                    ct = ContentType.objects.get(
+                        app_label=ct_filter[0], model=ct_filter[1])
+                    if ct == self.instance.content_type:
+                        choices.append((
+                            template['name'],
+                            template['name'].replace('_', ' ').capitalize()
+                        ))
+            self.fields['template'].widget.choices = choices
 
             # Set up any filters for contributors and authors
             if 'allowed_authors' in kwargs:

@@ -6,12 +6,13 @@ from ostinato.models import BasicPage
 
 urlpatterns = patterns('',
 	url(r'^$', ContentItemDetail.as_view(), name="ostinato_home"),
+
+    url(r'^edit/(?P<slug>[-\w]+)/$', ContentItemEdit.as_view(),
+        name="ostinato_contentitem_edit"),
 	
+	# This must be last
 	url(r'^(?P<path>.*)$', ContentItemDetail.as_view(),
 		name="ostinato_contentitem_detail"),
-
-    # url(r'^contentitem/edit/(?P<id>\d+)/$', ContentItemEdit.as_view(),
-    #     name="ostinato_contentitem_edit"),
 )
 
 OstinatoCMS.register(BasicPage)

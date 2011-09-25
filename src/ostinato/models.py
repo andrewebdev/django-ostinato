@@ -16,7 +16,8 @@ from ostinato.statemachine import StateMachine
 OSTINATO_HOMEPAGE_SLUG = getattr(settings, 'OSTINATO_HOMEPAGE_SLUG', 'homepage')
 OSTINATO_PAGE_TEMPLATES = getattr(settings, 'OSTINATO_PAGE_TEMPLATES', ({
     'name': 'basic_page',
-    'template': 'ostinato/basic_page.html',
+    'templates': ['ostinato/basic_page.html', 'ostinato/basic_page_edit.html'],
+    'contenttypes': ['ostinato.basicpage'],
 },))
 TEMPLATE_CHOICES = [(i['name'], i['name'].replace('_', ' ').capitalize()) \
                     for i in OSTINATO_PAGE_TEMPLATES]
@@ -30,13 +31,15 @@ class ContentItem(models.Model, StateMachine):
     standard CMS.
     """
     title = models.CharField(max_length=150)
-    slug = models.SlugField(unique=True, help_text="A url friendly slug")
+    slug = models.SlugField(unique=True,
+        help_text="A url friendly slug. This field must be '%s', if this "\
+                  "field is to be your home page." % OSTINATO_HOMEPAGE_SLUG)
     short_title = models.CharField(max_length=15, null=True, blank=True,
         help_text="A shorter title which can be used in menus etc. If this \
                    is not supplied then the normal title field will be used.")
     description = models.TextField(null=True, blank=True)
-    template = models.CharField(max_length=50,
-        choices=TEMPLATE_CHOICES, default=TEMPLATE_CHOICES[0][0])
+
+    template = models.CharField(max_length=50, choices=TEMPLATE_CHOICES)
 
     tags = TagField()
 
@@ -44,10 +47,6 @@ class ContentItem(models.Model, StateMachine):
     show_in_nav = models.BooleanField(default=False)
     show_in_sitemap = models.BooleanField(default=False)
     order = models.IntegerField(null=True, blank=True)
-
-    location = models.CharField(null=True, blank=True, max_length=250,
-        help_text="The location of the item on the site,\
-                   ie: /article/hello-world/")
 
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
@@ -87,12 +86,10 @@ class ContentItem(models.Model, StateMachine):
         # Cycle through the parents and generate the path
         path = []
         for step in self._get_parents():
-            if step.slug == OSTINATO_HOMEPAGE_SLUG:
-                path.append('')
-            else:
+            if step.slug != OSTINATO_HOMEPAGE_SLUG:
                 path.append(step.slug)
-        return ('ostinato_contentitem_detail', None, {
-            'path': '/'.join(path)})
+        path.append(self.slug)
+        return ('ostinato_contentitem_detail', None, {'path': '/'.join(path)})
 
     @models.permalink
     def get_object_url(self):
@@ -101,7 +98,7 @@ class ContentItem(models.Model, StateMachine):
 
     @models.permalink
     def get_edit_url(self):
-        return ('ostinato_contentitem_edit', None, { 'id': self.id, })
+        return ('ostinato_contentitem_edit', None, {'slug': self.slug})
 
     def get_short_title(self):
         if self.short_title: return self.short_title
@@ -134,10 +131,3 @@ class BasicPage(models.Model):
 
     def __unicode__(self):
         return self.title
-
-    @models.permalink
-    def get_absolute_url(self, view_name="ostinato_page_view"):
-        return (view_name, None, { 'slug': self.slug })
-
-    def get_edit_url(self):
-        return get_absolute_url('ostinato_page_edit')

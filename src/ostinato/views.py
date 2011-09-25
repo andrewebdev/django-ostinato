@@ -10,6 +10,16 @@ from ostinato.models import OSTINATO_HOMEPAGE_SLUG, OSTINATO_PAGE_TEMPLATES
 from ostinato.forms import ContentItemForm
 
 
+def construct_template_names(cms_item, index=0):
+	for template in OSTINATO_PAGE_TEMPLATES:
+		if template['name'] == cms_item.template:
+			template_name = template['templates'][index]
+			template_list = template_name.split('/')
+			template_list[-1] = "xhr_%s" % template_list[-1]
+			xhr_template_name = "/".join(template_list)
+	return template_name, xhr_template_name
+
+
 class AjaxTemplateResponseMixin(object):
     template_name = None
     xhr_template_name = None
@@ -37,25 +47,23 @@ class ContentItemDetail(AjaxTemplateResponseMixin, TemplateView):
 			c['cms_item'] = get_object_or_404(
 				ContentItem, slug=OSTINATO_HOMEPAGE_SLUG)
 
-		# Set the templates
-		for template in OSTINATO_PAGE_TEMPLATES:
-			if template['name'] == c['cms_item'].template:
-				self.template_name = template['template']
-				self.xhr_template_name = "xhr_%s" % self.template_name
-				
+		self.template_name, self.xhr_template_name = \
+			construct_template_names(c['cms_item'])
 		return c
 
 
 class ContentItemEdit(AjaxTemplateResponseMixin, TemplateView):
-	template_name = 'ostinato/contentitem_edit.html'
-	xhr_template_name = 'ostinato/xhr_contentitem_edit.html'
+	template_name = None
+	xhr_template_name = None
 
 	@method_decorator(permission_required('ostinato.change_contentitem'))
 	def dispatch(self, *args, **kwargs):
 		return super(ContentItemEdit, self).dispatch(*args, **kwargs)
 
 	def get_context_data(self, **kwargs):
-		self.cms_item = ContentItem.objects.get(id=kwargs['id'])
+		self.cms_item = ContentItem.objects.get(slug=kwargs['slug'])
+		self.template_name, self.xhr_template_name = \
+			construct_template_names(self.cms_item, 1)
 		return super(ContentItemEdit, self).get_context_data(**kwargs)
 
 	def get(self, *args, **kwargs):
@@ -69,6 +77,9 @@ class ContentItemEdit(AjaxTemplateResponseMixin, TemplateView):
 		form = ContentItemForm(self.request.POST, instance=self.cms_item)
 		if form.is_valid():
 			self.cms_item = form.save()
-			return HttpResponseRedirect(self.cms_item.get_absolute_url())
+			if self.request.is_ajax():
+				return HttpResponse('Ok')
+			else:
+				return HttpResponseRedirect(self.cms_item.get_absolute_url())
 		c['form'] = form
 		return self.render_to_response(c)
