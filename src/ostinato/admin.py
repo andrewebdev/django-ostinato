@@ -78,7 +78,8 @@ class ContentItemAdmin(admin.ModelAdmin):
                        'template', 'order'),
         }),
         ('Content Properties', {
-            'fields': ('parent', 'allow_comments', 'show_in_nav', 'tags')
+            'fields': ('parent', 'location', 'allow_comments',
+                       'show_in_nav', 'tags')
         }),
         ('Authoring and Publication', {
             'fields': ('publish_date', 'authors', 'contributors', '_sm_action')

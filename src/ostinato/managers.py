@@ -40,9 +40,13 @@ class ContentItemManager(models.Manager):
                                                 show_in_nav=True)
         if nav_items:
             for item in nav_items:
+                if item.location:
+                    url = item.location
+                else:
+                    url = item.get_absolute_url()
                 to_return.append({
                     'title': item.get_short_title(),
-                    'url': item.get_absolute_url(),
+                    'url': url,
                 })
         return to_return
 

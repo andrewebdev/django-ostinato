@@ -43,6 +43,10 @@ class ContentItem(models.Model, StateMachine):
 
     tags = TagField()
 
+    location = models.CharField(max_length=200, blank=True, null=True,
+        help_text="Use this to point to pages that does not belong to the CMS"\
+                  " directly.")
+
     allow_comments = models.BooleanField(default=False)
     show_in_nav = models.BooleanField(default=False)
     show_in_sitemap = models.BooleanField(default=False)
