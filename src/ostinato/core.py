@@ -1,5 +1,6 @@
 from django.db.models.signals import post_save
 from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
 
 from ostinato.models import ContentItem
 
@@ -7,6 +8,7 @@ try:
     from django.dispatch import receiver # django 1.3
 except ImportError:
     receiver = None
+
 
 def create_contentitem(sender, **kwargs):
     instance = kwargs['instance']
@@ -17,6 +19,7 @@ def create_contentitem(sender, **kwargs):
         content_type=content_type,
         object_id=instance.id,
     )
+
 
 class OstinatoCMS(object):
     @classmethod
@@ -41,3 +44,16 @@ class OstinatoCMS(object):
         # Disconnect any signal handlers
         global create_contentitem
         post_save.disconnect(create_contentitem, sender=model)
+
+
+def register_apps():
+    """
+    Cycle through all the models in Settings, and register them with
+    ostinato.
+    """
+    OSTINATO_APP_MODELS = getattr(settings, 'OSTINATO_MODELS',
+        ('ostinato.basicpage',))
+    for app_model in OSTINATO_APP_MODELS:
+        app, model_name = app_model.split('.')
+        ct = ContentType.objects.get(app_label=app, model=model_name)
+        OstinatoCMS.register(ct.model_class())

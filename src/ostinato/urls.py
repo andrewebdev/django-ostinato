@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import patterns, include, url
 
-from ostinato.core import OstinatoCMS
+from ostinato.core import register_apps
 from ostinato.views import ContentItemDetail, ContentItemEdit
 from ostinato.models import BasicPage
 
@@ -15,4 +15,4 @@ urlpatterns = patterns('',
 		name="ostinato_contentitem_detail"),
 )
 
-OstinatoCMS.register(BasicPage)
+register_apps()
