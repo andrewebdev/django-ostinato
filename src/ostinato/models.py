@@ -88,6 +88,8 @@ class ContentItem(models.Model, StateMachine):
     @models.permalink
     def get_absolute_url(self):
         # Cycle through the parents and generate the path
+        if self.location:
+            return self.location
         path = []
         for step in self._get_parents():
             if step.slug != OSTINATO_HOMEPAGE_SLUG:
