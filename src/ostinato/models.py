@@ -86,6 +86,9 @@ class ContentItem(models.Model, StateMachine):
             self.parent._get_parents()
 
     @models.permalink
+    def perma_url(self, perma_data):
+        return perma_data
+
     def get_absolute_url(self):
         # Cycle through the parents and generate the path
         if self.location:
@@ -96,7 +99,8 @@ class ContentItem(models.Model, StateMachine):
                 path.append(step.slug)
         if self.slug != OSTINATO_HOMEPAGE_SLUG:
             path.append(self.slug)
-        return ('ostinato_contentitem_detail', None, {'path': '/'.join(path)})
+        return perma_url(('ostinato_contentitem_detail', None,
+            {'path': '/'.join(path)}))
 
     @models.permalink
     def get_object_url(self):
