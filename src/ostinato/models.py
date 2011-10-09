@@ -99,7 +99,7 @@ class ContentItem(models.Model, StateMachine):
                 path.append(step.slug)
         if self.slug != OSTINATO_HOMEPAGE_SLUG:
             path.append(self.slug)
-        return perma_url(('ostinato_contentitem_detail', None,
+        return self.perma_url(('ostinato_contentitem_detail', None,
             {'path': '/'.join(path)}))
 
     @models.permalink
