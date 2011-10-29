@@ -6,10 +6,10 @@ class ContentItemManager(models.Manager):
         """
         A custom create method which will create a new ContentItem,
         that will point directly to another ContentType.
-        
+
         ``object_instance`` will be the item we wish to create a new
         ContentItem instance for.
-        
+
         Once created return the instance of the new content_item.
         """
         ctype = ContentType.objects.get_for_model(object_instance)
@@ -40,13 +40,9 @@ class ContentItemManager(models.Manager):
                                                 show_in_nav=True)
         if nav_items:
             for item in nav_items:
-                if item.location:
-                    url = item.location
-                else:
-                    url = item.get_absolute_url()
                 to_return.append({
                     'title': item.get_short_title(),
-                    'url': url,
+                    'url': item.get_absolute_url(),
                 })
         return to_return
 

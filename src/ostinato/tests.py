@@ -1,175 +1,158 @@
 from django.test import TestCase
-from django.contrib.flatpages.models import FlatPage
 
-from ostinato.models import ContentItem
-from ostinato.core import OstinatoCMS
+from ostinato.models import ContentItem, BasicPage
+from ostinato.core import OstinatoCMS, register_apps
+
 
 class CMSTestCase(TestCase):
+
+    def test_register_and_unregister_model(self):
+        self.assertEquals(0, ContentItem.objects.all().count())
+        OstinatoCMS.register(BasicPage)
+
+        page = BasicPage(title="BasicPage 1", content="BasicPage 1 Content")
+        page.save()
+        self.assertEquals(1, ContentItem.objects.all().count())
+
+        OstinatoCMS.unregister(BasicPage) ## Need this for some cleanup
+        page2 = BasicPage(title="BasicPage 2", content="BasicPage 2 Content")
+        self.assertEquals(1, ContentItem.objects.all().count())
+
+    def test_register_apps(self):
+        register_apps()
+
+        self.assertEquals(0, ContentItem.objects.all().count())
+
+        page = BasicPage(title="page1", content="page 1 content")
+        page.save()
+        self.assertEquals(1, ContentItem.objects.all().count())
+
+        OstinatoCMS.unregister(BasicPage) ## Need this for some cleanup
+
+
+class StateMachineTestCase(TestCase):
+
     def setUp(self):
-        # Create some basic test content
-        self.homepage = FlatPage.objects.create(
-            url="/",
-            title="Home",
-            content="Lorem Ipsum dolor set..."
-        )
-        self.aboutus = FlatPage.objects.create(
-            url="/about-us/",
-            title="About Us",
-            content="Lorem Ipsum dolor set..."
-        )
-        self.contact = FlatPage.objects.create(
-            url="/contact/",
-            title="Contact Us",
-            content="Lorem Ipsum dolor set..."
-        )
-        self.services = FlatPage.objects.create(
-            url="/services/",
-            title="Services",
-            content="Lorem Ipsum dolor set..."
-        )
+        OstinatoCMS.register(BasicPage)
+        page1 = BasicPage.objects.create(
+            title="BasicPage 1", content="Basic Page 1 Content")
+        OstinatoCMS.unregister(BasicPage)
 
-        # Define a standard ContentItem
-        self.os_homepage = ContentItem.objects.create(
-            title="Home",
-            description="The Home Page",
-            location="/",
-        )
-        # Define a ContentItem that points directly to another
-        # ContentType
-        self.os_aboutus = ContentItem.objects.create_for(
-            self.aboutus,
-            title="About Us",
-            short_title="About",
-            description="About Us Page",
-            parent=self.os_homepage,
-        )
-        # One more standard item
-        self.os_contact = ContentItem.objects.create(
-            title="Contact Us",
-            short_title="Contact",
-            description="Contact us page",
-            location="/contact/",
-            parent=self.os_homepage,
-        )
+    def test_content_item_default_state(self):
+        content_item = ContentItem.objects.all()[0]
+        self.assertEqual('Private', content_item.sm_state)
 
-class ContentItemTestCase(CMSTestCase):
-    def testRegistration(self):
-        self.assertEquals(ContentItem.objects.all().count(), 3)
-        OstinatoCMS.register(FlatPage)
-        self.assertEquals(ContentItem.objects.all().count(), 3)
-        self.services.save() # This should now create a new ContentItem
-        self.assertEquals(ContentItem.objects.all().count(), 4)
-        OstinatoCMS.unregister(FlatPage)
+    ## Test Statemachine Actions
 
-    def testURL(self):
-        self.assertEquals(self.os_homepage.get_absolute_url(), '/')
+    ## Statemachine Actions Callbacks
 
-    def testNavBar(self):
-        root = ContentItem.objects.get_navbar()
-        self.assertEquals(
-            root,
-            [{'title': 'Home', 'url': '/'}]
-        )
-        sub = ContentItem.objects.get_navbar(parent=self.os_homepage)
-        self.assertEquals(
-            sub,
-            [{'title': 'About', 'url': '/about-us/'},
-             {'title': 'Contact', 'url': '/contact/'}]
-        )
 
-    def testBreadCrumbs(self):
-        crumbs = ContentItem.objects.get_breadcrumbs(self.os_aboutus)
-        self.assertEquals(
-            crumbs,
-            [{'title': 'Home', 'url': '/', 'current': False},
-             {'title': 'About', 'url': '/about-us/', 'current': True}]
-        )
+class ContentItemTestCase(TestCase):
 
-## Doctests are nice for documentation :)
-__test__ = {
-"doctest": """
+    def setUp(self):
+        OstinatoCMS.register(BasicPage)
 
-First we create some flatpages which will be our content to work with.
+        page1 = BasicPage.objects.create(
+            title="BasicPage 1", content="Basic Page 1 Content")
+        page2 = BasicPage.objects.create(
+            title="BasicPage 2", content="Basic Page 2 Content")
+        page3 = BasicPage.objects.create(
+            title="BasicPage 3", content="Basic Page 3 Content")
 
-    >>> homepage = FlatPage.objects.create(url="/", title="Home",
-    ...     content="Lorem Ipsum dolor set...")
-    >>> aboutus = FlatPage.objects.create(url="/about-us/", title="About Us",
-    ...     content="Lorem Ipsum dolor set...")
-    >>> contact = FlatPage.objects.create(url="/contact/", title="Contact Us",
-    ...     content="Lorem Ipsum dolor set...")
+    def test_content_item_prepopulated_fields(self):
+        """
+        Some of the fields in the content item are guessed and prepopulated
+        from the registered model. Check this here.
+        """
+        content_item = ContentItem.objects.all()[0]
+        self.assertEqual('BasicPage 1', content_item.title)
+        self.assertEqual('basicpage-1', content_item.slug)
 
-We can create ContentItem instances, and specify the location for these
-items.
 
-    >>> os_homepage = ContentItem.objects.create(title="Home",
-    ...     description="The Home Page", location="/")
-    >>> os_contact = ContentItem.objects.create(title="Contact Us",
-    ...     short_title="Contact", description="Contact us page",
-    ...     location="/contact/", parent=os_homepage, order=2)
+# __test__ = {
+# "doctest": """
 
-We can also create a ContentItem that is generically related to another
-ContentType, like a flatpage.
+# First we create some flatpages which will be our content to work with.
 
-    >>> os_aboutus = ContentItem.objects.create_for(aboutus, title="About Us",
-    ...     short_title="About", description="About Us Page",
-    ...     parent=os_homepage)
+#     >>> homepage = FlatPage.objects.create(url="/", title="Home",
+#     ...     content="Lorem Ipsum dolor set...")
+#     >>> aboutus = FlatPage.objects.create(url="/about-us/", title="About Us",
+#     ...     content="Lorem Ipsum dolor set...")
+#     >>> contact = FlatPage.objects.create(url="/contact/", title="Contact Us",
+#     ...     content="Lorem Ipsum dolor set...")
 
-The url for a ContentItem can be looked up using ``get_absolute_url()``
+# We can create ContentItem instances, and specify the location for these
+# items.
 
-    >>> os_homepage.get_absolute_url()
-    '/'
-    >>> os_contact.get_absolute_url()
-    '/contact/'
-    >>> os_aboutus.get_absolute_url()
-    u'/about-us/'
+#     >>> os_homepage = ContentItem.objects.create(title="Home",
+#     ...     description="The Home Page", location="/")
+#     >>> os_contact = ContentItem.objects.create(title="Contact Us",
+#     ...     short_title="Contact", description="Contact us page",
+#     ...     location="/contact/", parent=os_homepage, order=2)
 
-ContentItem.get_absolute_url() is 'smart'. If the ContentItem is
-generically related to another contenttype that has a
-``get_absolute_url()`` method, then it will automatically use the url
-returned from that original method. If it cannot find a
-get_absolute_url() method on the target contenttype, then it will fall
-back to the url specified in the ``location`` field.
+# We can also create a ContentItem that is generically related to another
+# ContentType, like a flatpage.
 
-Ostinato also provides a way to return ContentItems as a Nav, sitemap and
-breadcrumbs.
+#     >>> os_aboutus = ContentItem.objects.create_for(aboutus, title="About Us",
+#     ...     short_title="About", description="About Us Page",
+#     ...     parent=os_homepage)
 
-To get the root navbar you use the manager method ``get_navbar()`` without any
-arguments.
+# The url for a ContentItem can be looked up using ``get_absolute_url()``
 
-    >>> root_nav = ContentItem.objects.get_navbar()
-    >>> root_nav
-    [{'url': u'/', 'title': u'Home'}]
+#     >>> os_homepage.get_absolute_url()
+#     '/'
+#     >>> os_contact.get_absolute_url()
+#     '/contact/'
+#     >>> os_aboutus.get_absolute_url()
+#     u'/about-us/'
 
-We can also request a navbar from a specific level, by passing the
-``ContentItem`` instance as the ``parent`` argument.
+# ContentItem.get_absolute_url() is 'smart'. If the ContentItem is
+# generically related to another contenttype that has a
+# ``get_absolute_url()`` method, then it will automatically use the url
+# returned from that original method. If it cannot find a
+# get_absolute_url() method on the target contenttype, then it will fall
+# back to the url specified in the ``location`` field.
 
-    >>> home_nav = ContentItem.objects.get_navbar(parent=os_homepage)
-    >>> home_nav
-    [{'url': u'/about-us/', 'title': u'About'}, {'url': u'/contact/', 'title': u'Contact'}]
+# Ostinato also provides a way to return ContentItems as a Nav, sitemap and
+# breadcrumbs.
 
-The statemachine.
+# To get the root navbar you use the manager method ``get_navbar()`` without any
+# arguments.
 
-ContentItems come with an attached statemachine so that we can create custom
-workflows.
+#     >>> root_nav = ContentItem.objects.get_navbar()
+#     >>> root_nav
+#     [{'url': u'/', 'title': u'Home'}]
 
-Example API Usage.
+# We can also request a navbar from a specific level, by passing the
+# ``ContentItem`` instance as the ``parent`` argument.
 
-    >>> os_homepage.sm_state
-    u'Private'
-    >>> os_homepage.sm_state_actions()
-    ['Submit', 'Publish']
+#     >>> home_nav = ContentItem.objects.get_navbar(parent=os_homepage)
+#     >>> home_nav
+#     [{'url': u'/about-us/', 'title': u'About'}, {'url': u'/contact/', 'title': u'Contact'}]
 
-We can perform an action on the ContentItem, and it will move to the next state.
-Note that thiss will also send pre- and post action signals which you can use
-for email notifications etc.
+# The statemachine.
 
-    >>> os_homepage.sm_take_action('Submit')
-    >>> os_homepage.sm_state
-    'Review'
-    >>> os_homepage.sm_state_actions()
-    ['Publish', 'Reject']
+# ContentItems come with an attached statemachine so that we can create custom
+# workflows.
 
-If you try perform an action that isn't available to the current state, a
-``InvalidAction`` Exception will be raised.
+# Example API Usage.
 
-"""}
+#     >>> os_homepage.sm_state
+#     u'Private'
+#     >>> os_homepage.sm_state_actions()
+#     ['Submit', 'Publish']
+
+# We can perform an action on the ContentItem, and it will move to the next state.
+# Note that thiss will also send pre- and post action signals which you can use
+# for email notifications etc.
+
+#     >>> os_homepage.sm_take_action('Submit')
+#     >>> os_homepage.sm_state
+#     'Review'
+#     >>> os_homepage.sm_state_actions()
+#     ['Publish', 'Reject']
+
+# If you try perform an action that isn't available to the current state, a
+# ``InvalidAction`` Exception will be raised.
+
+# """}
