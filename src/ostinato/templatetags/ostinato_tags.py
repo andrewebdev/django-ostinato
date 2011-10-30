@@ -34,7 +34,7 @@ def breadcrumbs(content_item):
     If the urlpattern is found, get that item and return it's content_item
     instance.
     """
-    breadcrumbs = ContentItem.objects.get_breadcrumbs(content_item)
+    breadcrumbs = ContentItem.objects.get_breadcrumbs_for(content_item)
     return locals()
 
 

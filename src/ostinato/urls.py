@@ -9,9 +9,9 @@ urlpatterns = patterns('',
 
     url(r'^edit/(?P<slug>[-\w]+)/$', ContentItemEdit.as_view(),
         name="ostinato_contentitem_edit"),
-	
+
 	# This must be last
-	url(r'^(?P<path>.*)$', ContentItemDetail.as_view(),
+	url(r'^(?P<path>.*)/$', ContentItemDetail.as_view(),
 		name="ostinato_contentitem_detail"),
 )
 

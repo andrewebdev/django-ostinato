@@ -80,10 +80,12 @@ class ContentItem(models.Model, StateMachine):
     def __unicode__(self):
         return "%s" % self.title
 
+    ## TODO: This operation may be expensive? Cache this in some way?
     def _get_parents(self):
         if self.parent:
+            for p in self.parent._get_parents():
+                yield p
             yield self.parent
-            self.parent._get_parents()
 
     @models.permalink
     def perma_url(self, perma_data):
@@ -94,9 +96,9 @@ class ContentItem(models.Model, StateMachine):
         if self.location:
             return self.location
         path = []
-        for step in self._get_parents():
-            if step.slug != OSTINATO_HOMEPAGE_SLUG:
-                path.append(step.slug)
+        for parent in self._get_parents():
+            if parent.slug != OSTINATO_HOMEPAGE_SLUG:
+                path.append(parent.slug)
         if self.slug != OSTINATO_HOMEPAGE_SLUG:
             path.append(self.slug)
         return self.perma_url(('ostinato_contentitem_detail', None,

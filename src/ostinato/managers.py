@@ -14,26 +14,24 @@ class ContentItemManager(models.Manager):
         """
         ctype = ContentType.objects.get_for_model(object_instance)
         content_item = self.get_query_set().create(
-            content_type=ctype,
-            object_id=object_instance.id,
-            **kwargs
-        )
+            content_type=ctype, object_id=object_instance.id, **kwargs)
         content_item.save()
         return content_item
 
-    def _get_parents(self, item):
-        if item.parent:
-            yield item.parent
-            self._get_parents(item.parent)
+    ## TODO: This operation may be expensive. Cache in some way?
+    def _get_parents(self, content_item):
+        if content_item.parent:
+            for p in self._get_parents(content_item.parent):
+                yield p
+            yield content_item.parent
 
-    def get_navbar(self, parent=None, depth=0):
+    def get_navbar(self, parent=None):
         """
         Returns a dictionary of items with their titles and urls.
 
         ``parent`` is an instance of ContentItem. If specified, will only
         return items that has ``parent`` set as the ``parent`` for that
         item.
-
         """
         to_return = []
         nav_items = self.get_query_set().filter(parent=parent,
@@ -46,12 +44,11 @@ class ContentItemManager(models.Manager):
                 })
         return to_return
 
-    def get_breadcrumbs(self, content_item):
+    def get_breadcrumbs_for(self, content_item):
         """
         Returns the breadcrumbs for the current ``content_item``
         The returned value is a list containing a dictionary for each
         item.
-
         """
         to_return = []
         parents = [parent for parent in self._get_parents(content_item)]
