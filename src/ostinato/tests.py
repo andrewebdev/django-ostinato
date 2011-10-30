@@ -94,6 +94,11 @@ class ContentItemTestCase(TestCase):
     def test_get_absolute_url(self):
         self.assertEqual('/basicpage-1/', self.content_item.get_absolute_url())
 
+    def test_homepage_url(self):
+        homepage = BasicPage.objects.create(title='HomePage', content='Homepage')
+        homeitem = ContentItem.objects.get_for(homepage)
+        self.assertEqual('/', homeitem.get_absolute_url())
+
     def test_get_edit_url(self):
         self.assertEqual('/edit/basicpage-1/', self.content_item.get_edit_url())
 
@@ -133,6 +138,10 @@ class ContentItemManagerTestCase(TestCase):
     def test_correct_parents(self):
         self.assertEqual(self.content_item1, self.content_item2.parent)
         self.assertEqual(self.content_item2, self.content_item3.parent)
+
+    def test_get_for(self):
+        page = BasicPage.objects.get(id=1)
+        self.assertEqual(self.content_item1, ContentItem.objects.get_for(page))
 
     def test_get_parents(self):
         parents = [p for p in ContentItem.objects._get_parents(self.content_item3)]

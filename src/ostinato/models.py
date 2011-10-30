@@ -95,6 +95,8 @@ class ContentItem(models.Model, StateMachine):
         # Cycle through the parents and generate the path
         if self.location:
             return self.location
+        if self.slug == OSTINATO_HOMEPAGE_SLUG:
+            return '/'
         path = []
         for parent in self._get_parents():
             if parent.slug != OSTINATO_HOMEPAGE_SLUG:

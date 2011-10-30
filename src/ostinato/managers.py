@@ -18,6 +18,12 @@ class ContentItemManager(models.Manager):
         content_item.save()
         return content_item
 
+    def get_for(self, object_instance):
+        """ Returns the ContentItem instance for ``object_instance`` """
+        ctype = ContentType.objects.get_for_model(object_instance)
+        return self.get_query_set().get(
+            content_type=ctype, object_id=object_instance.id)
+
     ## TODO: This operation may be expensive. Cache in some way?
     def _get_parents(self, content_item):
         if content_item.parent:
@@ -34,8 +40,7 @@ class ContentItemManager(models.Manager):
         item.
         """
         to_return = []
-        nav_items = self.get_query_set().filter(parent=parent,
-                                                show_in_nav=True)
+        nav_items = self.get_query_set().filter(parent=parent, show_in_nav=True)
         if nav_items:
             for item in nav_items:
                 to_return.append({
