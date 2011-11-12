@@ -15,10 +15,10 @@ def create_contentitem(sender, **kwargs):
     content_type = ContentType.objects.get_for_model(instance)
     title = getattr(instance, 'title', repr(instance))
     content_item, created = ContentItem.objects.get_or_create(
-        title=title,
-        content_type=content_type,
-        object_id=instance.id,
-    )
+        content_type=content_type, object_id=instance.id)
+    if created:
+        content_item.title = title
+        content_item.save()
 
 
 class OstinatoCMS(object):
