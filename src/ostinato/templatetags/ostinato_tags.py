@@ -135,7 +135,7 @@ class ContentMod(object):
     def __getitem__(self, what):
         for func in self._modifiers:
             if func['name'] == what: return func['func']
-        return super(ContentMod, self).__getattr__(what)
+        raise Exception('%s is not a valid Content Modifier' % what)
 
 
 @register.filter(name='modify')
