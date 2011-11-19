@@ -1,0 +1,26 @@
+[
+    {
+        "pk": 1,
+        "model": "ostinato.contentitem",
+        "fields": {
+            "title": "Ostinato Content Item 1",
+            "slug": "ostinato-content-item-1",
+            "template": "basic_page",
+            "description": "Ostinato Content Item 1 Description",
+            "location": "/",
+            "created_date": "2011-11-18 22:00:00"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "ostinato.contentitem",
+        "fields": {
+            "title": "Ostinato Content Item 2",
+            "slug": "ostinato-content-item-2",
+            "template": "basic_page",
+            "description": "Ostinato Content Item 2 Description",
+            "location": "/",
+            "created_date": "2011-11-18 22:00:00"
+        }
+    }
+]
