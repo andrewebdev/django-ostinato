@@ -1,6 +1,20 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+from django.dispatch import Signal
+
+
+class InvalidAction(Exception):
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+sm_pre_action = Signal(providing_args=['action', 'user'])
+sm_post_action = Signal(providing_args=['action', 'user'])
 
 
 class StateMachineBase(models.Model):
@@ -23,7 +37,13 @@ class StateMachineBase(models.Model):
 
     def take_action(self, action):
         if action in self.get_actions():
+            sm_pre_action.send(sender=self, instance=self, action=action)
             self.state = self.SMOptions.action_targets[action]
+            self.save()
+            sm_post_action.send(sender=self, instance=self, action=action)
+        else:
+            raise InvalidAction('%s is not a valid action. Actions are (%s)' % (
+                action, ', '.join(self.get_actions())))
 
 
 class DefaultStateMachine(StateMachineBase):

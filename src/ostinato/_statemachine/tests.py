@@ -3,6 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from ostinato.models import ContentItem
 from ostinato._statemachine.models import StateMachineBase, DefaultStateMachine
+from ostinato._statemachine.models import InvalidAction
+from ostinato._statemachine.models import sm_pre_action, sm_post_action
 
 
 class StateMachineBaseModelTestCase(TestCase):
@@ -89,8 +91,61 @@ class DefaultStateMachineTestCase(TestCase):
         self.assertEqual(available_actions, self.sm.get_actions())
 
     def test_statemachine_take_action(self):
+        self.sm.state = 'private'
+        self.sm.save()
         self.sm.take_action('can_publish')
         self.assertEqual('published', self.sm.state)
 
     def test_invalid_action(self):
-        self.assertTrue(False)
+        with self.assertRaises(InvalidAction):
+            self.sm.take_action('invalid')
+
+
+class StateMachineSignalsTestCase(TestCase):
+
+    fixtures = ['ostinato_test_fixtures.json']
+
+    def setUp(self):
+        self.content_item_type = ContentType.objects.get(
+            app_label='ostinato', model='contentitem')
+
+        self.sm = DefaultStateMachine.objects.create(
+            state='private', content_type=self.content_item_type, object_id=1)
+        self.sm.save()
+
+    def test_pre_action_signal(self):
+
+        signal_resp = {}
+        expected_resp = {
+            'action': 'can_submit',
+            'instance': self.sm
+        }
+
+        def signal_listner(sender, instance, **kwargs):
+            signal_resp.update({
+                'action': kwargs['action'], 'instance': instance})
+
+        # Connect and send
+        sm_pre_action.connect(signal_listner, sender=self.sm)
+        self.sm.take_action('can_submit')
+
+        self.assertEqual(expected_resp, signal_resp)
+
+    def test_post_action_signal(self):
+        
+        signal_resp = {}
+        expected_resp = {
+            'action': 'can_publish',
+            'instance': self.sm,
+            'new_state': 'published'
+        }
+
+        def signal_listner(sender, instance, **kwargs):
+            signal_resp.update({
+                'action': kwargs['action'], 'instance': instance,
+                'new_state': instance.state
+            })
+
+        sm_post_action.connect(signal_listner, sender=self.sm)
+        self.sm.take_action('can_publish')
+        self.assertEqual(expected_resp, signal_resp)
