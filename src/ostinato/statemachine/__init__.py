@@ -1,5 +1,14 @@
+import warnings
+
+"""
+    PENDING DEPRECATION:
+    This is the old statemachine kept here for backwards copmatability. This
+    will however be removed in future.
+"""
+
 from django.dispatch import Signal
 from django.conf import settings
+
 
 class InvalidAction(Exception):
     def __init__(self, value):
@@ -111,3 +120,4 @@ class StateMachine(object):
     def sm_state_admin(self):
         return self.sm_state
     sm_state_admin.description = "The current state for the items"
+

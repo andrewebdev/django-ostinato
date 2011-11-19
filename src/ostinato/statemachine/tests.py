@@ -1,10 +1,12 @@
 from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
+from django.template import Context
 
 from ostinato.models import ContentItem
-from ostinato.statemachine.models import StateMachineBase, DefaultStateMachine
-from ostinato.statemachine.models import InvalidAction
-from ostinato.statemachine.models import sm_pre_action, sm_post_action
+from models import StateMachineBase, DefaultStateMachine
+from models import InvalidAction
+from models import sm_pre_action, sm_post_action
+from templatetags.statemachine_tags import GetStateMachineNode
 
 
 class StateMachineBaseModelTestCase(TestCase):
@@ -48,11 +50,15 @@ class DefaultStateMachineTestCase(TestCase):
             app_label='ostinato', model='contentitem')
 
         self.sm = DefaultStateMachine.objects.create(
-            state='private', content_type=self.content_item_type, object_id=1)
+            content_type=self.content_item_type, object_id=1)
         self.sm.save()
 
     def test_default_statemachine_exists(self):
         pass  # This is basically done in setUp()
+
+    def test_initial_state(self):
+        self.assertEqual('private', DefaultStateMachine.SMOptions.initial_state)
+        self.assertEqual('private', self.sm.state)
 
     def test_statemachine_permissions(self):
         expected_permissions = (
@@ -149,3 +155,28 @@ class StateMachineSignalsTestCase(TestCase):
         sm_post_action.connect(signal_listner, sender=self.sm)
         self.sm.take_action('can_publish')
         self.assertEqual(expected_resp, signal_resp)
+
+
+class StateMachineManagerTestCase(TestCase):
+
+    fixtures = ['ostinato_test_fixtures.json']
+
+    def test_get_statemachine(self):
+        sm = DefaultStateMachine.objects.get_statemachine(
+            ContentItem.objects.get(id=1))
+        self.assertEqual(1, DefaultStateMachine.objects.all().count())
+
+
+class GetStateMachineTemplateTagTestCase(TestCase):
+
+    fixtures = ['ostinato_test_fixtures.json']
+
+    def test_template_tag_adds_statemachine_to_context(self):
+        sm_tag_node = GetStateMachineNode(
+            'statemachine.defaultstatemachine', ContentItem.objects.get(id=1))
+        context = Context()
+        sm_tag_node.render(context)
+
+        self.assertIn('statemachine', context)
+        self.assertEqual('private', context['statemachine'].state)
+

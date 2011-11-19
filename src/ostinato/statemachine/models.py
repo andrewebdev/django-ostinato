@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.dispatch import Signal
 
+from managers import StateMachineManager
 
 class InvalidAction(Exception):
 
@@ -25,12 +26,19 @@ class StateMachineBase(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
+    objects = StateMachineManager()
+
     class Meta:
         unique_together = (('content_type', 'object_id'),)
         abstract = True
 
     def __unicode__(self):
         return '%s, %d (%s)' % (self.content_type.name, self.object_id, self.state)
+
+    def save(self, *args, **kwargs):
+        if not self.state:
+            self.state = self.SMOptions.initial_state
+        return super(StateMachineBase, self).save(*args, **kwargs)
 
     def get_actions(self):
         return self.SMOptions.state_actions[self.state]
@@ -63,6 +71,7 @@ class DefaultStateMachine(StateMachineBase):
         )
 
     class SMOptions:
+        initial_state = 'private'
         state_actions = {
             'private': ('can_submit', 'can_publish'),
             'review': ('can_publish', 'can_reject'),
