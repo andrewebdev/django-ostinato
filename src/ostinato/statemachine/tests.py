@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
-from django.template import Context
+from django.template import Context, Template
+from django.template.response import SimpleTemplateResponse
 
 from ostinato.models import ContentItem
 from models import StateMachineBase, DefaultStateMachine
@@ -171,12 +172,8 @@ class GetStateMachineTemplateTagTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json']
 
-    def test_template_tag_adds_statemachine_to_context(self):
-        sm_tag_node = GetStateMachineNode(
-            'statemachine.defaultstatemachine', ContentItem.objects.get(id=1))
-        context = Context()
-        sm_tag_node.render(context)
-
-        self.assertIn('statemachine', context)
-        self.assertEqual('private', context['statemachine'].state)
-
+    def test_template_tag_renders(self):
+        template = Template('{% load statemachine_tags %}{% get_statemachine statemachine.defaultstatemachine for item %}{{ statemachine.state }}')
+        context = Context({'item': ContentItem.objects.get(id=1)})
+        response = template.render(context) 
+        self.assertEqual('private', response)
