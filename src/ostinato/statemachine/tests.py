@@ -2,9 +2,9 @@ from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
 
 from ostinato.models import ContentItem
-from ostinato._statemachine.models import StateMachineBase, DefaultStateMachine
-from ostinato._statemachine.models import InvalidAction
-from ostinato._statemachine.models import sm_pre_action, sm_post_action
+from ostinato.statemachine.models import StateMachineBase, DefaultStateMachine
+from ostinato.statemachine.models import InvalidAction
+from ostinato.statemachine.models import sm_pre_action, sm_post_action
 
 
 class StateMachineBaseModelTestCase(TestCase):
