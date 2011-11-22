@@ -10,6 +10,12 @@ from django.dispatch import Signal
 from django.conf import settings
 
 
+warnings.simplefilter('always')
+warnings.warn(
+    'Statemachine Mixin will be replaced with the new ostinato.statemachine app',
+    PendingDeprecationWarning)
+
+
 class InvalidAction(Exception):
     def __init__(self, value):
         self.value = value
