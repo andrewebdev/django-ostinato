@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template
 from django.template.response import SimpleTemplateResponse
@@ -63,49 +64,73 @@ class DefaultStateMachineTestCase(TestCase):
 
     def test_statemachine_permissions(self):
         expected_permissions = (
-            ('can_submit', 'Can submit for review'),
-            ('can_reject', 'Can reject'),
-            ('can_publish', 'Can publish'),
-            ('can_retract', 'Can retract'),
-            ('can_archive', 'Can archive'),
+            ('submit', 'Can submit for review'),
+            ('reject', 'Can reject'),
+            ('publish', 'Can publish'),
+            ('retract', 'Can retract'),
+            ('archive', 'Can archive'),
         )
         self.assertEqual(expected_permissions,
             DefaultStateMachine._meta.permissions)
 
     def test_statemachine(self):
         state_actions = {
-            'private': ('can_submit', 'can_publish'),
-            'review': ('can_publish', 'can_reject'),
-            'published': ('can_retract', 'can_archive'),
-            'archived': ('can_retract',),
+            'private': ('submit', 'publish'),
+            'review': ('publish', 'reject'),
+            'published': ('retract', 'archive'),
+            'archived': ('retract',),
         }
         self.assertEqual(state_actions,
             DefaultStateMachine.SMOptions.state_actions)
 
     def test_action_targets(self):
         action_targets = {
-            'can_submit': 'review',
-            'can_reject': 'private',
-            'can_publish': 'published',
-            'can_retract': 'private',
-            'can_archive': 'archived',
+            'submit': 'review',
+            'reject': 'private',
+            'publish': 'published',
+            'retract': 'private',
+            'archive': 'archived',
         }
         self.assertEqual(action_targets,
             DefaultStateMachine.SMOptions.action_targets)
 
     def test_statemachine_available_actions(self):
-        available_actions = ('can_submit', 'can_publish')
+        available_actions = ('submit', 'publish')
         self.assertEqual(available_actions, self.sm.get_actions())
 
     def test_statemachine_take_action(self):
         self.sm.state = 'private'
         self.sm.save()
-        self.sm.take_action('can_publish')
+        self.sm.take_action('publish')
         self.assertEqual('published', self.sm.state)
 
     def test_invalid_action(self):
         with self.assertRaises(InvalidAction):
             self.sm.take_action('invalid')
+
+    def test_admin_permissions_exist(self):
+        ct = ContentType.objects.get(app_label='statemachine',
+            model='defaultstatemachine')
+
+        perms = list(Permission.objects.filter(content_type=ct)\
+            .values_list('codename', flat=True))
+
+        ## Django returns this ordered by codename
+        expected_perms = [
+            # Django automatically adds the first 3
+            u'add_defaultstatemachine',
+            u'archive',
+            u'change_defaultstatemachine',
+            u'delete_defaultstatemachine',
+
+            # These are our permissions
+            u'publish',
+            u'reject',
+            u'retract',
+            u'submit',
+        ]
+
+        self.assertListEqual(expected_perms, perms)
 
 
 class StateMachineSignalsTestCase(TestCase):
@@ -124,7 +149,7 @@ class StateMachineSignalsTestCase(TestCase):
 
         signal_resp = {}
         expected_resp = {
-            'action': 'can_submit',
+            'action': 'submit',
             'instance': self.sm
         }
 
@@ -134,7 +159,7 @@ class StateMachineSignalsTestCase(TestCase):
 
         # Connect and send
         sm_pre_action.connect(signal_listner, sender=self.sm)
-        self.sm.take_action('can_submit')
+        self.sm.take_action('submit')
 
         self.assertEqual(expected_resp, signal_resp)
 
@@ -142,7 +167,7 @@ class StateMachineSignalsTestCase(TestCase):
         
         signal_resp = {}
         expected_resp = {
-            'action': 'can_publish',
+            'action': 'publish',
             'instance': self.sm,
             'new_state': 'published'
         }
@@ -154,7 +179,7 @@ class StateMachineSignalsTestCase(TestCase):
             })
 
         sm_post_action.connect(signal_listner, sender=self.sm)
-        self.sm.take_action('can_publish')
+        self.sm.take_action('publish')
         self.assertEqual(expected_resp, signal_resp)
 
 

@@ -63,25 +63,25 @@ class DefaultStateMachine(StateMachineBase):
         'actions' that can be taken on the statemachine, by the user.
         """
         permissions = (
-            ('can_submit', 'Can submit for review'),
-            ('can_reject', 'Can reject'),
-            ('can_publish', 'Can publish'),
-            ('can_retract', 'Can retract'),
-            ('can_archive', 'Can archive'),
+            ('submit', 'Can submit for review'),
+            ('reject', 'Can reject'),
+            ('publish', 'Can publish'),
+            ('retract', 'Can retract'),
+            ('archive', 'Can archive'),
         )
 
     class SMOptions:
         initial_state = 'private'
         state_actions = {
-            'private': ('can_submit', 'can_publish'),
-            'review': ('can_publish', 'can_reject'),
-            'published': ('can_retract', 'can_archive'),
-            'archived': ('can_retract',)
+            'private': ('submit', 'publish'),
+            'review': ('publish', 'reject'),
+            'published': ('retract', 'archive'),
+            'archived': ('retract',)
         }
         action_targets = {
-            'can_submit': 'review',
-            'can_reject': 'private',
-            'can_publish': 'published',
-            'can_retract': 'private',
-            'can_archive': 'archived'
+            'submit': 'review',
+            'reject': 'private',
+            'publish': 'published',
+            'retract': 'private',
+            'archive': 'archived'
         }
