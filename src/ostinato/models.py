@@ -10,7 +10,7 @@ from django.conf import settings
 
 from tagging.fields import TagField
 from ostinato.managers import ContentItemManager
-from ostinato.statemachine import StateMachine
+from ostinato.statemachine.models import StateMachineField, DefaultStateMachine
 
 
 OSTINATO_HOMEPAGE_SLUG = getattr(settings, 'OSTINATO_HOMEPAGE_SLUG', 'homepage')
@@ -23,7 +23,7 @@ TEMPLATE_CHOICES = [(i['name'], i['name'].replace('_', ' ').capitalize()) \
                     for i in OSTINATO_PAGE_TEMPLATES]
 
 
-class ContentItem(models.Model, StateMachine):
+class ContentItem(models.Model):
     """
     This is the main Content Item Class to which will point to the
     location where the content item is located. It will also function
@@ -62,17 +62,15 @@ class ContentItem(models.Model, StateMachine):
         related_name="contentitems_contributed")
     parent = models.ForeignKey('self', null=True, blank=True)
 
-    # Required field for the statemachine
-    _sm_state = models.CharField(max_length=100, default='Private')
-
     # Our ContentItem relations, these may be omitted, in which case only
     # the location field will be used.
     content_type = models.ForeignKey(ContentType, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-    # Custom Managers
+    # Custom Managers and Virtual Fields
     objects = ContentItemManager()
+    statemachine = StateMachineField(DefaultStateMachine)
 
     class Meta:
         ordering = ['order', 'id', 'title']
@@ -119,22 +117,17 @@ class ContentItem(models.Model, StateMachine):
         if self.short_title: return self.short_title
         else: return self.title
 
-    ## Statemachine Actions
-    def sm_post_action(self, **kwargs):
-        """ Override so that we can set the publish date """
-        if kwargs['action'] == 'Publish':
-            self.publish_date = datetime.now()
-
-        elif kwargs['action'] == 'Archive':
-            self.allow_comments = False
-
-        super(ContentItem, self).sm_post_action(**kwargs)
-
     def save(self, *args, **kwargs):
         # Generate a slug if we dont have one
         if not self.slug:
             self.slug = slugify(self.title)
         super(ContentItem, self).save(*args, **kwargs)
+
+    def pre_action(self):
+        pass
+
+    def post_action(self):
+        pass
 
 
 class BasicPage(models.Model):
@@ -148,3 +141,4 @@ class BasicPage(models.Model):
 
     def __unicode__(self):
         return self.title
+

@@ -54,6 +54,28 @@ class StateMachineBase(models.Model):
                 action, ', '.join(self.get_actions())))
 
 
+class StateMachineField(object):
+    """
+    A custom field that can be added to a model to create a statemachine.
+    """
+    def __init__(self, statemachine_cls):
+        self.statemachine_cls = statemachine_cls
+
+    def contribute_to_class(self, cls, name):
+        setattr(cls, name, self)
+
+        self.name = name
+        self.model = cls
+        self.cache_attr = '_%s_cache' % name
+
+        cls._meta.add_virtual_field(self)
+
+    def __get__(self, instance, instance_type=None):
+        if instance is None:
+            return self
+        return self.statemachine_cls.objects.get_statemachine(instance)
+
+
 class DefaultStateMachine(StateMachineBase):
 
     class Meta:

@@ -16,3 +16,4 @@ class StateMachineManager(models.Manager):
             content_type=ctype, object_id=object_instance.id)
         statemachine.save()
         return statemachine
+

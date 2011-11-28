@@ -33,29 +33,6 @@ class CMSTestCase(TestCase):
         OstinatoCMS.unregister(BasicPage) ## Need this for some cleanup
 
 
-class StateMachineTestCase(TestCase):
-
-    def setUp(self):
-        OstinatoCMS.register(BasicPage)
-        page1 = BasicPage.objects.create(
-            title="BasicPage 1", content="Basic Page 1 Content")
-        OstinatoCMS.unregister(BasicPage)
-
-        self.content_item = ContentItem.objects.all()[0]
-
-    def test_content_item_default_state(self):
-        self.assertEqual('Private', self.content_item.sm_state)
-
-    def test_statemachine_take_action(self):
-        self.content_item.sm_take_action('Submit')
-        self.assertEqual('Review', self.content_item.sm_state)
-
-    def test_publish_date_changed_after_publish_action(self):
-        self.assertEqual(None, self.content_item.publish_date)
-        self.content_item.sm_take_action('Publish')
-        self.assertNotEqual(None, self.content_item.publish_date)
-
-
 class ContentItemTestCase(TestCase):
 
     urls = 'ostinato.urls'

@@ -1,11 +1,12 @@
 from django.test import TestCase
+from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template
 from django.template.response import SimpleTemplateResponse
 
 from ostinato.models import ContentItem
-from models import StateMachineBase, DefaultStateMachine
+from models import StateMachineBase, DefaultStateMachine, StateMachineField
 from models import InvalidAction
 from models import sm_pre_action, sm_post_action
 from templatetags.statemachine_tags import GetStateMachineNode
@@ -181,6 +182,48 @@ class StateMachineSignalsTestCase(TestCase):
         sm_post_action.connect(signal_listner, sender=self.sm)
         self.sm.take_action('publish')
         self.assertEqual(expected_resp, signal_resp)
+
+
+class _DummyModel(models.Model):
+    name = models.CharField(max_length=50)
+    pre = models.BooleanField(default=False)
+    post = models.BooleanField(default=False)
+    statemachine = StateMachineField(DefaultStateMachine)
+
+    def pre_action(self):
+        pass
+
+    def post_action(self):
+        pass
+
+
+class StateMachineFieldTestCase(TestCase):
+
+    fixtures = ['ostinato_test_fixtures.json']
+
+    def setUp(self):
+        self.dummy = _DummyModel(name="Dummy 1")
+        self.dummy.save()
+
+    def test_statemachine_field_exists(self):
+        field = StateMachineField(DefaultStateMachine)
+
+    def test_can_get_statemachine_from_field(self):
+        self.assertEqual('private', self.dummy.statemachine.state)
+
+    def test_can_take_actions(self):
+        self.dummy.statemachine.take_action('publish')
+        self.assertEqual('published', self.dummy.statemachine.state)
+
+    def test_pre_action_handler(self):
+        self.dummy.statemachine.take_action('publish')
+        self.assertTrue(self.dummy.pre)
+        self.assertFalse(self.dummy.post)
+
+    def test_post_action_handler(self):
+        self.dummy.statemachine.take_action('submit')
+        self.assertFalse(self.dummy.pre)
+        self.assertTrue(self.dummy.post)
 
 
 class StateMachineManagerTestCase(TestCase):
