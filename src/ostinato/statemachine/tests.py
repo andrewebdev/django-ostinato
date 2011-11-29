@@ -190,12 +190,6 @@ class _DummyModel(models.Model):
     post = models.BooleanField(default=False)
     statemachine = StateMachineField(DefaultStateMachine)
 
-    def pre_action(self):
-        pass
-
-    def post_action(self):
-        pass
-
 
 class StateMachineFieldTestCase(TestCase):
 
@@ -214,16 +208,6 @@ class StateMachineFieldTestCase(TestCase):
     def test_can_take_actions(self):
         self.dummy.statemachine.take_action('publish')
         self.assertEqual('published', self.dummy.statemachine.state)
-
-    def test_pre_action_handler(self):
-        self.dummy.statemachine.take_action('publish')
-        self.assertTrue(self.dummy.pre)
-        self.assertFalse(self.dummy.post)
-
-    def test_post_action_handler(self):
-        self.dummy.statemachine.take_action('submit')
-        self.assertFalse(self.dummy.pre)
-        self.assertTrue(self.dummy.post)
 
 
 class StateMachineManagerTestCase(TestCase):
