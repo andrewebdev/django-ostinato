@@ -118,7 +118,6 @@ class DefaultStateMachineTestCase(TestCase):
 
         ## Django returns this ordered by codename
         expected_perms = [
-            # Django automatically adds the first 3
             u'add_defaultstatemachine',
             u'archive',
             u'change_defaultstatemachine',
@@ -148,40 +147,26 @@ class StateMachineSignalsTestCase(TestCase):
 
     def test_pre_action_signal(self):
 
-        signal_resp = {}
-        expected_resp = {
-            'action': 'submit',
-            'instance': self.sm
-        }
-
-        def signal_listner(sender, instance, **kwargs):
-            signal_resp.update({
-                'action': kwargs['action'], 'instance': instance})
+        def signal_listner(sender, **kwargs):
+            sender.content_object.show_in_nav = True
+            sender.content_object.save()
 
         # Connect and send
-        sm_pre_action.connect(signal_listner, sender=self.sm)
-        self.sm.take_action('submit')
+        sm_pre_action.connect(signal_listner)
 
-        self.assertEqual(expected_resp, signal_resp)
+        self.sm.take_action('submit')
+        self.assertTrue(ContentItem.objects.get(id=1).show_in_nav)
 
     def test_post_action_signal(self):
-        
-        signal_resp = {}
-        expected_resp = {
-            'action': 'publish',
-            'instance': self.sm,
-            'new_state': 'published'
-        }
 
-        def signal_listner(sender, instance, **kwargs):
-            signal_resp.update({
-                'action': kwargs['action'], 'instance': instance,
-                'new_state': instance.state
-            })
+        def signal_listner(sender, **kwargs):
+            sender.content_object.show_in_nav = True
+            sender.content_object.save()
 
-        sm_post_action.connect(signal_listner, sender=self.sm)
+        sm_post_action.connect(signal_listner)
+
         self.sm.take_action('publish')
-        self.assertEqual(expected_resp, signal_resp)
+        self.assertTrue(ContentItem.objects.get(id=1).show_in_nav)
 
 
 class _DummyModel(models.Model):

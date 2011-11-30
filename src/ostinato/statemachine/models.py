@@ -14,8 +14,8 @@ class InvalidAction(Exception):
         return repr(self.value)
 
 
-sm_pre_action = Signal(providing_args=['action', 'user'])
-sm_post_action = Signal(providing_args=['action', 'user'])
+sm_pre_action = Signal(providing_args=['action'])
+sm_post_action = Signal(providing_args=['action', 'old_state'])
 
 
 class StateMachineBase(models.Model):
@@ -45,10 +45,15 @@ class StateMachineBase(models.Model):
 
     def take_action(self, action):
         if action in self.get_actions():
-            sm_pre_action.send(sender=self, instance=self, action=action)
+
+            sm_pre_action.send(sender=self, action=action)
+
+            old_state = self.state
             self.state = self.SMOptions.action_targets[action]
             self.save()
-            sm_post_action.send(sender=self, instance=self, action=action)
+
+            sm_post_action.send(sender=self, action=action, old_state=old_state)
+
         else:
             raise InvalidAction('%s is not a valid action. Actions are (%s)' % (
                 action, ', '.join(self.get_actions())))
