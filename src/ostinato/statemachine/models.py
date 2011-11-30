@@ -43,6 +43,11 @@ class StateMachineBase(models.Model):
     def get_actions(self):
         return self.SMOptions.state_actions[self.state]
 
+    def get_action_display(self, action):
+        for i in self._meta.permissions:
+            if i[0] == action:
+                return i[1]
+
     def take_action(self, action):
         if action in self.get_actions():
 

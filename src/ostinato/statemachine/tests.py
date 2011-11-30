@@ -99,6 +99,10 @@ class DefaultStateMachineTestCase(TestCase):
         available_actions = ('submit', 'publish')
         self.assertEqual(available_actions, self.sm.get_actions())
 
+    def test_statemachine_action_display(self):
+        self.assertEqual('Can submit for review',
+            self.sm.get_action_display('submit'))
+
     def test_statemachine_take_action(self):
         self.sm.state = 'private'
         self.sm.save()
