@@ -9,8 +9,10 @@ from django.template.defaultfilters import slugify
 from django.conf import settings
 
 from tagging.fields import TagField
+
 from ostinato.managers import ContentItemManager
-from ostinato.statemachine.models import StateMachineField, DefaultStateMachine
+from ostinato.statemachine.models import StateMachineBase, StateMachineField
+from ostinato.statemachine.models import sm_post_action
 
 
 OSTINATO_HOMEPAGE_SLUG = getattr(settings, 'OSTINATO_HOMEPAGE_SLUG', 'homepage')
@@ -21,6 +23,29 @@ OSTINATO_PAGE_TEMPLATES = getattr(settings, 'OSTINATO_PAGE_TEMPLATES', ({
 },))
 TEMPLATE_CHOICES = [(i['name'], i['name'].replace('_', ' ').capitalize()) \
                     for i in OSTINATO_PAGE_TEMPLATES]
+
+
+class CMSStateMachine(StateMachineBase):
+
+    class Meta:
+        permissions = (
+            ('make_public', 'Make Public'),
+            ('make_private', 'Make Private'),
+            ('archive', 'Archive')
+        )
+    
+    class SMOptions:
+        initial_state = 'private'
+        state_actions = {
+            'private': ('make_public',),
+            'public': ('make_private', 'archive'),
+            'archived': ('make_private',),
+        }
+        action_targets = {
+            'make_public': 'public',
+            'make_private': 'private',
+            'archive': 'archived',
+        }
 
 
 class ContentItem(models.Model):
@@ -70,7 +95,7 @@ class ContentItem(models.Model):
 
     # Custom Managers and Virtual Fields
     objects = ContentItemManager()
-    statemachine = StateMachineField(DefaultStateMachine)
+    sm = StateMachineField(CMSStateMachine)
 
     class Meta:
         ordering = ['order', 'id', 'title']
@@ -123,13 +148,23 @@ class ContentItem(models.Model):
             self.slug = slugify(self.title)
         super(ContentItem, self).save(*args, **kwargs)
 
-    def pre_action(self):
-        pass
 
-    def post_action(self):
-        pass
+def post_action_handler(sender, **kwargs):
+    if sender.content_type.model == 'contentitem':
+        cms_item = sender.content_object
+
+        if kwargs['action'] == 'make_public' and not cms_item.publish_date:
+            cms_item.publish_date = datetime.now()
+            cms_item.save()
+
+        elif kwargs['action'] == 'archive':
+            cms_item.allow_comments = False
+            cms_item.save()
+
+sm_post_action.connect(post_action_handler)
 
 
+# Other helper and demo classes
 class BasicPage(models.Model):
     """
     A basic page for the user to create some content. Any instance of the

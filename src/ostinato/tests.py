@@ -3,9 +3,8 @@ from django.test.client import RequestFactory
 from django.template import Template, Context
 from django.template.response import SimpleTemplateResponse
 
-from ostinato.models import ContentItem, BasicPage
+from ostinato.models import ContentItem, BasicPage, CMSStateMachine
 from ostinato.core import OstinatoCMS, register_apps
-
 
 class CMSTestCase(TestCase):
 
@@ -86,6 +85,29 @@ class ContentItemTestCase(TestCase):
     def test_deep_nested_pages_urls(self):
         self.assertEqual('/basicpage-1/basicpage-2/basicpage-3/',
             self.content_item3.get_absolute_url())
+
+    def test_contentitems_have_a_statemachine(self):
+        self.assertEqual('private', self.content_item.sm.state)
+
+    def test_contentitem_publish(self):
+        self.content_item.sm.take_action('make_public')
+        self.assertEqual('public', self.content_item.sm.state)
+
+    def test_contentitem_publish_sets_publish_date(self):
+        self.content_item.sm.take_action('make_public')
+        cms_item = ContentItem.objects.all()[0]
+        self.assertTrue(cms_item.publish_date)
+
+    def test_contentitem_archive_disables_comments(self):
+        self.content_item.allow_comments = True
+        self.content_item.save()
+
+        # Needs to be public before we can archive it
+        self.content_item.sm.take_action('make_public')
+        self.content_item.sm.take_action('archive')
+
+        cms_item = ContentItem.objects.get(id=1)
+        self.assertFalse(cms_item.allow_comments)
 
 
 class ContentItemManagerTestCase(TestCase):
