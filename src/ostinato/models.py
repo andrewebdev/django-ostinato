@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -103,6 +101,10 @@ class ContentItem(models.Model):
     def __unicode__(self):
         return "%s" % self.title
 
+    def state(self):
+        """ Just a helper for the admin """
+        return self.sm.state
+
     ## TODO: This operation may be expensive? Cache this in some way?
     def _get_parents(self):
         if self.parent:
@@ -147,21 +149,6 @@ class ContentItem(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         super(ContentItem, self).save(*args, **kwargs)
-
-
-def post_action_handler(sender, **kwargs):
-    if sender.content_type.model == 'contentitem':
-        cms_item = sender.content_object
-
-        if kwargs['action'] == 'make_public' and not cms_item.publish_date:
-            cms_item.publish_date = datetime.now()
-            cms_item.save()
-
-        elif kwargs['action'] == 'archive':
-            cms_item.allow_comments = False
-            cms_item.save()
-
-sm_post_action.connect(post_action_handler)
 
 
 # Other helper and demo classes

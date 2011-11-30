@@ -1,8 +1,11 @@
+from datetime import datetime
+
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django import forms
 
 from ostinato.models import ContentItem, BasicPage
+
 
 ## Admin Actions
 def action_allow_comments(modeladmin, request, queryset):
@@ -21,10 +24,12 @@ def action_dont_show_in_nav(modeladmin, request, queryset):
     queryset.update(show_in_nav=False)
 action_dont_show_in_nav.short_description = "Navigation - Dont show in Nav"
 
+
 ## Inline Classes
 class ContentItemInline(generic.GenericStackedInline):
     model = ContentItem
     extra = 0
+
 
 ## ModelAdmin Classes
 def statemachine_form(for_model=None):
@@ -42,9 +47,9 @@ def statemachine_form(for_model=None):
 
         def __init__(self, *args, **kwargs):
             super(_StateMachineBaseModelForm, self).__init__(*args, **kwargs)
-            actions = (('', '-- %s --' % self.instance.sm_state),)
-            for action in self.instance.sm_state_actions():
-                actions += ((action, action),)
+            actions = (('', '-- %s --' % self.instance.sm.state),)
+            for action in self.instance.sm.get_actions():
+                actions += ((action, self.instance.sm.get_action_display(action)),)
             self.fields['_sm_action'] = forms.ChoiceField(
                 choices=actions, label="Take Action", required=False)
 
@@ -53,19 +58,37 @@ def statemachine_form(for_model=None):
             Override the save method so that we can take any required actions
             and move to the next state.
             """
+            # We need to perform the action on the statemachine _after_
+            # the form itself has been saved, otherwise we overwrite the
+            # data based on the data in the form.
+
+            cms_item = super(_StateMachineBaseModelForm, self)\
+                .save(*args, **kwargs)
             action = self.cleaned_data['_sm_action']
-            if action: self.instance.sm_take_action(action)
-            return super(_StateMachineBaseModelForm, self).save(*args, **kwargs)
+
+            if action:
+
+                self.instance.sm.take_action(action)
+
+                if action == 'make_public' and not cms_item.publish_date:
+                    cms_item.publish_date = datetime.now()
+                    cms_item.save()
+
+                elif kwargs['action'] == 'archive':
+                    cms_item.allow_comments = False
+                    cms_item.save()
+
+            return cms_item
 
     if for_model: return _StateMachineBaseModelForm
     else: return None
+
 
 class ContentItemAdmin(admin.ModelAdmin):
     form = statemachine_form(for_model=ContentItem)
 
     list_display = ['title', 'slug', 'short_title', 'parent', 'template',
-                    'order', 'sm_state_admin',
-                    'allow_comments', 'show_in_nav',
+                    'order', 'state', 'allow_comments', 'show_in_nav',
                     'created_date', 'modified_date', 'publish_date']
     list_filter = ['allow_comments', 'show_in_nav', 'publish_date']
     date_hierarchy = 'created_date'
@@ -85,6 +108,7 @@ class ContentItemAdmin(admin.ModelAdmin):
             'fields': ('publish_date', 'authors', 'contributors', '_sm_action')
         }),
     )
+
 
 ## Admin registrations
 admin.site.register(ContentItem, ContentItemAdmin)
