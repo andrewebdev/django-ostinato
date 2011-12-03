@@ -32,60 +32,48 @@ class ContentItemInline(generic.GenericStackedInline):
 
 
 ## ModelAdmin Classes
-def statemachine_form(for_model=None):
-    """
-    Factory function to create a special case form that will render
-    an extra _sm_actions choice field, showing only the available actions
-    for the current state.
-    """
-    class _StateMachineBaseModelForm(forms.ModelForm):
-        _sm_action = forms.ChoiceField(choices=[], label="Take Action",
-                                       required=False)
+class ContentItemAdminForm(forms.ModelForm):
+    _sm_action = forms.ChoiceField(
+        choices=[], label="Take Action", required=False)
 
-        class Meta:
-            model = for_model
+    class Meta:
+        model = ContentItem
 
-        def __init__(self, *args, **kwargs):
-            super(_StateMachineBaseModelForm, self).__init__(*args, **kwargs)
-            actions = (('', '-- %s --' % self.instance.sm.state),)
-            for action in self.instance.sm.get_actions():
-                actions += ((action, self.instance.sm.get_action_display(action)),)
-            self.fields['_sm_action'] = forms.ChoiceField(
-                choices=actions, label="Take Action", required=False)
+    def __init__(self, *args, **kwargs):
+        super(ContentItemAdminForm, self).__init__(*args, **kwargs)
 
-        def save(self, *args, **kwargs):
-            """
-            Override the save method so that we can take any required actions
-            and move to the next state.
-            """
-            # We need to perform the action on the statemachine _after_
-            # the form itself has been saved, otherwise we overwrite the
-            # data based on the data in the form.
+        actions = (('', '-- %s --' % self.instance.sm.state),)
+        for action in self.instance.sm.get_actions():
+            actions += ((action, self.instance.sm.get_action_display(action)),)
 
-            cms_item = super(_StateMachineBaseModelForm, self)\
-                .save(*args, **kwargs)
-            action = self.cleaned_data['_sm_action']
+        self.fields['_sm_action'] = forms.ChoiceField(
+            choices=actions, label="State/Actions", required=False)
 
-            if action:
+    def save(self, *args, **kwargs):
+        """
+        Override the save method so that we can take any required actions
+        and move to the next state.
+        """
+        cms_item = super(ContentItemAdminForm, self).save(*args, **kwargs)
+        action = self.cleaned_data['_sm_action']
 
-                self.instance.sm.take_action(action)
+        if action:
 
-                if action == 'make_public' and not cms_item.publish_date:
-                    cms_item.publish_date = datetime.now()
-                    cms_item.save()
+            self.instance.sm.take_action(action)
 
-                elif kwargs['action'] == 'archive':
-                    cms_item.allow_comments = False
-                    cms_item.save()
+            if action == 'make_public' and not cms_item.publish_date:
+                cms_item.publish_date = datetime.now()
+                cms_item.save()
 
-            return cms_item
+            elif kwargs['action'] == 'archive':
+                cms_item.allow_comments = False
+                cms_item.save()
 
-    if for_model: return _StateMachineBaseModelForm
-    else: return None
+        return cms_item
 
 
 class ContentItemAdmin(admin.ModelAdmin):
-    form = statemachine_form(for_model=ContentItem)
+    form = ContentItemAdminForm
 
     list_display = ['title', 'slug', 'short_title', 'parent', 'template',
                     'order', 'state', 'allow_comments', 'show_in_nav',

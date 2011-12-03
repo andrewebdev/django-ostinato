@@ -12,6 +12,13 @@ from models import sm_pre_action, sm_post_action
 from templatetags.statemachine_tags import GetStateMachineNode
 
 
+class _DummyModel(models.Model):
+    name = models.CharField(max_length=50)
+    pre = models.BooleanField(default=False)
+    post = models.BooleanField(default=False)
+    statemachine = StateMachineField(DefaultStateMachine)
+
+
 class StateMachineBaseModelTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json']
@@ -171,13 +178,6 @@ class StateMachineSignalsTestCase(TestCase):
 
         self.sm.take_action('publish')
         self.assertTrue(ContentItem.objects.get(id=1).show_in_nav)
-
-
-class _DummyModel(models.Model):
-    name = models.CharField(max_length=50)
-    pre = models.BooleanField(default=False)
-    post = models.BooleanField(default=False)
-    statemachine = StateMachineField(DefaultStateMachine)
 
 
 class StateMachineFieldTestCase(TestCase):
