@@ -16,4 +16,10 @@ class StateMachineManager(models.Manager):
             content_type=ctype, object_id=object_instance.id)
         statemachine.save()
         return statemachine
-
+        
+    def has_state(self, state, **kwargs):
+        """
+        First filter all statemachine instances with ``state``.
+        extra filter args can also be passed along with kwargs
+        """
+        return self.get_query_set().filter(state=state, **kwargs)

@@ -5,6 +5,7 @@ from django.dispatch import Signal
 
 from managers import StateMachineManager
 
+
 class InvalidAction(Exception):
 
     def __init__(self, value):

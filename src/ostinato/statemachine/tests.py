@@ -203,10 +203,36 @@ class StateMachineManagerTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json']
 
+    def setUp(self):
+        dummy = _DummyModel(name='Dummy 1')
+        dummy.save()
+        dummy.statemachine.take_action('publish')
+
     def test_get_statemachine(self):
         sm = DefaultStateMachine.objects.get_statemachine(
             ContentItem.objects.get(id=1))
-        self.assertEqual(1, DefaultStateMachine.objects.all().count())
+        self.assertEqual(2, DefaultStateMachine.objects.all().count())
+
+    def test_filter_has_state_returns_all(self):
+        # Other than dummymodel, we want a seperate content object as well
+        sm = DefaultStateMachine.objects.get_statemachine(
+            ContentItem.objects.get(id=1))
+        sm.take_action('publish')
+
+        qs = DefaultStateMachine.objects.has_state('published')
+        qs = list(qs.values_list('id', flat=True))
+        self.assertEqual([1, 2], qs)
+
+    def test_filter_has_state_with_extra_filter_args(self):
+        # Other than dummymodel, we want a seperate content object as well
+        sm = DefaultStateMachine.objects.get_statemachine(
+            ContentItem.objects.get(id=1))
+        sm.take_action('publish')
+
+        qs = DefaultStateMachine.objects.has_state('published',
+            content_type__model='_dummymodel')
+        qs = list(qs.values_list('id', flat=True))
+        self.assertEqual([1], qs)
 
 
 class GetStateMachineTemplateTagTestCase(TestCase):
