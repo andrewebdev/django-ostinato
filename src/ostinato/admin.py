@@ -5,6 +5,7 @@ from django.contrib.contenttypes import generic
 from django import forms
 
 from ostinato.models import ContentItem, BasicPage
+from ostinato.statemachine.forms import StateMachineModelForm
 
 
 ## Admin Actions
@@ -32,42 +33,30 @@ class ContentItemInline(generic.GenericStackedInline):
 
 
 ## ModelAdmin Classes
-class ContentItemAdminForm(forms.ModelForm):
-    _sm_action = forms.ChoiceField(
-        choices=[], label="Take Action", required=False)
+class ContentItemAdminForm(StateMachineModelForm):
 
     class Meta:
         model = ContentItem
-
-    def __init__(self, *args, **kwargs):
-        super(ContentItemAdminForm, self).__init__(*args, **kwargs)
-
-        actions = (('', '-- %s --' % self.instance.sm.state),)
-        for action in self.instance.sm.get_actions():
-            actions += ((action, self.instance.sm.get_action_display(action)),)
-
-        self.fields['_sm_action'] = forms.ChoiceField(
-            choices=actions, label="State/Actions", required=False)
 
     def save(self, *args, **kwargs):
         """
         Override the save method so that we can take any required actions
         and move to the next state.
         """
+        kwargs['commit'] = False
         cms_item = super(ContentItemAdminForm, self).save(*args, **kwargs)
         action = self.cleaned_data['_sm_action']
 
+        if action == 'make_public' and not cms_item.publish_date:
+            cms_item.publish_date = datetime.now()
+
+        elif kwargs['action'] == 'archive':
+            cms_item.allow_comments = False
+
         if action:
+            cms_item.sm.take_action(action)
 
-            self.instance.sm.take_action(action)
-
-            if action == 'make_public' and not cms_item.publish_date:
-                cms_item.publish_date = datetime.now()
-                cms_item.save()
-
-            elif kwargs['action'] == 'archive':
-                cms_item.allow_comments = False
-                cms_item.save()
+        cms_item.save()
 
         return cms_item
 

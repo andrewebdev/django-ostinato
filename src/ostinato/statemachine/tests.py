@@ -72,11 +72,11 @@ class DefaultStateMachineTestCase(TestCase):
 
     def test_statemachine_permissions(self):
         expected_permissions = (
-            ('submit', 'Can submit for review'),
-            ('reject', 'Can reject'),
-            ('publish', 'Can publish'),
-            ('retract', 'Can retract'),
-            ('archive', 'Can archive'),
+            ('submit', 'Submit for review'),
+            ('reject', 'Reject'),
+            ('publish', 'Publish'),
+            ('retract', 'Retract'),
+            ('archive', 'Archive'),
         )
         self.assertEqual(expected_permissions,
             DefaultStateMachine._meta.permissions)
@@ -107,7 +107,7 @@ class DefaultStateMachineTestCase(TestCase):
         self.assertEqual(available_actions, self.sm.get_actions())
 
     def test_statemachine_action_display(self):
-        self.assertEqual('Can submit for review',
+        self.assertEqual('Submit for review',
             self.sm.get_action_display('submit'))
 
     def test_statemachine_take_action(self):

@@ -96,11 +96,11 @@ class DefaultStateMachine(StateMachineBase):
         'actions' that can be taken on the statemachine, by the user.
         """
         permissions = (
-            ('submit', 'Can submit for review'),
-            ('reject', 'Can reject'),
-            ('publish', 'Can publish'),
-            ('retract', 'Can retract'),
-            ('archive', 'Can archive'),
+            ('submit', 'Submit for review'),
+            ('reject', 'Reject'),
+            ('publish', 'Publish'),
+            ('retract', 'Retract'),
+            ('archive', 'Archive'),
         )
 
     class SMOptions:
