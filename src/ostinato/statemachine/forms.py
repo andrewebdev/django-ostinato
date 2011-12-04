@@ -9,9 +9,16 @@ class StateMachineModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(StateMachineModelForm, self).__init__(*args, **kwargs)
 
-        actions = (('', '-- %s --' % self.instance.sm.state),)
-        for action in self.instance.sm.get_actions():
-            actions += ((action, self.instance.sm.get_action_display(action)),)
+        # FIXME: This wont work if we dont have a instance saved yet.
+        # Remove the try/except block once a proper solution has
+        # been implemented
 
-        self.fields['_sm_action'] = forms.ChoiceField(
-            choices=actions, label="State/Actions", required=False)
+        try:
+            actions = (('', '-- %s --' % self.instance.sm.state),)
+            for action in self.instance.sm.get_actions():
+                actions += ((action, self.instance.sm.get_action_display(action)),)
+
+            self.fields['_sm_action'] = forms.ChoiceField(
+                choices=actions, label="State/Actions", required=False)
+        except:
+            pass
