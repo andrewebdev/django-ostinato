@@ -63,7 +63,7 @@ class ContentItemTestCase(TestCase):
         self.assertEqual('basicpage-1', self.content_item.slug)
 
     def test_get_parents(self):
-        parent_list = [p for p in self.content_item3._get_parents()]
+        parent_list = [p for p in self.content_item3.get_ancestors()]
         expected_parents = [self.content_item, self.content_item2]
         self.assertEqual(expected_parents, parent_list)
 
@@ -147,11 +147,6 @@ class ContentItemManagerTestCase(TestCase):
         page = BasicPage.objects.get(id=1)
         self.assertEqual(self.content_item1, ContentItem.objects.get_for(page))
 
-    def test_get_parents(self):
-        parents = [p for p in ContentItem.objects._get_parents(self.content_item3)]
-        expected_parents = [self.content_item1, self.content_item2]
-        self.assertEqual(expected_parents, parents)
-
     def test_get_empty_navbar(self):
         empty_nav = ContentItem.objects.get_navbar()
         self.assertEqual([], empty_nav)
@@ -178,25 +173,6 @@ class ContentItemManagerTestCase(TestCase):
         }]
         self.assertEqual(expected_nav,
             ContentItem.objects.get_navbar(self.content_item1))
-
-    def test_get_breadcrumbs(self):
-        expected_crumbs = [{
-            'title': u'BasicPage 1',
-            'url': '/basicpage-1/',
-            'current': False
-        },
-        {
-            'title': u'BasicPage 2',
-            'url': '/basicpage-1/basicpage-2/',
-            'current': False
-        },
-        {
-            'title': u'BasicPage 3',
-            'url': '/basicpage-1/basicpage-2/basicpage-3/',
-            'current': True
-        }]
-        crumbs = ContentItem.objects.get_breadcrumbs_for(self.content_item3)
-        self.assertEqual(expected_crumbs, crumbs)
 
 
 class OstinatoContentModifiersTestCase(TestCase):

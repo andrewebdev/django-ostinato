@@ -107,29 +107,28 @@ class ContentItem(MPTTModel):
         """ Just a helper for the admin """
         return self.sm.state
 
-    ## TODO: This operation may be expensive? Cache this in some way?
-    def _get_parents(self):
-        if self.parent:
-            for p in self.parent._get_parents():
-                yield p
-            yield self.parent
-
     @models.permalink
     def perma_url(self, perma_data):
         return perma_data
 
     def get_absolute_url(self):
-        # Cycle through the parents and generate the path
+        """ Cycle through the parents and generate the path """
+
         if self.location:
             return self.location
+
         if self.slug == OSTINATO_HOMEPAGE_SLUG:
             return '/'
+
         path = []
-        for parent in self._get_parents():
+
+        for parent in self.get_ancestors():
             if parent.slug != OSTINATO_HOMEPAGE_SLUG:
                 path.append(parent.slug)
+
         if self.slug != OSTINATO_HOMEPAGE_SLUG:
             path.append(self.slug)
+
         return self.perma_url(('ostinato_contentitem_detail', None,
             {'path': '/'.join(path)}))
 

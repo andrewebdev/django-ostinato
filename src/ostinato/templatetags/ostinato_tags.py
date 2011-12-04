@@ -24,20 +24,6 @@ def navbar(parent=None):
     return locals()
 
 
-@register.inclusion_tag('ostinato/tags/breadcrumbs.html')
-def breadcrumbs(content_item):
-    """
-    Renders the breadcrumbs for content item.
-
-    TODO: Dynamically discover content item
-    Try to get the content_item by cycling through the urlpatterns.
-    If the urlpattern is found, get that item and return it's content_item
-    instance.
-    """
-    breadcrumbs = ContentItem.objects.get_breadcrumbs_for(content_item)
-    return locals()
-
-
 @register.simple_tag
 def active_link(request, pattern):
     if request:
@@ -74,42 +60,6 @@ class GetContentItemNode(template.Node):
             content_item.save()
         context[self.as_varname] = content_item
         return ''
-
-
-# The following template tags renders the various tools to assist the
-# content editor/admin to edit page content, update pages etc.
-@register.inclusion_tag('ostinato/tags/toolbar.html', takes_context=True)
-def ostinato_toolbar(context, cms_item, allowed_users="is_staff=True"):
-    """
-    The ostinato toolbar is a bar that renders basic ostinato functions and
-    actions that will allow users to create new pages, edit the meta for
-    pages etc.
-
-    ``cms_item`` is the ostinato.ContentItem instance for the current content
-    item. The easiest way to retrieve this in the template is to use the
-    ``get_cmsitem`` template tag.
-
-    We can filter what users will have permission to see the toolbar, by
-    passing a django querystring to ``allowed_users``. By default, it will only
-    allow admins.
-    """
-    to_return = {}
-    user = context['user']
-
-    # Check if the user matches the allowed_users arg
-    filter_kwargs = {}
-    filter_list = allowed_users.replace(' ', '').split(',')
-    for f in filter_list:
-        arg = f.split('=')
-        filter_kwargs[arg[0]] = arg[1]
-    if context['user'] in User.objects.filter(**filter_kwargs):
-        to_return['user_can_edit'] = True
-        to_return['cms_item_form'] = ContentItemForm(instance=cms_item)
-
-    # Get the ostinato item
-    to_return['cms_item'] = cms_item
-
-    return to_return
 
 
 ## ContentModifiers and related examples
