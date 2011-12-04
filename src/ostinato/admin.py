@@ -50,7 +50,7 @@ class ContentItemAdminForm(StateMachineModelForm):
         if action == 'make_public' and not cms_item.publish_date:
             cms_item.publish_date = datetime.now()
 
-        elif kwargs['action'] == 'archive':
+        elif action == 'archive':
             cms_item.allow_comments = False
 
         if action:
@@ -65,7 +65,7 @@ class ContentItemAdmin(admin.ModelAdmin):
     form = ContentItemAdminForm
 
     list_display = ['title', 'slug', 'short_title', 'parent', 'template',
-                    'order', 'state', 'allow_comments', 'show_in_nav',
+                    'state', 'allow_comments', 'show_in_nav',
                     'created_date', 'modified_date', 'publish_date']
     list_filter = ['allow_comments', 'show_in_nav', 'publish_date']
     date_hierarchy = 'created_date'
@@ -75,7 +75,7 @@ class ContentItemAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': ('title', 'slug', 'short_title', 'description',
-                       'template', 'order'),
+                       'template'),
         }),
         ('Content Properties', {
             'fields': ('parent', 'location', 'allow_comments',
