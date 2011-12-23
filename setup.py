@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name="django-ostinato",
     description="Django-ostinato brings common CMS features to pluggable django apps",
-    version="0.4",
+    version="0.4.2",
     url="",
     author="Andre Engelbrecht",
     author_email="andre@teh-node.co.za",
