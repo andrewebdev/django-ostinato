@@ -1,7 +1,9 @@
 from django.views.generic import TemplateView
-from django.http import HttpResponseRedirect
+from django import http
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from django.utils import simplejson as json
+from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.decorators import login_required, permission_required
 from django.conf import settings
 
@@ -28,6 +30,15 @@ class AjaxTemplateResponseMixin(object):
         if self.request.is_ajax():
             self.template_name = self.xhr_template_name
         return super(AjaxTemplateResponseMixin, self).get_template_names()
+
+
+class JsonMixin(object):
+
+    def get(self, *args, **kwargs):
+        # Note the use of the DjangoJSONEncoder here, this handles date/time
+        # and Decimal values correctly
+        data = json.dumps(self.get_values(**kwargs), cls=DjangoJSONEncoder)
+        return http.HttpResponse(data, content_type='application/json; charset=utf-8')
 
 
 class ContentItemDetail(AjaxTemplateResponseMixin, TemplateView):
@@ -78,8 +89,8 @@ class ContentItemEdit(AjaxTemplateResponseMixin, TemplateView):
 		if form.is_valid():
 			self.cms_item = form.save()
 			if self.request.is_ajax():
-				return HttpResponse('Ok')
+				return http.HttpResponse('Ok')
 			else:
-				return HttpResponseRedirect(self.cms_item.get_absolute_url())
+				return http.HttpResponseRedirect(self.cms_item.get_absolute_url())
 		c['form'] = form
 		return self.render_to_response(c)
