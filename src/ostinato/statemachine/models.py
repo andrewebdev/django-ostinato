@@ -88,8 +88,6 @@ class StateMachineField(object):
         ## FIXME:
         # Statemachine get_statemachine() cannot create a object since
         # the related item doesnt have an ID yet (not been created)
-        # Remove try/except block once solution is implemented
-
         try:
             return self.statemachine_cls.objects.get_statemachine(instance)
         except IntegrityError:
