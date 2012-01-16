@@ -84,14 +84,10 @@ class StateMachineField(object):
     def __get__(self, instance, instance_type=None):
         if instance is None:
             return self
-
         ## FIXME:
         # Statemachine get_statemachine() cannot create a object since
         # the related item doesnt have an ID yet (not been created)
-        try:
-            return self.statemachine_cls.objects.get_statemachine(instance)
-        except IntegrityError:
-            return self
+        return self.statemachine_cls.objects.get_statemachine(instance)
 
 
 class DefaultStateMachine(StateMachineBase):
