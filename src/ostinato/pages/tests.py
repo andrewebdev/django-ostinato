@@ -116,6 +116,18 @@ class PageModelTestCase(TestCase):
         )
         self.assertEqual('/page-1/page-3/', p3.get_absolute_url())
 
+    def test_absolute_url_based_on_location(self):
+        p = Page.objects.get(slug='page-1')
+        p3 = Page.objects.create(
+            title='Page 3',
+            slug='page-3',
+            template='landing_page',
+            author=User.objects.get(id=1),
+            parent=p,
+            redirect='http://www.google.com'
+        )
+        self.assertEqual('http://www.google.com', p3.get_absolute_url())
+
 
 class ZoneContentModelTestCase(TestCase):
 

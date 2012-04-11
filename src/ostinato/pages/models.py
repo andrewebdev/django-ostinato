@@ -10,7 +10,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from ostinato.pages.pages_registry import PageTemplate, page_templates
 
 
-## Some Utility
+## Utility functions
 def get_template_choices():
     choices = ()
     for template in page_templates.all():
@@ -57,9 +57,8 @@ class Page(MPTTModel):
 
     template = models.CharField(max_length='50', choices=get_template_choices())
 
-    location = models.CharField(max_length=200, blank=True, null=True,
-        help_text='Use this to point to pages that does not belong to the CMS'\
-                  ' directly.')
+    redirect = models.CharField(max_length=200, blank=True, null=True,
+        help_text='Use this to point to redirect to another page or website.')
 
     show_in_nav = models.BooleanField(default=False)
     show_in_sitemap = models.BooleanField(default=False)
@@ -96,8 +95,8 @@ class Page(MPTTModel):
     def get_absolute_url(self):
         """ Cycle through the parents and generate the path """
 
-        if self.location:
-            return self.location
+        if self.redirect:
+            return self.redirect
 
         if self.lft == 1:
             return reverse('ostinato_page_home')
