@@ -3,3 +3,8 @@
 *~
 *.swp
 *.egg-info
+.*.cfg
+bin
+develop-eggs
+eggs
+parts
