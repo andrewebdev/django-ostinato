@@ -1,0 +1,52 @@
+[
+    {
+        "pk": 1,
+        "model": "pages.page",
+        "fields": {
+            "title": "Page 1",
+            "slug": "page-1",
+            "template": "landing_page",
+            "author": 1,
+            "created_date": "2012-04-10 12:14:51.203925+00:00",
+            "modified_date": "2012-04-10 12:14:51.203925+00:00",
+            "lft": 1,
+            "rght": 2,
+            "tree_id": 1,
+            "level": 0
+        }
+    },
+    {
+        "pk": 2,
+        "model": "pages.page",
+        "fields": {
+            "title": "Page 2",
+            "slug": "page-2",
+            "template": "basic_page",
+            "author": 1,
+            "created_date": "2012-04-10 12:14:51.203925+00:00",
+            "modified_date": "2012-04-10 12:14:51.203925+00:00",
+            "lft": 3,
+            "rght": 4,
+            "tree_id": 1,
+            "level": 0
+        }
+    },
+    {
+        "pk": 1,
+        "model": "pages.basictextzone",
+        "fields": {
+            "page": 1,
+            "zone_id": "intro",
+            "content": "Text Zone 1 Content"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "pages.basictextzone",
+        "fields": {
+            "page": 2,
+            "zone_id": "text",
+            "content": "Text Zone 2 Content"
+        }
+    }
+]

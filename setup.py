@@ -9,4 +9,9 @@ setup(
     author_email="andre@teh-node.co.za",
     packages=['ostinato'],
     package_dir={'': 'src'},
+    install_requires=[
+        'setuptools',
+        'mptt == 0.5.2',
+        'django-appregister == 0.2',
+    ]
 )

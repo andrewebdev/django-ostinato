@@ -94,3 +94,4 @@ class ContentItemEdit(AjaxTemplateResponseMixin, TemplateView):
 				return http.HttpResponseRedirect(self.cms_item.get_absolute_url())
 		c['form'] = form
 		return self.render_to_response(c)
+
