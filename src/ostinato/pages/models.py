@@ -1,39 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.utils import timezone
 
 from mptt.models import MPTTModel, TreeForeignKey
 
-from ostinato.pages.pages_registry import PageTemplate, page_templates
-
-
-## Utility functions
-def get_template_choices():
-    choices = ()
-    for template in page_templates.all():
-        choices += ((template.template_id, template.description),)
-    return choices
-
-
-def get_zones(page):
-    zones = []
-    page_template = PageTemplate.get_template_by_id(page.template)
-
-    for index, zone in enumerate(page_template.zones):
-        zone_id = zone[0]
-        app_label = zone[1].split('.')[0]
-        model = zone[1].split('.')[1]
-
-        ct = ContentType.objects.get(app_label=app_label, model=model)
-        instance, created = ct.model_class().objects.get_or_create(
-            page=page, zone_id=zone_id)
-
-        zones.append(instance)
-
-    return zones
+from ostinato.pages.utils import get_template_choices, get_zones
 
 
 ## Managers

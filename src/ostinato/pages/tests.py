@@ -9,9 +9,11 @@ from ostinato.pages.models import PageMeta, BasicTextZone
 from ostinato.pages.views import PageView
 
 
-## Register some Page Templates
+## Register some Page Templates this will normally be done in
+## your own pages_registry.py, located in your project or app
 @page_templates.register
 class BasicPage(PageTemplate):
+    order = 0
     template_id = 'basic_page'
     description = 'A basic template'
     template = 'pages/tests/basic_page.html'
@@ -23,6 +25,7 @@ class BasicPage(PageTemplate):
 
 @page_templates.register
 class LandingPage(PageTemplate):
+    order = 1
     template_id = 'landing_page'
     description = 'An Index Page'
     template = 'pages/tests/landing_page.html'
@@ -66,12 +69,15 @@ class PageModelTestCase(TestCase):
 
     def test_page_template_choices(self):
         p = Page.objects.get(id=1)
-        self.assertIn(('basic_page', 'A basic template'), get_template_choices())
-        self.assertIn(('landing_page', 'An Index Page'), get_template_choices())
+        self.assertIn(('basic_page', 'A basic template', 0), get_template_choices())
+        self.assertIn(('landing_page', 'An Index Page', 1), get_template_choices())
 
     def test_page_template_order(self):
-        self.assertTrue(False,
-            'TODO: we need a way to order the templates after they were registered.')
+        expected_order = [
+            ('basic_page', 'A basic template', 0),
+            ('landing_page', 'An Index Page', 1),
+        ]
+        self.assertEqual(expected_order, get_template_choices())
 
     def test_get_zones(self):
         p = Page.objects.get(slug='page-1')
