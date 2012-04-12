@@ -1,0 +1,7 @@
+{% if navbar %}
+<ul>
+    {% for page in navbar %}
+    <li><a class="{% if page == context.current_page %}active{% endif %}" href="{{ page.url }}">{{ page.title }}</a></li>
+    {% endfor %}
+</ul>
+{% endif %}

@@ -2,6 +2,8 @@ from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.template import Context, Template
+from django.template.response import SimpleTemplateResponse
 from django.utils import timezone
 
 from ostinato.pages.pages_registry import page_templates, PageTemplate
@@ -201,6 +203,7 @@ class ZoneContentModelTestCase(TestCase):
 class PageManagerTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
+    urls = 'ostinato.pages.urls'
 
     def test_get_zones_for_page(self):
         zones = Page.objects.get_zones_for_page(slug='page-1')
@@ -210,6 +213,33 @@ class PageManagerTestCase(TestCase):
         p = Page.objects.get(slug='page-1')
         zones = Page.objects.get_zones_for_page(page=p)
         self.assertEqual(2, len(zones))
+
+    def test_get_empty_navbar(self):
+        empty_nav = Page.objects.get_navbar()
+        self.assertEqual([], empty_nav)
+
+    def test_get_navbar(self):
+        ## Need to publish the items first
+        for p in Page.objects.all():
+            p.sm.take_action('publish')
+
+        expected_nav = [{
+            'title': u'Page 1',
+            'url': '/',
+        }, {
+            'title': u'P2',
+            'url': '/page-2/',
+        }]
+        self.assertEqual(expected_nav, Page.objects.get_navbar())
+
+        expected_nav = [{
+            'title': u'P2',
+            'url': '/page-2/',
+        }]
+        p = Page.objects.get(slug='page-1')
+        p.show_in_nav = False
+        p.save()
+        self.assertEqual(expected_nav, Page.objects.get_navbar())
 
 
 class PageViewTestCase(TestCase):
@@ -248,4 +278,29 @@ class PageViewTestCase(TestCase):
         self.assertEqual(
             'Text Zone 1 Content',
             response.context['page_zones']['intro'].content)
+
+
+class NavBarTemplateTagTestCase(TestCase):
+
+    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
+    urls = 'ostinato.pages.urls'
+
+    def setUp(self):
+        for p in Page.objects.all():
+            p.sm.take_action('publish')
+
+        t = Template('{% load pages_tags %}{% navbar %}')
+        self.response = SimpleTemplateResponse(t)
+
+    def test_navbar_renders(self):
+        self.response.render()
+        self.assertTrue(self.response.is_rendered)
+
+    def test_navbar_content(self):
+        self.response.render()
+
+        self.assertIn('<li><a class="" href="/">Page 1</a></li>',
+            self.response.content)
+        self.assertIn('<li><a class="" href="/page-2/">P2</a></li>', 
+            self.response.content)
 
