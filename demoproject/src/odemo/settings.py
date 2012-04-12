@@ -130,6 +130,27 @@ INSTALLED_APPS = (
 )
 
 
+## OSTINATO SETTINGS_
+OSTINATO_PAGE_TEMPLATES = ({
+    'name': 'basic_page',
+    'description': 'A basic template',
+    'template': 'pages/tests/basic_page.html',
+    'zones': (
+        ('meta', 'pages.pagemeta'),
+        ('text', 'pages.basictextzone'),
+    ),
+}, {
+    'name': 'landing_page',
+    'description': 'A Index Page',
+    'template': 'pages/tests/landing_page.html',
+    'zones': (
+        ('intro', 'pages.basictextzone'),
+        ('contact_info', 'pages.basictextzone'),
+    ),
+})
+
+
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.

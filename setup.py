@@ -11,7 +11,6 @@ setup(
     package_dir={'': 'src'},
     install_requires=[
         'setuptools',
-        'mptt == 0.5.2',
-        'django-appregister == 0.2',
+        'django-mptt == 0.5.2',
     ]
 )

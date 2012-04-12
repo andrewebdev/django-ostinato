@@ -4,6 +4,7 @@
 *.swp
 *.egg-info
 .*.cfg
+*.db
 bin
 develop-eggs
 eggs

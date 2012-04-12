@@ -7,9 +7,13 @@ from django.utils import timezone
 
 from mptt.models import MPTTModel, TreeForeignKey
 
-from ostinato.pages.utils import get_template_choices, get_zones
+from ostinato.pages.utils import get_zones
 from ostinato.statemachine.models import (
     StateMachineField, DefaultStateMachine, sm_post_action)
+
+
+PAGE_TEMPLATES = getattr(settings, 'OSTINATO_PAGE_TEMPLATES')
+TEMPLATE_CHOICES = [(t['name'], t['description']) for t in PAGE_TEMPLATES]
 
 
 ## Managers
@@ -55,7 +59,7 @@ class Page(MPTTModel):
         help_text='A shorter title which can be used in menus etc. If this \
                    is not supplied then the normal title field will be used.')
 
-    template = models.CharField(max_length='50', choices=get_template_choices())
+    template = models.CharField(max_length='50', choices=TEMPLATE_CHOICES)
 
     redirect = models.CharField(max_length=200, blank=True, null=True,
         help_text='Use this to point to redirect to another page or website.')

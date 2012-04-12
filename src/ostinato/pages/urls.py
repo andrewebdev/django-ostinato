@@ -10,4 +10,3 @@ urlpatterns = patterns('',
     url(r'^(?P<path>.*)/$', PageView.as_view(), name="ostinato_page_view"),
 )
 
-
