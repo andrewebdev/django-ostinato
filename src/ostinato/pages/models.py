@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.contenttypes import generic
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.utils import timezone
@@ -7,6 +8,8 @@ from django.utils import timezone
 from mptt.models import MPTTModel, TreeForeignKey
 
 from ostinato.pages.utils import get_template_choices, get_zones
+from ostinato.statemachine.models import (
+    StateMachineField, DefaultStateMachine, sm_post_action)
 
 
 ## Managers
@@ -17,6 +20,11 @@ class PageManager(models.Manager):
             page = self.get_query_set().get(slug=slug)
 
         return get_zones(page)
+
+    def published(self):
+        now = timezone.now()
+        return self.get_query_set().filter(
+            publish_date__lte=now, _sm__state='published').distinct()
 
 
 ## Models
@@ -46,6 +54,9 @@ class Page(MPTTModel):
         related_name='page_children') 
 
     objects = PageManager()
+    sm = StateMachineField(DefaultStateMachine)
+    ## GenericRelation gives us extra api methods
+    _sm = generic.GenericRelation(DefaultStateMachine)
 
     def save(self, *args, **kwargs):
         if not self.id or not self.created_date:
@@ -90,6 +101,16 @@ class Page(MPTTModel):
             ('ostinato_page_view', None, {'path': '/'.join(path)}) )
 
 
+## Page Statemachine Signals
+def update_publish_date(sender, **kwargs):
+    page = sender.content_object
+    page.publish_date = timezone.now()
+    page.save()
+
+sm_post_action.connect(update_publish_date)
+
+
+## Content Zones
 class ZoneContent(models.Model):
     """
     This is our most basic content item.

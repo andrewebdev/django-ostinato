@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 
 from ostinato.pages.pages_registry import page_templates, PageTemplate
 from ostinato.pages.models import Page, ZoneContent, get_template_choices
@@ -140,6 +141,46 @@ class PageModelTestCase(TestCase):
             redirect='http://www.google.com'
         )
         self.assertEqual('http://www.google.com', p3.get_absolute_url())
+
+
+class PagesStateMachineTestCase(TestCase):
+
+    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
+
+    def setUp(self):
+        self.p = Page.objects.get(slug='page-1')
+        self.p2 = Page.objects.get(slug='page-2')
+
+    def test_has_statemachine(self):
+        self.p.sm
+
+    def test_initial_state(self):
+        self.assertEqual('private', self.p.sm.state)
+        self.assertEqual('private', self.p2.sm.state)
+
+    def test_publish_action(self):
+        self.p.sm.take_action('publish')
+        self.assertEqual('published', self.p.sm.state)
+
+    def test_publish_action_updates_publish_date(self):
+        self.assertEqual(None, self.p.publish_date)
+
+        now = timezone.now()
+        self.p.sm.take_action('publish')
+
+        ## We need to refresh our page instance, since the publish date
+        ## will have updated, but our current instance does not reflect this
+        ## change
+        self.p = Page.objects.get(id=self.p.id)
+        self.assertEqual(now.strftime('%d %m %Y'),
+            self.p.publish_date.strftime('%d %m %Y'))
+
+    def test_manager_published(self):
+        self.assertFalse(Page.objects.published())
+        self.p.sm.take_action('publish')
+
+        self.assertEqual(1, Page.objects.published().count())
+        self.assertEqual(self.p, Page.objects.published()[0])
 
 
 class ZoneContentModelTestCase(TestCase):
