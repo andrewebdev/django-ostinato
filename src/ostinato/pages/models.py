@@ -53,6 +53,12 @@ class Page(MPTTModel):
         self.modified_date = timezone.now()
         super(Page, self).save(*args, **kwargs)
 
+    def get_short_title(self):
+        if self.short_title:
+            return self.short_title
+        else:
+            return self.title
+
     def get_zones(self):
         """ Retrieve all the zones for this page, base on it's template """
         if not self.id:

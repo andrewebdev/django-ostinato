@@ -105,6 +105,13 @@ class PageModelTestCase(TestCase):
         self.assertEqual(2, zones[1].id)
         self.assertEqual('text', zones[1].zone_id)
 
+    def test_get_short_title(self):
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+
+        self.assertEqual('Page 1', p.get_short_title())
+        self.assertEqual('P2', p2.get_short_title())
+
     def test_absolute_url(self):
         p = Page.objects.get(slug='page-1')
         p2 = Page.objects.get(slug='page-2')
