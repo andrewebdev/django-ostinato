@@ -80,6 +80,9 @@ class PageModelTestCase(TestCase):
         pages = u.pages_authored.all()
         self.assertEqual(2, pages.count())
 
+    def test_unicode(self):
+        self.assertEqual('Page 1', Page.objects.get(id=1).__unicode__())
+
     def test_get_zones(self):
         p = Page.objects.get(slug='page-1')
         zones = [zone for zone in p.get_zones()]

@@ -67,8 +67,8 @@ class Page(MPTTModel):
     show_in_nav = models.BooleanField(default=False)
     show_in_sitemap = models.BooleanField(default=False)
 
-    created_date = models.DateTimeField()
-    modified_date = models.DateTimeField()
+    created_date = models.DateTimeField(null=True, blank=True)
+    modified_date = models.DateTimeField(null=True, blank=True)
     publish_date = models.DateTimeField(null=True, blank=True)
 
     author = models.ForeignKey(User, related_name='pages_authored')
@@ -81,12 +81,19 @@ class Page(MPTTModel):
     ## GenericRelation gives us extra api methods
     _sm = generic.GenericRelation(DefaultStateMachine)
 
+    def __unicode__(self):
+        return '%s' % self.title
+
     def save(self, *args, **kwargs):
         if not self.id or not self.created_date:
             self.created_date = timezone.now()
         self.modified_date = timezone.now()
         super(Page, self).save(*args, **kwargs)
 
+    def state(self):
+        """ Just a helper for the admin """
+        return self.sm.state
+        
     def get_short_title(self):
         if self.short_title:
             return self.short_title

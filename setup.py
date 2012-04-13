@@ -1,16 +1,17 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(
     name="django-ostinato",
-    description="Django-ostinato brings common CMS features to pluggable django apps",
     version="0.4.3",
     url="",
+    description="Django-ostinato brings common CMS features to pluggable django apps",
     author="Andre Engelbrecht",
     author_email="andre@teh-node.co.za",
-    packages=['ostinato'],
+    packages=find_packages('src'),
     package_dir={'': 'src'},
     install_requires=[
         'setuptools',
         'django-mptt == 0.5.2',
-    ]
+    ],
 )
+
