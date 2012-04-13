@@ -12,6 +12,20 @@ class PageAdmin(MPTTModelAdmin):
     search_fields = ('title', 'short_title', 'slug', 'author')
     date_hierarchy = 'publish_date'
 
+    fieldsets = (
+        (None, {
+            'fields': (
+                ('title', 'short_title', 'slug'),
+                'template', 'redirect', 'parent',
+                ('show_in_nav', 'show_in_sitemap'),
+            ),
+        }),
+
+        ('Publication', {
+            'fields': ('author', 'publish_date'),
+        }),
+
+    )
     prepopulated_fields = {'slug': ('title',)}
 
 
