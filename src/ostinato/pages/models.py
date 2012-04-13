@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from mptt.models import MPTTModel, TreeForeignKey
 
-from ostinato.pages.utils import get_zones
+from ostinato.pages.utils import get_zones_for, get_page_zone_by_id
 from ostinato.statemachine.models import (
     StateMachineField, DefaultStateMachine, sm_post_action)
 
@@ -23,7 +23,7 @@ class PageManager(models.Manager):
         if not page:
             page = self.get_query_set().get(slug=slug)
 
-        return get_zones(page)
+        return get_zones_for(page)
 
     def published(self):
         now = timezone.now()
@@ -105,7 +105,10 @@ class Page(MPTTModel):
         if not self.id:
             return None
 
-        return get_zones(self)
+        return get_zones_for(self)
+
+    def get_zone_by_id(self, zone_id):
+        return get_page_zone_by_id(self, zone_id)
 
     @models.permalink
     def perma_url(self, data):
@@ -141,7 +144,7 @@ sm_post_action.connect(update_publish_date)
 
 
 ## Content Zones
-class ZoneContent(models.Model):
+class ContentZone(models.Model):
     """
     This is our most basic content item.
     We can create our own zones by subclassing this one, and allows us
@@ -154,8 +157,11 @@ class ZoneContent(models.Model):
         abstract = True
         unique_together = ('page', 'zone_id')
 
+    def __unicode__(self):
+        return '"%s" zone for, %s' % (self.zone_id, self.page)
 
-class PageMeta(ZoneContent):
+
+class PageMeta(ContentZone):
     """
     This contains some extra meta fields for our page.
     This model also serves as an example of how to create your own zones.
@@ -166,7 +172,7 @@ class PageMeta(ZoneContent):
         related_name='pages_contributed')
 
 
-class BasicTextZone(ZoneContent):
+class BasicTextZone(ContentZone):
     """ A standard text field """
     content = models.TextField(null=True, blank=True)
 

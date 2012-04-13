@@ -8,8 +8,9 @@ from django.template.response import SimpleTemplateResponse
 from django.utils import timezone
 from django.conf import settings
 
-from ostinato.pages.utils import get_template_by_id, get_zones
-from ostinato.pages.models import Page, ZoneContent
+from ostinato.pages.utils import (get_template_by_id, get_zones_for,
+    get_page_zone_by_id)
+from ostinato.pages.models import Page, ContentZone
 from ostinato.pages.models import PageMeta, BasicTextZone
 from ostinato.pages.views import PageView
 
@@ -39,6 +40,8 @@ SETTINGS = {
 ## Actual Tests
 class UtilsTestCase(TestCase):
 
+    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
+
     def test_custom_settings(self):
         self.assertEqual({
             'name': 'basic_page',
@@ -60,6 +63,18 @@ class UtilsTestCase(TestCase):
                 ('text', 'pages.basictextzone'),
             ),
         }, get_template_by_id('basic_page'))
+
+    def test_get_zones_for(self):
+        self.assertEqual(2, len(get_zones_for(Page.objects.get(id=1))))
+        expected_list = [
+            BasicTextZone.objects.get(id=1),
+            BasicTextZone.objects.get(id=3),
+        ]
+        self.assertEqual(expected_list, get_zones_for(Page.objects.get(id=1)))
+
+    def test_get_page_zone_by_id(self):
+        p = Page.objects.get(slug='page-2')
+        self.assertEqual(2, get_page_zone_by_id(p, 'text').id)
 
     @override_settings(**SETTINGS)
     def test_settings_override(self):
@@ -108,6 +123,10 @@ class PageModelTestCase(TestCase):
 
         self.assertEqual(2, zones[1].id)
         self.assertEqual('text', zones[1].zone_id)
+
+    def test_get_zone_by_id(self):
+        p = Page.objects.get(slug='page-1')
+        self.assertEqual(3, p.get_zone_by_id('contact_info').id)
 
     def test_get_short_title(self):
         p = Page.objects.get(slug='page-1')
@@ -188,19 +207,26 @@ class PagesStateMachineTestCase(TestCase):
 
 
 @override_settings(**SETTINGS)
-class ZoneContentModelTestCase(TestCase):
+class ContentZoneModelTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
 
     def test_model_exists(self):
-        ZoneContent
+        ContentZone
 
     def test_is_abstract(self):
-        self.assertTrue(ZoneContent._meta.abstract)
+        self.assertTrue(ContentZone._meta.abstract)
 
     def test_zone_subclasses(self):
         PageMeta
         BasicTextZone
+
+    def test_unicode(self):
+        z = BasicTextZone.objects.get(id=1)
+        self.assertEqual('"intro" zone for, Page 1', z.__unicode__())
+        
+    def test_render(self):
+        z = BasicTextZone.objects.get(id=1)
 
 
 @override_settings(**SETTINGS)
@@ -309,4 +335,5 @@ class NavBarTemplateTagTestCase(TestCase):
             self.response.content)
         self.assertIn('<li><a class="" href="/page-2/">P2</a></li>', 
             self.response.content)
+
 

@@ -12,7 +12,7 @@ def get_template_by_id(template_name):
     raise Exception('Ostinato Page Template, %s, does not exist.' % template_name)
 
 
-def get_zones(page):
+def get_zones_for(page):
     template = get_template_by_id(page.template)
 
     zones = []
@@ -28,4 +28,11 @@ def get_zones(page):
         zones.append(instance)
 
     return zones
+
+
+def get_page_zone_by_id(page, zone_id):
+    zones = get_zones_for(page)
+    for z in zones:
+        if z.zone_id == zone_id:
+            return z
 
