@@ -59,7 +59,8 @@ class Page(MPTTModel):
         help_text='A shorter title which can be used in menus etc. If this \
                    is not supplied then the normal title field will be used.')
 
-    template = models.CharField(max_length='50', choices=TEMPLATE_CHOICES)
+    template = models.CharField(max_length='50', choices=TEMPLATE_CHOICES,
+        default=TEMPLATE_CHOICES[0][0])
 
     redirect = models.CharField(max_length=200, blank=True, null=True,
         help_text='Use this to point to redirect to another page or website.')
