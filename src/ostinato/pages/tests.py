@@ -8,11 +8,12 @@ from django.template.response import SimpleTemplateResponse
 from django.utils import timezone
 from django.conf import settings
 
-from ostinato.pages.utils import (get_template_by_id, get_zones_for,
+from ostinato.pages.utils import (get_template_by_name, get_zones_for,
     get_page_zone_by_id)
 from ostinato.pages.models import Page, ContentZone
 from ostinato.pages.models import PageMeta, BasicTextZone
 from ostinato.pages.views import PageView
+from ostinato.pages.admin import inline_factory
 
 
 ## TODO: Why does this not work?
@@ -34,10 +35,19 @@ SETTINGS = {
             ('intro', 'pages.basictextzone'),
             ('contact_info', 'pages.basictextzone'),
         ),
+    }, {
+        'name': 'product_page',
+        'description': 'A page containing a gallery',
+        'template': 'pages/tests/gallery_page.html',
+        'zones': (
+            ('meta', 'pages.pagemeta'),
+            ('description', 'pages.basictextzone'),
+        ),
     }),
 }
 
 ## Actual Tests
+@override_settings(**SETTINGS)
 class UtilsTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
@@ -53,7 +63,7 @@ class UtilsTestCase(TestCase):
             ),
         }, settings.OSTINATO_PAGE_TEMPLATES[0])
 
-    def test_get_template_by_id(self):
+    def test_get_template_by_name(self):
         self.assertEqual({
             'name': 'basic_page',
             'description': 'A basic template',
@@ -62,7 +72,7 @@ class UtilsTestCase(TestCase):
                 ('meta', 'pages.pagemeta'),
                 ('text', 'pages.basictextzone'),
             ),
-        }, get_template_by_id('basic_page'))
+        }, get_template_by_name('basic_page'))
 
     def test_get_zones_for(self):
         self.assertEqual(2, len(get_zones_for(Page.objects.get(id=1))))
@@ -76,9 +86,10 @@ class UtilsTestCase(TestCase):
         p = Page.objects.get(slug='page-2')
         self.assertEqual(2, get_page_zone_by_id(p, 'text').id)
 
-    @override_settings(**SETTINGS)
     def test_settings_override(self):
-        self.assertEqual(2, len(settings.OSTINATO_PAGE_TEMPLATES))
+        ## TODO: Why does override_settings work here, but not for the rest
+        ## of the tests?
+        self.assertEqual(3, len(settings.OSTINATO_PAGE_TEMPLATES))
 
 
 @override_settings(**SETTINGS)
@@ -223,7 +234,7 @@ class ContentZoneModelTestCase(TestCase):
 
     def test_unicode(self):
         z = BasicTextZone.objects.get(id=1)
-        self.assertEqual('"intro" zone for, Page 1', z.__unicode__())
+        self.assertEqual('intro for Page 1', z.__unicode__())
         
     def test_render(self):
         z = BasicTextZone.objects.get(id=1)
@@ -309,6 +320,17 @@ class PageViewTestCase(TestCase):
         self.assertEqual(
             'Text Zone 1 Content',
             response.context['page_zones']['intro'].content)
+
+
+@override_settings(**SETTINGS)
+class PageAdminTestCase(TestCase):
+
+    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
+    urls = 'ostinato.pages.urls'
+
+    def test_inline_factory(self):
+        page = Page.objects.get(slug='page-1')
+        inline_factory(BasicTextZone, page)
 
 
 @override_settings(**SETTINGS)

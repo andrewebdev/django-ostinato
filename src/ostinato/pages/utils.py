@@ -5,7 +5,7 @@ from django.conf import settings
 OSTINATO_PAGE_TEMPLATES = getattr(settings, 'OSTINATO_PAGE_TEMPLATES')
 
 
-def get_template_by_id(template_name):
+def get_template_by_name(template_name):
     for template in OSTINATO_PAGE_TEMPLATES:
         if template['name'] == template_name:
             return template
@@ -13,7 +13,7 @@ def get_template_by_id(template_name):
 
 
 def get_zones_for(page):
-    template = get_template_by_id(page.template)
+    template = get_template_by_name(page.template)
 
     zones = []
     for index, zone in enumerate(template['zones']):

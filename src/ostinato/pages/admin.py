@@ -7,14 +7,18 @@ from ostinato.pages.models import Page
 from ostinato.pages.utils import get_zones_for
 
 
-def inline_factory(zone_model):
+def inline_factory(zone_instance, page):
 
     class ZoneInline(admin.StackedInline):
-        model = zone_model
+        model = zone_instance.__class__
         exclude = ('zone_id',)
         extra = 0
         max_num = 1
         can_delete = False
+
+        def queryset(self, request):
+            qs = super(ZoneInline, self).queryset(request)
+            return qs.filter(zone_id=zone_instance.zone_id)
 
     return ZoneInline
 
@@ -57,7 +61,7 @@ class PageAdmin(MPTTModelAdmin):
 
         if page is not None:
             for zone in get_zones_for(page):
-                inlines.append(inline_factory(zone.__class__))
+                inlines.append(inline_factory(zone, page))
 
         self.inlines = inlines
 

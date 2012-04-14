@@ -159,7 +159,7 @@ class ContentZone(models.Model):
         unique_together = ('page', 'zone_id')
 
     def __unicode__(self):
-        return '"%s" zone for, %s' % (self.zone_id, self.page)
+        return '%s for %s' % (self.zone_id, self.page)
 
 
 class PageMeta(ContentZone):
