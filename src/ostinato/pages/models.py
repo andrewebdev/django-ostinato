@@ -4,12 +4,13 @@ from django.contrib.contenttypes import generic
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.utils import timezone
+from django.dispatch import receiver
+from django.db.models.signals import pre_save
 
 from mptt.models import MPTTModel, TreeForeignKey
 
 from ostinato.pages.utils import get_zones_for, get_page_zone_by_id
-from ostinato.statemachine.models import (
-    StateMachineField, DefaultStateMachine, sm_post_action)
+from ostinato.statemachine.models import StateMachineField, DefaultStateMachine
 
 
 PAGE_TEMPLATES = getattr(settings, 'OSTINATO_PAGE_TEMPLATES')
@@ -135,13 +136,11 @@ class Page(MPTTModel):
             ('ostinato_page_view', None, {'path': '/'.join(path)}) )
 
 
-## Page Statemachine Signals
+@receiver(pre_save, sender=Page)
 def update_publish_date(sender, **kwargs):
-    page = sender.content_object
-    page.publish_date = timezone.now()
-    page.save()
-
-sm_post_action.connect(update_publish_date)
+    if not kwargs['instance'].publish_date and \
+            kwargs['instance'].sm.state == 'published':
+        kwargs['instance'].publish_date = timezone.now()
 
 
 ## Content Zones

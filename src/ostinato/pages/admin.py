@@ -3,7 +3,8 @@ from django.contrib.admin.util import unquote
 
 from mptt.admin import MPTTModelAdmin
 
-from ostinato.pages.models import Page
+from ostinato.statemachine.forms import StateMachineModelForm
+from ostinato.pages.models import Page, DefaultStateMachine
 from ostinato.pages.utils import get_zones_for
 
 
@@ -18,18 +19,26 @@ def inline_factory(zone_instance, page):
 
         def queryset(self, request):
             qs = super(ZoneInline, self).queryset(request)
-            return qs.filter(zone_id=zone_instance.zone_id)
+            return qs.filter(zone_id=zone_instance.zone_id, page=page).distinct()
 
     return ZoneInline
 
 
+class PageAdminForm(StateMachineModelForm):
+
+    class Meta:
+        model = Page
+
+
 ## Admin Models
 class PageAdmin(MPTTModelAdmin):
+    form = PageAdminForm
 
-    list_display = ('title', 'slug', 'template', 'author', 'show_in_nav',
-        'state', 'show_in_sitemap', 'created_date', 'modified_date',
+    list_display = ('title', 'slug', 'template', 'author', 'state',
+        'show_in_nav', 'show_in_sitemap', 'created_date', 'modified_date',
         'publish_date')
-    list_filter = ('template', 'author', 'show_in_nav', 'show_in_sitemap')
+    list_filter = ('template', 'author', 'show_in_nav', 'show_in_sitemap',
+        '_sm__state')
     search_fields = ('title', 'short_title', 'slug', 'author')
     date_hierarchy = 'publish_date'
 
@@ -43,7 +52,7 @@ class PageAdmin(MPTTModelAdmin):
         }),
 
         ('Publication', {
-            'fields': ('author', 'publish_date'),
+            'fields': ('author', 'publish_date', '_sm_action'),
         }),
 
     )
@@ -63,6 +72,8 @@ class PageAdmin(MPTTModelAdmin):
             for zone in get_zones_for(page):
                 inlines.append(inline_factory(zone, page))
 
+        # Note: doing self.inlines.append(inlines) will cause a bug where 
+        # the same zones will show multiple times.
         self.inlines = inlines
 
         return super(PageAdmin, self).change_view(

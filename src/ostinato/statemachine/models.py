@@ -82,14 +82,14 @@ class StateMachineField(object):
         cls._meta.add_virtual_field(self)
 
     def __get__(self, instance, instance_type=None):
-        if instance is None:
-            return self
         ## FIXME:
         # Statemachine get_statemachine() cannot create a object since
         # the related item doesnt have an ID yet (not been created)
-        return self.statemachine_cls.objects.get_statemachine(instance)
+        if instance.pk:
+            return self.statemachine_cls.objects.get_statemachine(instance)
 
 
+## This is how we create an actual StateMachine
 class DefaultStateMachine(StateMachineBase):
 
     class Meta:
@@ -121,3 +121,4 @@ class DefaultStateMachine(StateMachineBase):
             'retract': 'private',
             'archive': 'archived'
         }
+

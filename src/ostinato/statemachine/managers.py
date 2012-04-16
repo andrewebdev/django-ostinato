@@ -11,10 +11,17 @@ class StateMachineManager(models.Manager):
 
         Returns the StateMachine instance
         """
-        ctype = ContentType.objects.get_for_model(object_instance)
-        statemachine, created = self.get_query_set().get_or_create(
-            content_type=ctype, object_id=object_instance.id)
-        statemachine.save()
+        if object_instance.pk:
+            ctype = ContentType.objects.get_for_model(object_instance)
+            statemachine, created = self.get_query_set().get_or_create(
+                content_type=ctype, object_id=object_instance.id)
+            statemachine.save()
+
+        else:
+            ## Return a new, empty statemachine.
+            statemachine, created = self.get_query_set().create()
+            statemachine.save(commit=False)
+
         return statemachine
         
     def has_state(self, state, **kwargs):
@@ -23,3 +30,4 @@ class StateMachineManager(models.Manager):
         extra filter args can also be passed along with kwargs
         """
         return self.get_query_set().filter(state=state, **kwargs)
+
