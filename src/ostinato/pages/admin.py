@@ -1,5 +1,8 @@
+import os
+
 from django.contrib import admin
 from django.contrib.admin.util import unquote
+from django.conf import settings
 
 from mptt.admin import MPTTModelAdmin
 
@@ -33,6 +36,7 @@ class PageAdminForm(StateMachineModelForm):
 ## Admin Models
 class PageAdmin(MPTTModelAdmin):
     form = PageAdminForm
+    save_on_top = True
 
     list_display = ('title', 'slug', 'template', 'author', 'state',
         'show_in_nav', 'show_in_sitemap', 'created_date', 'modified_date',
@@ -45,7 +49,7 @@ class PageAdmin(MPTTModelAdmin):
     fieldsets = (
         (None, {
             'fields': (
-                ('title', 'short_title', 'slug'),
+                ('title', 'short_title'), 'slug',
                 'template', 'redirect', 'parent',
                 ('show_in_nav', 'show_in_sitemap'),
             ),
@@ -57,6 +61,14 @@ class PageAdmin(MPTTModelAdmin):
 
     )
     prepopulated_fields = {'slug': ('title',)}
+
+    class Media:
+        static_prefix = lambda p: os.path.join(
+            settings.STATIC_URL, 'pages/%s' % p)
+
+        js = (
+            static_prefix('page_admin.js'),
+        )
 
 
     def change_view(self, request, object_id, form_url='', extra_context=None):

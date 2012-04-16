@@ -138,9 +138,10 @@ class Page(MPTTModel):
 
 @receiver(pre_save, sender=Page)
 def update_publish_date(sender, **kwargs):
-    if not kwargs['instance'].publish_date and \
-            kwargs['instance'].sm.state == 'published':
-        kwargs['instance'].publish_date = timezone.now()
+    if kwargs['instance'].sm:
+        if not kwargs['instance'].publish_date and \
+                kwargs['instance'].sm.state == 'published':
+            kwargs['instance'].publish_date = timezone.now()
 
 
 ## Content Zones
