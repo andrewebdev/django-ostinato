@@ -128,6 +128,8 @@ INSTALLED_APPS = (
     'ostinato',
     'ostinato.pages',
     'ostinato.statemachine',
+
+    'odemo',
 )
 
 

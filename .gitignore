@@ -5,6 +5,8 @@
 *.egg-info
 .*.cfg
 *.db
+.children
+.project
 bin
 develop-eggs
 eggs
