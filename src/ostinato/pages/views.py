@@ -20,7 +20,7 @@ class PageView(TemplateView):
 
         else:
             # If we are looking at the root object, show the root page
-            c['current_page'] = get_object_or_404(Page, lft=1)
+            c['current_page'] = get_object_or_404(Page, lft=1, tree_id=1)
 
         self.template_name = get_template_by_name(
                 c['current_page'].template)['template']
