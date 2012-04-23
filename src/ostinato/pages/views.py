@@ -1,8 +1,15 @@
-from django.views.generic import TemplateView
+from django.views.generic import View, TemplateView
+from django.views.generic.edit import FormMixin
 from django.shortcuts import get_object_or_404
+from django.utils import simplejson as json
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.urlresolvers import reverse
+from django import http
 
 from ostinato.pages.models import Page
+from ostinato.pages.forms import MovePageForm
 from ostinato.pages.utils import get_template_by_name
+
 
 class PageView(TemplateView):
     model = Page
@@ -32,4 +39,27 @@ class PageView(TemplateView):
             c['page_zones'].update({zone.zone_id: zone})
 
         return c
+
+
+    def get(self, *args, **kwargs):
+        c = self.get_context_data(**kwargs)
+
+        if c['current_page'].sm.state == 'private':
+            if c['current_page'].author != self.request.user or\
+                    not self.request.user.is_superuser:
+                return http.HttpResponseForbidden()
+
+        return self.render_to_response(c)
+
+
+class PageReorderView(FormMixin, View):
+
+    form_class = MovePageForm
+
+    def get_success_url(self):
+        return reverse('admin:pages_page_changelist')
+
+    def form_valid(self, form):
+        form.save()
+        return http.HttpResponseRedirect(self.get_success_url())
 

@@ -1,10 +1,11 @@
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.test.client import Client
 from django.test.utils import override_settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
 from django.template.response import SimpleTemplateResponse
+from django.utils import simplejson as json
 from django.utils import timezone
 from django.conf import settings
 
@@ -12,7 +13,7 @@ from ostinato.pages.utils import (get_template_by_name, get_zones_for,
     get_page_zone_by_id)
 from ostinato.pages.models import Page, ContentZone
 from ostinato.pages.models import PageMeta, BasicTextZone
-from ostinato.pages.views import PageView
+from ostinato.pages.views import PageView, PageReorderView
 from ostinato.pages.admin import inline_factory
 
 
@@ -201,6 +202,7 @@ class PagesStateMachineTestCase(TestCase):
 
         now = timezone.now()
         self.p.sm.take_action('publish')
+        self.p.save()
 
         ## We need to refresh our page instance, since the publish date
         ## will have updated, but our current instance does not reflect this
@@ -212,6 +214,7 @@ class PagesStateMachineTestCase(TestCase):
     def test_manager_published(self):
         self.assertFalse(Page.objects.published())
         self.p.sm.take_action('publish')
+        self.p.save()
 
         self.assertEqual(1, Page.objects.published().count())
         self.assertEqual(self.p, Page.objects.published()[0])
@@ -263,6 +266,7 @@ class PageManagerTestCase(TestCase):
         ## Need to publish the items first
         for p in Page.objects.all():
             p.sm.take_action('publish')
+            p.save()
 
         expected_nav = [{
             'title': u'Page 1',
@@ -289,6 +293,10 @@ class PageViewTestCase(TestCase):
     fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
     urls = 'ostinato.pages.urls'
 
+    def setUp(self):
+        for p in Page.objects.all():
+            p.sm.take_action('publish')
+
     def test_view_exists(self):
         PageView
 
@@ -298,16 +306,14 @@ class PageViewTestCase(TestCase):
             reverse('ostinato_page_view', args=['page-1']))
 
     def test_view_response(self):
-        c = Client()
-        response = c.get('/page-1/')
+        response = self.client.get('/page-1/')
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(
             'pages/tests/landing_page.html', response.templates[0].name)
 
     def test_view_context(self):
-        c = Client()
-        response = c.get('/page-1/')
+        response = self.client.get('/page-1/')
 
         self.assertIn('current_page', response.context)
 
@@ -342,6 +348,7 @@ class NavBarTemplateTagTestCase(TestCase):
     def setUp(self):
         for p in Page.objects.all():
             p.sm.take_action('publish')
+            p.save()
 
         t = Template('{% load pages_tags %}{% navbar %}')
         self.response = SimpleTemplateResponse(t)
@@ -358,4 +365,79 @@ class NavBarTemplateTagTestCase(TestCase):
         self.assertIn('<li><a class="" href="/page-2/">P2</a></li>', 
             self.response.content)
 
+
+@override_settings(**SETTINGS)
+class PageReorderViewTestCase(TransactionTestCase):
+
+    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
+    url = 'ostinato.pages.urls'
+
+    def test_view_exists(self):
+        PageReorderView
+
+    def test_reverse_lookup(self):
+        self.assertEqual('/page_reorder/', reverse('ostinato_page_reorder'))
+
+    def test_get_response_not_allowed(self):
+        response = self.client.get('/page_reorder/')
+        self.assertEqual(405, response.status_code)
+
+    def test_reorder_pages(self):
+        """
+        TODO: Not sure why these tests are failing when they should pass.
+        """
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+
+        self.assertEqual(0, p.level)
+        self.assertEqual(1, p.lft)
+        self.assertEqual(2, p.rght)
+        self.assertEqual(1, p.tree_id)
+
+        self.assertEqual(0, p2.level)
+        self.assertEqual(3, p2.lft)
+        self.assertEqual(4, p2.rght)
+        self.assertEqual(2, p.tree_id)
+
+        v = PageReorderView()
+
+        data = {
+            'page_moves': [{
+                'id': 2,                # Move node id 2 ...
+                'position': 'left',     # ... to the Left of ...
+                'target': 1,            # ... node id 1
+            }]
+        }
+
+        v.reorder_pages(data['page_moves'])
+
+        ## Values should now be reversed
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+
+        self.assertEqual(0, p.level)
+        self.assertEqual(1, p.lft)
+        self.assertEqual(2, p.rght)
+        self.assertEqual(2, p.tree_id)
+
+        self.assertEqual(0, p2.level)
+        self.assertEqual(1, p2.lft)
+        self.assertEqual(2, p2.rght)
+        self.assertEqual(1, p.tree_id)
+
+    def test_post_response(self):
+
+        data = {
+            'page_moves': [{
+                'id': 2,                # Move node id 2 ...
+                'position': 'left',     # ... to the Left of ...
+                'target': 1,            # ... node id 1
+            }]
+        }
+
+        response = self.client.post('/page_reorder/', data)
+        self.assertEqual(302, response.status_code)
+
+        ## Remember to test the redirect on success, must redirect to
+        ## Admin Change list for pages
 

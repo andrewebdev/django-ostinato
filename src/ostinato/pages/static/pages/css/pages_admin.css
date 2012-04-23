@@ -1,0 +1,12 @@
+
+.placeholder {
+    display: block;
+    height: 2em;
+    width: 100%;
+    background-color: #417690;
+}
+
+#result_list td, #result_list th {
+    vertical-align: middle;
+}
+

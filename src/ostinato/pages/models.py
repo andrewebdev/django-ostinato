@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save
 
 from mptt.models import MPTTModel, TreeForeignKey
+from mptt.managers import TreeManager
 
 from ostinato.pages.utils import get_zones_for, get_page_zone_by_id
 from ostinato.statemachine.models import StateMachineField, DefaultStateMachine
@@ -27,9 +28,8 @@ class PageManager(models.Manager):
         return get_zones_for(page)
 
     def published(self):
-        now = timezone.now()
         return self.get_query_set().filter(
-            publish_date__lte=now, _sm__state='published').distinct()
+            publish_date__lte=timezone.now(), _sm__state='published').distinct()
 
     def get_navbar(self, for_page=None):
         """
@@ -79,12 +79,16 @@ class Page(MPTTModel):
         related_name='page_children') 
 
     objects = PageManager()
+    tree = TreeManager()
+
     sm = StateMachineField(DefaultStateMachine)
     ## GenericRelation gives us extra api methods
     _sm = generic.GenericRelation(DefaultStateMachine)
 
+
     def __unicode__(self):
         return '%s' % self.title
+
 
     def save(self, *args, **kwargs):
         if not self.id or not self.created_date:
@@ -92,15 +96,13 @@ class Page(MPTTModel):
         self.modified_date = timezone.now()
         super(Page, self).save(*args, **kwargs)
 
-    def state(self):
-        """ Just a helper for the admin """
-        return self.sm.state
-        
+
     def get_short_title(self):
         if self.short_title:
             return self.short_title
         else:
             return self.title
+
 
     def get_zones(self):
         """ Retrieve all the zones for this page, base on it's template """
@@ -109,8 +111,10 @@ class Page(MPTTModel):
 
         return get_zones_for(self)
 
+
     def get_zone_by_id(self, zone_id):
         return get_page_zone_by_id(self, zone_id)
+
 
     @models.permalink
     def perma_url(self, data):
