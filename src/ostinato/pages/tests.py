@@ -438,6 +438,3 @@ class PageReorderViewTestCase(TransactionTestCase):
         response = self.client.post('/page_reorder/', data)
         self.assertEqual(302, response.status_code)
 
-        ## Remember to test the redirect on success, must redirect to
-        ## Admin Change list for pages
-

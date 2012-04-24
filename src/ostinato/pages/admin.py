@@ -77,7 +77,6 @@ class PageAdmin(MPTTModelAdmin):
         js = (
             static_prefix('ostinato/js/jquery-1.7.1.min.js'),
             static_prefix('ostinato/js/jquery-ui-1.8.18.custom.min.js'),
-            static_prefix('ostinato/jstree/jquery.jstree.js'),
             static_prefix('pages/js/page_admin.js'),
         )
 

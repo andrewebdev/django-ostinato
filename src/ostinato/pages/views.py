@@ -52,14 +52,14 @@ class PageView(TemplateView):
         return self.render_to_response(c)
 
 
-class PageReorderView(FormMixin, View):
+class PageReorderView(View):
 
-    form_class = MovePageForm
+    def post(self, *args, **kwargs):
+        form = MovePageForm(self.request.POST)
 
-    def get_success_url(self):
-        return reverse('admin:pages_page_changelist')
+        if form.is_valid():
+            form.save()
 
-    def form_valid(self, form):
-        form.save()
-        return http.HttpResponseRedirect(self.get_success_url())
+        return http.HttpResponseRedirect(reverse('admin:pages_page_changelist'))
+
 
