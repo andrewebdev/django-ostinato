@@ -121,13 +121,14 @@ class Page(MPTTModel):
         """ A seperate method to specifically deal with permalinks """
         return data
 
+
     def get_absolute_url(self):
         """ Cycle through the parents and generate the path """
 
         if self.redirect:
             return self.redirect
 
-        if self.lft == 1:
+        if self == Page.tree.root_nodes()[0]:
             return reverse('ostinato_page_home')
 
         path = []

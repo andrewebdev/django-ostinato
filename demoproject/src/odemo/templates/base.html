@@ -10,9 +10,15 @@
 
     </head>
 
+    {% load pages_tags %}
+
     <body>
 
         <h1>Ostinato Demo</h1>
+
+        <nav>
+            {% navbar %}
+        </nav>
 
         <div id="content_main">
             {% block content_main %}{% endblock %}

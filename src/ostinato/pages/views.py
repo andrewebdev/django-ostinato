@@ -12,6 +12,7 @@ from ostinato.pages.utils import get_template_by_name
 
 
 class PageView(TemplateView):
+
     model = Page
 
     def get_context_data(self, **kwargs):
@@ -26,8 +27,8 @@ class PageView(TemplateView):
             c['current_page'] = get_object_or_404(Page, slug=path[-1])
 
         else:
-            # If we are looking at the root object, show the root page
-            c['current_page'] = get_object_or_404(Page, lft=1, tree_id=1)
+            # If we are looking at the root object, show the first root page
+            c['current_page'] = Page.tree.root_nodes()[0]
 
         self.template_name = get_template_by_name(
                 c['current_page'].template)['template']
