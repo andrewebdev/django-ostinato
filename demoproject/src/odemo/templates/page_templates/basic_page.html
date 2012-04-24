@@ -1,0 +1,22 @@
+{% extends 'page_templates/base.html' %}
+
+{% block content_main %}
+    {{ block.super }}
+
+    {% with page_zones.meta as meta %}
+    <h2>{{ meta }}</h2>
+
+    <p>{{ meta.description }}</p>
+    <p>
+        <strong>contributors: </strong>{% for c in meta.contributors.all %}{{ c }}{% if not forloop.last %},{% endif %}{% endfor %}<br />
+        <strong>allow comments? </strong>{{ meta.allow_comments }}
+    </p>
+    {% endwith %}
+
+    {% with page_zones.text as text %}
+    <h2>{{ text }}</h2>
+
+    <p>{{ text.content }}</p>
+    {% endwith %}
+
+{% endblock %}
