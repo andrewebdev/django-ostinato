@@ -1,6 +1,5 @@
 from django.test import TestCase, TransactionTestCase
 from django.test.client import Client
-from django.test.utils import override_settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
@@ -17,52 +16,10 @@ from ostinato.pages.views import PageView, PageReorderView
 from ostinato.pages.admin import inline_factory
 
 
-## TODO: Why does this not work?
-## the override_settings decorator does not seem to work
-SETTINGS = {
-    'OSTINATO_PAGE_TEMPLATES': ({
-        'name': 'basic_page',
-        'description': 'A basic template',
-        'template': 'pages/tests/basic_page.html',
-        'zones': (
-            ('meta', 'pages.pagemeta'),
-            ('text', 'pages.basictextzone'),
-        ),
-    }, {
-        'name': 'landing_page',
-        'description': 'A Index Page',
-        'template': 'pages/tests/landing_page.html',
-        'zones': (
-            ('intro', 'pages.basictextzone'),
-            ('contact_info', 'pages.basictextzone'),
-        ),
-    }, {
-        'name': 'product_page',
-        'description': 'A page containing a gallery',
-        'template': 'pages/tests/gallery_page.html',
-        'zones': (
-            ('meta', 'pages.pagemeta'),
-            ('description', 'pages.basictextzone'),
-        ),
-    }),
-}
-
 ## Actual Tests
-@override_settings(**SETTINGS)
 class UtilsTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
-
-    def test_custom_settings(self):
-        self.assertEqual({
-            'name': 'basic_page',
-            'description': 'A basic template',
-            'template': 'pages/tests/basic_page.html',
-            'zones': (
-                ('meta', 'pages.pagemeta'),
-                ('text', 'pages.basictextzone'),
-            ),
-        }, settings.OSTINATO_PAGE_TEMPLATES[0])
 
     def test_get_template_by_name(self):
         self.assertEqual({
@@ -87,13 +44,7 @@ class UtilsTestCase(TestCase):
         p = Page.objects.get(slug='page-2')
         self.assertEqual(2, get_page_zone_by_id(p, 'text').id)
 
-    def test_settings_override(self):
-        ## TODO: Why does override_settings work here, but not for the rest
-        ## of the tests?
-        self.assertEqual(3, len(settings.OSTINATO_PAGE_TEMPLATES))
 
-
-@override_settings(**SETTINGS)
 class PageModelTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
@@ -177,7 +128,6 @@ class PageModelTestCase(TestCase):
         self.assertEqual('http://www.google.com', p3.get_absolute_url())
 
 
-@override_settings(**SETTINGS)
 class PagesStateMachineTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
@@ -220,7 +170,6 @@ class PagesStateMachineTestCase(TestCase):
         self.assertEqual(self.p, Page.objects.published()[0])
 
 
-@override_settings(**SETTINGS)
 class ContentZoneModelTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
@@ -243,7 +192,6 @@ class ContentZoneModelTestCase(TestCase):
         z = BasicTextZone.objects.get(id=1)
 
 
-@override_settings(**SETTINGS)
 class PageManagerTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
@@ -287,7 +235,6 @@ class PageManagerTestCase(TestCase):
         self.assertEqual(expected_nav, Page.objects.get_navbar())
 
 
-@override_settings(**SETTINGS)
 class PageViewTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
@@ -328,7 +275,6 @@ class PageViewTestCase(TestCase):
             response.context['page_zones']['intro'].content)
 
 
-@override_settings(**SETTINGS)
 class PageAdminTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
@@ -339,7 +285,6 @@ class PageAdminTestCase(TestCase):
         inline_factory(BasicTextZone, page)
 
 
-@override_settings(**SETTINGS)
 class NavBarTemplateTagTestCase(TestCase):
 
     fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
@@ -366,7 +311,6 @@ class NavBarTemplateTagTestCase(TestCase):
             self.response.content)
 
 
-@override_settings(**SETTINGS)
 class PageReorderViewTestCase(TransactionTestCase):
 
     fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
