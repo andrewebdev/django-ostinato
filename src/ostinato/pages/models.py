@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.utils import timezone
@@ -10,45 +11,8 @@ from django.db.models.signals import pre_save
 from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
 
-from ostinato.pages.utils import get_zones_for, get_page_zone_by_id
+from ostinato.pages.managers import PageManager
 from ostinato.statemachine.models import StateMachineField, DefaultStateMachine
-
-
-PAGE_TEMPLATES = getattr(settings, 'OSTINATO_PAGE_TEMPLATES')
-TEMPLATE_CHOICES = [(t['name'], t['description']) for t in PAGE_TEMPLATES]
-
-
-## Managers
-class PageManager(models.Manager):
-
-    def get_zones_for_page(self, slug=None, page=None):
-        if not page:
-            page = self.get_query_set().get(slug=slug)
-
-        return get_zones_for(page)
-
-    def published(self):
-        return self.get_query_set().filter(
-            publish_date__lte=timezone.now(), _sm__state='published').distinct()
-
-    def get_navbar(self, for_page=None):
-        """
-        Returns a dictionary of pages with their short titles and urls.
-
-        ``for_page`` is an instance of Page. If specified, will only
-        return immediate child pages for that page.
-        """
-        to_return = []
-        nav_items = self.published().filter(parent=for_page, show_in_nav=True)
-
-        if nav_items:
-            for item in nav_items:
-                to_return.append({
-                    'title': item.get_short_title(),
-                    'url': item.get_absolute_url(),
-                })
-
-        return to_return
 
 
 ## Models
@@ -59,9 +23,6 @@ class Page(MPTTModel):
     short_title = models.CharField(max_length=15, null=True, blank=True,
         help_text='A shorter title which can be used in menus etc. If this \
                    is not supplied then the normal title field will be used.')
-
-    template = models.CharField(max_length='50', choices=TEMPLATE_CHOICES,
-        default=TEMPLATE_CHOICES[0][0])
 
     redirect = models.CharField(max_length=200, blank=True, null=True,
         help_text='Use this to point to redirect to another page or website.')
@@ -78,6 +39,12 @@ class Page(MPTTModel):
     parent = TreeForeignKey('self', null=True, blank=True,
         related_name='page_children') 
 
+    ## Create a Generic relation for the Page Template
+    template = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    content = generic.GenericForeignKey('template', 'object_id')
+
+    ## Managers
     objects = PageManager()
     tree = TreeManager()
 
@@ -102,18 +69,6 @@ class Page(MPTTModel):
             return self.short_title
         else:
             return self.title
-
-
-    def get_zones(self):
-        """ Retrieve all the zones for this page, base on it's template """
-        if not self.id:
-            return None
-
-        return get_zones_for(self)
-
-
-    def get_zone_by_id(self, zone_id):
-        return get_page_zone_by_id(self, zone_id)
 
 
     @models.permalink
@@ -149,36 +104,29 @@ def update_publish_date(sender, **kwargs):
             kwargs['instance'].publish_date = timezone.now()
 
 
-## Content Zones
-class ContentZone(models.Model):
+## Page Templates
+class PageTemplate(models.Model):
     """
-    This is our most basic content item.
-    We can create our own zones by subclassing this one, and allows us
-    to have a lot more control over our zones.
-    """
-    page = models.ForeignKey(Page)
-    zone_id = models.CharField(max_length=50)
+    Page template does not know anything about instances of it.
+    It only contains the template name, plus any fields that the 
+    developer defines.
 
+    """
     class Meta:
         abstract = True
-        unique_together = ('page', 'zone_id')
 
-    def __unicode__(self):
-        return '%s for %s' % (self.zone_id, self.page)
+    class TemplateMeta:
+        """
+        Custom Meta for the template.
 
+        ``template`` is the template path relative the templatedirs.
+        ``template_name`` is a verbose name for the template.
 
-class PageMeta(ContentZone):
-    """
-    This contains some extra meta fields for our page.
-    This model also serves as an example of how to create your own zones.
-    """
-    description = models.TextField(null=True, blank=True)    
-    allow_comments = models.BooleanField(default=False)
-    contributors = models.ManyToManyField(User, null=True, blank=True,
-        related_name='pages_contributed')
+        """
+        template = None
 
-
-class BasicTextZone(ContentZone):
-    """ A standard text field """
-    content = models.TextField(null=True, blank=True)
+    @classmethod
+    def get_template(cls):
+        """ Returns a tuple containing ``template``, ``tempalte_name`` """
+        return cls.TemplateMeta.template, cls._meta.verbose_name
 

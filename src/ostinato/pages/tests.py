@@ -1,6 +1,8 @@
 from django.test import TestCase, TransactionTestCase
 from django.test.client import Client
+from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
 from django.template.response import SimpleTemplateResponse
@@ -8,47 +10,51 @@ from django.utils import simplejson as json
 from django.utils import timezone
 from django.conf import settings
 
-from ostinato.pages.utils import (get_template_by_name, get_zones_for,
-    get_page_zone_by_id)
-from ostinato.pages.models import Page, ContentZone
-from ostinato.pages.models import PageMeta, BasicTextZone
+from ostinato.pages.models import Page, PageTemplate
 from ostinato.pages.views import PageView, PageReorderView
 from ostinato.pages.admin import inline_factory
 
 
+class LandingPage(PageTemplate):
+    intro = models.TextField()
+
+    class TemplateMeta:
+        template = 'pages/tests/landing_page.html'
+
+
+class BasicPage(PageTemplate):
+    class TemplateMeta:
+        template = 'pages/tests/basic_page.html'
+
+
+def create_pages():
+    user = User.objects.create(username='user1', password='secret',
+        email='user1@example.com')
+
+    Page.objects.create(
+        title="Page 1", slug="page-1",
+        author=user, show_in_nav=True,
+        created_date = "2012-04-10 12:14:51.203925+00:00",
+        modified_date = "2012-04-10 12:14:51.203925+00:00",
+        content=LandingPage.objects.create(intro='Page 1 Introduction')
+    )
+    Page.objects.create(
+        title="Page 2", slug="page-2", short_title='P2',
+        author=user, show_in_nav=True,
+        created_date = "2012-04-10 12:14:51.203925+00:00",
+        modified_date = "2012-04-10 12:14:51.203925+00:00",
+        content=LandingPage.objects.create()
+    )
+
+
 ## Actual Tests
-class UtilsTestCase(TestCase):
-
-    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
-
-    def test_get_template_by_name(self):
-        self.assertEqual({
-            'name': 'basic_page',
-            'description': 'A basic template',
-            'template': 'pages/tests/basic_page.html',
-            'zones': (
-                ('meta', 'pages.pagemeta'),
-                ('text', 'pages.basictextzone'),
-            ),
-        }, get_template_by_name('basic_page'))
-
-    def test_get_zones_for(self):
-        self.assertEqual(2, len(get_zones_for(Page.objects.get(id=1))))
-        expected_list = [
-            BasicTextZone.objects.get(id=1),
-            BasicTextZone.objects.get(id=3),
-        ]
-        self.assertEqual(expected_list, get_zones_for(Page.objects.get(id=1)))
-
-    def test_get_page_zone_by_id(self):
-        p = Page.objects.get(slug='page-2')
-        self.assertEqual(2, get_page_zone_by_id(p, 'text').id)
-
 
 class PageModelTestCase(TestCase):
 
-    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
     urls = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
 
     def test_model_exists(self):
         Page
@@ -60,36 +66,6 @@ class PageModelTestCase(TestCase):
 
     def test_unicode(self):
         self.assertEqual('Page 1', Page.objects.get(id=1).__unicode__())
-
-    def test_get_zones(self):
-        p = Page.objects.get(slug='page-1')
-        zones = [zone for zone in p.get_zones()]
-
-        self.assertEqual(2, len(zones))
-
-        ## A couple of very explicit tests
-        self.assertEqual(1, zones[0].id)
-        self.assertEqual('intro', zones[0].zone_id)
-
-        self.assertEqual(3, zones[1].id)
-        self.assertEqual('contact_info', zones[1].zone_id)
-
-        ## A second page should create new zones for that page
-        p = Page.objects.get(slug='page-2')
-        zones = [zone for zone in p.get_zones()]
-
-        self.assertEqual(2, len(zones))
-
-        ## A couple of very explicit tests
-        self.assertEqual(1, zones[0].id)
-        self.assertEqual('meta', zones[0].zone_id)
-
-        self.assertEqual(2, zones[1].id)
-        self.assertEqual('text', zones[1].zone_id)
-
-    def test_get_zone_by_id(self):
-        p = Page.objects.get(slug='page-1')
-        self.assertEqual(3, p.get_zone_by_id('contact_info').id)
 
     def test_get_short_title(self):
         p = Page.objects.get(slug='page-1')
@@ -109,30 +85,29 @@ class PageModelTestCase(TestCase):
         p3 = Page.objects.create(
             title='Page 3',
             slug='page-3',
-            template='landing_page',
             author=User.objects.get(id=1),
-            parent=p
+            parent=p,
+            content=BasicPage.objects.create()
         )
         self.assertEqual('/page-1/page-3/', p3.get_absolute_url())
 
     def test_absolute_url_based_on_location(self):
         p = Page.objects.get(slug='page-1')
         p3 = Page.objects.create(
-            title='Page 3',
-            slug='page-3',
-            template='landing_page',
+            title='Page 3', slug='page-3',
             author=User.objects.get(id=1),
             parent=p,
-            redirect='http://www.google.com'
+            redirect='http://www.google.com',
+            content=BasicPage.objects.create(),
         )
         self.assertEqual('http://www.google.com', p3.get_absolute_url())
 
 
 class PagesStateMachineTestCase(TestCase):
 
-    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
-
     def setUp(self):
+        create_pages()
+
         self.p = Page.objects.get(slug='page-1')
         self.p2 = Page.objects.get(slug='page-2')
 
@@ -170,41 +145,32 @@ class PagesStateMachineTestCase(TestCase):
         self.assertEqual(self.p, Page.objects.published()[0])
 
 
-class ContentZoneModelTestCase(TestCase):
-
-    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
+class PageTemplateModelTestCase(TestCase):
 
     def test_model_exists(self):
-        ContentZone
+        PageTemplate
 
-    def test_is_abstract(self):
-        self.assertTrue(ContentZone._meta.abstract)
+    def test_model_is_abstract(self):
+        self.assertTrue(PageTemplate._meta.abstract)
 
-    def test_zone_subclasses(self):
-        PageMeta
-        BasicTextZone
+    def test_template_meta(self):
+        PageTemplate.TemplateMeta
 
-    def test_unicode(self):
-        z = BasicTextZone.objects.get(id=1)
-        self.assertEqual('intro for Page 1', z.__unicode__())
-        
-    def test_render(self):
-        z = BasicTextZone.objects.get(id=1)
+
+class CustomTemplateModelTestCase(TestCase):
+
+    def test_get_template(self):
+        self.assertEqual(
+            ('pages/tests/landing_page.html', 'landing page'),
+            LandingPage.get_template())
 
 
 class PageManagerTestCase(TestCase):
 
-    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
     urls = 'ostinato.pages.urls'
 
-    def test_get_zones_for_page(self):
-        zones = Page.objects.get_zones_for_page(slug='page-1')
-        self.assertEqual(2, len(zones))
-
-        # The same method should work withou a slug if we pass a page object
-        p = Page.objects.get(slug='page-1')
-        zones = Page.objects.get_zones_for_page(page=p)
-        self.assertEqual(2, len(zones))
+    def setUp(self):
+        create_pages()
 
     def test_get_empty_navbar(self):
         empty_nav = Page.objects.get_navbar()
@@ -237,10 +203,11 @@ class PageManagerTestCase(TestCase):
 
 class PageViewTestCase(TestCase):
 
-    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
     urls = 'ostinato.pages.urls'
 
     def setUp(self):
+        create_pages()
+
         for p in Page.objects.all():
             p.sm.take_action('publish')
 
@@ -264,33 +231,23 @@ class PageViewTestCase(TestCase):
 
         self.assertIn('current_page', response.context)
 
-        # Now for the zones
-        self.assertIn('page_zones', response.context)
+    def test_content(self):
+        response = self.client.get('/page-1/')
 
-        zone_instance = BasicTextZone.objects.get(page=1, zone_id='intro')
-        self.assertEqual(
-            zone_instance, response.context['page_zones']['intro'])
-        self.assertEqual(
-            'Text Zone 1 Content',
-            response.context['page_zones']['intro'].content)
+        content = LandingPage.objects.get(id=1)
 
-
-class PageAdminTestCase(TestCase):
-
-    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
-    urls = 'ostinato.pages.urls'
-
-    def test_inline_factory(self):
-        page = Page.objects.get(slug='page-1')
-        inline_factory(BasicTextZone, page)
+        self.assertEqual(content, response.context['current_page'].content)
+        self.assertEqual('Page 1 Introduction',
+            response.context['current_page'].content.intro)
 
 
 class NavBarTemplateTagTestCase(TestCase):
 
-    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
     urls = 'ostinato.pages.urls'
 
     def setUp(self):
+        create_pages()
+
         for p in Page.objects.all():
             p.sm.take_action('publish')
             p.save()
@@ -313,8 +270,10 @@ class NavBarTemplateTagTestCase(TestCase):
 
 class PageReorderViewTestCase(TransactionTestCase):
 
-    fixtures = ['ostinato_test_fixtures.json', 'ostinato_pages_tests.json']
     url = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
 
     def test_view_exists(self):
         PageReorderView
@@ -326,59 +285,24 @@ class PageReorderViewTestCase(TransactionTestCase):
         response = self.client.get('/page_reorder/')
         self.assertEqual(405, response.status_code)
 
-    def test_reorder_pages(self):
-        """
-        TODO: Not sure why these tests are failing when they should pass.
-        """
-        p = Page.objects.get(slug='page-1')
-        p2 = Page.objects.get(slug='page-2')
-
-        self.assertEqual(0, p.level)
-        self.assertEqual(1, p.lft)
-        self.assertEqual(2, p.rght)
-        self.assertEqual(1, p.tree_id)
-
-        self.assertEqual(0, p2.level)
-        self.assertEqual(3, p2.lft)
-        self.assertEqual(4, p2.rght)
-        self.assertEqual(2, p.tree_id)
-
-        v = PageReorderView()
-
-        data = {
-            'page_moves': [{
-                'id': 2,                # Move node id 2 ...
-                'position': 'left',     # ... to the Left of ...
-                'target': 1,            # ... node id 1
-            }]
-        }
-
-        v.reorder_pages(data['page_moves'])
-
-        ## Values should now be reversed
-        p = Page.objects.get(slug='page-1')
-        p2 = Page.objects.get(slug='page-2')
-
-        self.assertEqual(0, p.level)
-        self.assertEqual(1, p.lft)
-        self.assertEqual(2, p.rght)
-        self.assertEqual(2, p.tree_id)
-
-        self.assertEqual(0, p2.level)
-        self.assertEqual(1, p2.lft)
-        self.assertEqual(2, p2.rght)
-        self.assertEqual(1, p.tree_id)
-
     def test_post_response(self):
 
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+
+        self.assertLess(p.tree_id, p2.tree_id)
+
         data = {
-            'page_moves': [{
-                'id': 2,                # Move node id 2 ...
-                'position': 'left',     # ... to the Left of ...
-                'target': 1,            # ... node id 1
-            }]
+            'node': 2,                # Move node id 2 ...
+            'position': 'left',     # ... to the Left of ...
+            'target': 1,            # ... node id 1
         }
 
         response = self.client.post('/page_reorder/', data)
         self.assertEqual(302, response.status_code)
+
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+
+        self.assertGreater(p.tree_id, p2.tree_id)
 

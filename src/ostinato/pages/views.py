@@ -8,7 +8,6 @@ from django import http
 
 from ostinato.pages.models import Page
 from ostinato.pages.forms import MovePageForm
-from ostinato.pages.utils import get_template_by_name
 
 
 class PageView(TemplateView):
@@ -30,14 +29,7 @@ class PageView(TemplateView):
             # If we are looking at the root object, show the first root page
             c['current_page'] = Page.tree.root_nodes()[0]
 
-        self.template_name = get_template_by_name(
-                c['current_page'].template)['template']
-
-        # Determine the zones and add this to the context
-        c['page_zones'] = {}
-
-        for zone in c['current_page'].get_zones():
-            c['page_zones'].update({zone.zone_id: zone})
+        self.template_name = c['current_page'].content.TemplateMeta.template
 
         return c
 
