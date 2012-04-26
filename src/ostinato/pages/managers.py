@@ -16,7 +16,8 @@ class PageManager(models.Manager):
         return immediate child pages for that page.
         """
         to_return = []
-        nav_items = self.published().filter(parent=for_page, show_in_nav=True)
+        nav_items = self.published().filter(parent=for_page, show_in_nav=True)\
+            .order_by('tree_id')
 
         if nav_items:
             for item in nav_items:
