@@ -6,10 +6,29 @@
 Welcome to django-ostinato's documentation!
 ===========================================
 
-Contents:
+    *"In music, an ostinato (derived from Italian: "stubborn", compare English:
+    obstinate) is a motif or phrase, which is persistently repeated in the same
+    musical voice."*
+
+    -- `Wikipedia <http://en.wikipedia.org/wiki/Ostinato>`_
+
+Introduction
+============
+
+Django-ostinato is a collection of applications that aims to bring together
+some of the most common features expected from a CMS.
+
+Every feature is contained within a single ostinato app. This helps us to keep
+functionality focussed on the single feature/task that the app is meant to
+provide
+
 
 .. toctree::
    :maxdepth: 2
+
+   demoproject
+   ostinato.pages
+   ostinato.contentfilters
 
 
 
