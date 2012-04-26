@@ -3,16 +3,19 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from django.conf import settings
 from django.utils import timezone
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
+from django.conf import settings
 
 from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
 
 from ostinato.pages.managers import PageManager
 from ostinato.statemachine.models import StateMachineField, DefaultStateMachine
+
+
+TEMPLATE_CHOICES = getattr(settings, 'OSTINATO_PAGE_TEMPLATES')
 
 
 ## Models
@@ -23,6 +26,8 @@ class Page(MPTTModel):
     short_title = models.CharField(max_length=15, null=True, blank=True,
         help_text='A shorter title which can be used in menus etc. If this \
                    is not supplied then the normal title field will be used.')
+
+    template = models.CharField(max_length=100, choices=TEMPLATE_CHOICES)
 
     redirect = models.CharField(max_length=200, blank=True, null=True,
         help_text='Use this to point to redirect to another page or website.')
@@ -39,11 +44,6 @@ class Page(MPTTModel):
     parent = TreeForeignKey('self', null=True, blank=True,
         related_name='page_children') 
 
-    ## Create a Generic relation for the Page Template
-    template = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    content = generic.GenericForeignKey('template', 'object_id')
-
     ## Managers
     objects = PageManager()
     tree = TreeManager()
@@ -58,6 +58,7 @@ class Page(MPTTModel):
 
 
     def save(self, *args, **kwargs):
+        ## Publishing
         if not self.id or not self.created_date:
             self.created_date = timezone.now()
         self.modified_date = timezone.now()
@@ -96,6 +97,24 @@ class Page(MPTTModel):
             ('ostinato_page_view', None, {'path': '/'.join(path)}) )
 
 
+    def get_content_model(self):
+        label, model = self.template.split('.')
+        template_type = ContentType.objects.get(app_label=label, model=model)
+        return template_type.model_class()
+
+
+    def get_content(self):
+        label, model = self.template.split('.')
+        template_type = ContentType.objects.get(app_label=label, model=model)
+        return template_type.get_object_for_this_type(page=self.id)
+
+    contents = property(get_content)
+
+
+    def get_template(self):
+        return self.get_content_model().ContentOptions.template
+
+
 @receiver(pre_save, sender=Page)
 def update_publish_date(sender, **kwargs):
     if kwargs['instance'].sm:
@@ -105,28 +124,43 @@ def update_publish_date(sender, **kwargs):
 
 
 ## Page Templates
-class PageTemplate(models.Model):
+class PageContent(models.Model):
     """
     Page template does not know anything about instances of it.
     It only contains the template name, plus any fields that the 
     developer defines.
 
     """
+    page = models.OneToOneField(Page,
+        related_name='%(app_label)s_%(class)s_template')
+
     class Meta:
         abstract = True
 
-    class TemplateMeta:
+    class ContentOptions:
         """
-        Custom Meta for the template.
-
+        Custom Options for the Content
         ``template`` is the template path relative the templatedirs.
-        ``template_name`` is a verbose name for the template.
-
         """
         template = None
 
     @classmethod
     def get_template(cls):
-        """ Returns a tuple containing ``template``, ``tempalte_name`` """
-        return cls.TemplateMeta.template, cls._meta.verbose_name
+        return cls.ContentOptions.template
+
+
+## Example Templates
+class LandingPage(PageContent):
+    intro = models.TextField()
+    content = models.TextField()
+
+    class ContentOptions:
+        template = 'pages/tests/landing_page.html'
+
+
+class BasicPage(PageContent):
+    content = models.TextField()
+
+    class ContentOptions:
+        template = 'pages/tests/basic_page.html'
 

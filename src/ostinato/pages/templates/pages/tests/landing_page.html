@@ -1,2 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'pages/tests/base.html' %}
 
+{% block content %}
+
+<h1>{{ page.title }}</h1>
+
+<p>{{ page.contents.content }}</p>
+
+{% endblock %}

@@ -23,13 +23,16 @@ class PageView(TemplateView):
             if not path[-1]:
                 path = path[:-1]
 
-            c['current_page'] = get_object_or_404(Page, slug=path[-1])
+            c['page'] = get_object_or_404(Page, slug=path[-1])
 
         else:
             # If we are looking at the root object, show the first root page
-            c['current_page'] = Page.tree.root_nodes()[0]
+            try:
+                c['page'] = Page.tree.root_nodes()[0]
+            except IndexError:
+                raise http.Http404
 
-        self.template_name = c['current_page'].content.TemplateMeta.template
+        self.template_name = c['page'].get_template()
 
         return c
 
@@ -37,8 +40,8 @@ class PageView(TemplateView):
     def get(self, *args, **kwargs):
         c = self.get_context_data(**kwargs)
 
-        if c['current_page'].sm.state == 'private':
-            if c['current_page'].author != self.request.user or\
+        if c['page'].sm.state == 'private':
+            if c['page'].author != self.request.user or\
                     not self.request.user.is_superuser:
                 return http.HttpResponseForbidden()
 

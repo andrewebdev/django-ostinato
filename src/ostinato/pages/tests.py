@@ -10,41 +10,32 @@ from django.utils import simplejson as json
 from django.utils import timezone
 from django.conf import settings
 
-from ostinato.pages.models import Page, PageTemplate
+from ostinato.pages.models import Page, PageContent, LandingPage, BasicPage
 from ostinato.pages.views import PageView, PageReorderView
-from ostinato.pages.admin import inline_factory
-
-
-class LandingPage(PageTemplate):
-    intro = models.TextField()
-
-    class TemplateMeta:
-        template = 'pages/tests/landing_page.html'
-
-
-class BasicPage(PageTemplate):
-    class TemplateMeta:
-        template = 'pages/tests/basic_page.html'
 
 
 def create_pages():
     user = User.objects.create(username='user1', password='secret',
         email='user1@example.com')
 
-    Page.objects.create(
+    p = Page.objects.create(
         title="Page 1", slug="page-1",
         author=user, show_in_nav=True,
         created_date = "2012-04-10 12:14:51.203925+00:00",
         modified_date = "2012-04-10 12:14:51.203925+00:00",
-        content=LandingPage.objects.create(intro='Page 1 Introduction')
+        template='pages.landingpage',
     )
-    Page.objects.create(
+    p2 = Page.objects.create(
         title="Page 2", slug="page-2", short_title='P2',
         author=user, show_in_nav=True,
         created_date = "2012-04-10 12:14:51.203925+00:00",
         modified_date = "2012-04-10 12:14:51.203925+00:00",
-        content=LandingPage.objects.create()
+        template='pages.basicpage',
     )
+
+    ## Create some content
+    LandingPage.objects.create(
+        page=p, intro='Page 1 Introduction', content='Page 1 Content')
 
 
 ## Actual Tests
@@ -87,7 +78,6 @@ class PageModelTestCase(TestCase):
             slug='page-3',
             author=User.objects.get(id=1),
             parent=p,
-            content=BasicPage.objects.create()
         )
         self.assertEqual('/page-1/page-3/', p3.get_absolute_url())
 
@@ -98,9 +88,21 @@ class PageModelTestCase(TestCase):
             author=User.objects.get(id=1),
             parent=p,
             redirect='http://www.google.com',
-            content=BasicPage.objects.create(),
         )
         self.assertEqual('http://www.google.com', p3.get_absolute_url())
+
+    def test_get_content_model(self):
+        p = Page.objects.get(slug='page-1')
+        self.assertEqual(LandingPage, p.get_content_model())
+
+    def test_get_template(self):
+        p = Page.objects.get(slug='page-1')
+        self.assertEqual('pages/tests/landing_page.html', p.get_template())
+
+    def test_page_contents(self):
+        p = Page.objects.get(slug='page-1')
+        c = LandingPage.objects.get(id=1)
+        self.assertEqual(c, p.contents)
 
 
 class PagesStateMachineTestCase(TestCase):
@@ -145,24 +147,16 @@ class PagesStateMachineTestCase(TestCase):
         self.assertEqual(self.p, Page.objects.published()[0])
 
 
-class PageTemplateModelTestCase(TestCase):
+class PageContentModelTestCase(TestCase):
 
     def test_model_exists(self):
-        PageTemplate
+        PageContent
 
     def test_model_is_abstract(self):
-        self.assertTrue(PageTemplate._meta.abstract)
+        self.assertTrue(PageContent._meta.abstract)
 
     def test_template_meta(self):
-        PageTemplate.TemplateMeta
-
-
-class CustomTemplateModelTestCase(TestCase):
-
-    def test_get_template(self):
-        self.assertEqual(
-            ('pages/tests/landing_page.html', 'landing page'),
-            LandingPage.get_template())
+        PageContent.ContentOptions
 
 
 class PageManagerTestCase(TestCase):
@@ -228,17 +222,11 @@ class PageViewTestCase(TestCase):
 
     def test_view_context(self):
         response = self.client.get('/page-1/')
+        self.assertIn('page', response.context)
 
-        self.assertIn('current_page', response.context)
-
-    def test_content(self):
+    def test_view_content(self):
         response = self.client.get('/page-1/')
-
-        content = LandingPage.objects.get(id=1)
-
-        self.assertEqual(content, response.context['current_page'].content)
-        self.assertEqual('Page 1 Introduction',
-            response.context['current_page'].content.intro)
+        self.assertIn('Page 1 Content', response.content)
 
 
 class NavBarTemplateTagTestCase(TestCase):
@@ -293,7 +281,7 @@ class PageReorderViewTestCase(TransactionTestCase):
         self.assertLess(p.tree_id, p2.tree_id)
 
         data = {
-            'node': 2,                # Move node id 2 ...
+            'node': 2,              # Move node id 2 ...
             'position': 'left',     # ... to the Left of ...
             'target': 1,            # ... node id 1
         }
@@ -305,4 +293,5 @@ class PageReorderViewTestCase(TransactionTestCase):
         p2 = Page.objects.get(slug='page-2')
 
         self.assertGreater(p.tree_id, p2.tree_id)
+
 

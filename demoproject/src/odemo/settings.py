@@ -134,25 +134,10 @@ INSTALLED_APPS = (
 
 
 ## OSTINATO SETTINGS_
-OSTINATO_PAGE_TEMPLATES = ({
-    'name': 'basic_page',
-    'description': 'A basic template',
-    'template': 'pages/tests/basic_page.html',
-    # 'template': 'page_templates/basic_page.html',
-    'zones': (
-        ('meta', 'pages.pagemeta'),
-        ('text', 'pages.basictextzone'),
-    ),
-}, {
-    'name': 'landing_page',
-    'description': 'A Index Page',
-    'template': 'pages/tests/landing_page.html',
-    # 'template': 'page_templates/landing_page.html',
-    'zones': (
-        ('intro', 'pages.basictextzone'),
-        ('contact_info', 'pages.basictextzone'),
-    ),
-})
+OSTINATO_PAGE_TEMPLATES = (
+    ('pages.landingpage', 'Landing Page'),
+    ('pages.basicpage', 'Basic Page'),
+)
 
 
 # A sample logging configuration. The only tangible logging

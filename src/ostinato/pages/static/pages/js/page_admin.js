@@ -18,9 +18,9 @@ django.jQuery(document).ready(function() {
     var page_id;
 
     // When changing the template, we should 'refresh' the Page
-    django.jQuery('#id_template').change(function() {
-        django.jQuery('input[name="_continue"]').click();
-    });
+    // django.jQuery('#id_template').change(function() {
+    //     django.jQuery('input[name="_continue"]').click();
+    // });
 
     $('.ostinato_page_move').button({
         'icons': {'primary': 'ui-icon-arrow-4'},
