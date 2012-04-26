@@ -43,6 +43,7 @@ class PageAdmin(MPTTModelAdmin):
 
     search_fields = ('title', 'short_title', 'slug', 'author')
     date_hierarchy = 'publish_date'
+    inlines = []
 
     fieldsets = (
         (None, {
@@ -94,21 +95,27 @@ class PageAdmin(MPTTModelAdmin):
     reorder.allow_tags = True
 
 
+    def add_view(self, request, form_url='', extra_context=None):
+        # We need to clear the inlines. Django keeps it cached somewhere
+        self.inlines = []
+        return super(PageAdmin, self).add_view(request, form_url, extra_context)
+
+
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """
         We need to dynamically create the inline models since it
         changes based on the template.
         """
-        page = self.get_object(request, unquote(object_id))
+        self.inlines = []
 
-        inlines = []
+        if object_id:
+            page = self.get_object(request, unquote(object_id))
 
-        if page and page.template:
-            inlines.append(content_inline_factory(page))
-            self.inlines = inlines
+            if page.template:
+                self.inlines = [content_inline_factory(page)]
 
         return super(PageAdmin, self).change_view(
-            request, object_id, form_url='', extra_context=None)
+            request, object_id, form_url, extra_context)
 
 
 admin.site.register(Page, PageAdmin)
