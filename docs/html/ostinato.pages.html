@@ -211,6 +211,66 @@ will do the related lookup for you.</p>
 </div>
 <p>A lot better, no?</p>
 </div>
+<div class="section" id="creating-a-custom-view-for-your-content">
+<h2>Creating a custom view for your content<a class="headerlink" href="#creating-a-custom-view-for-your-content" title="Permalink to this headline">¶</a></h2>
+<p>There are cases that you may want to have a custom view to render your template,
+rather than just using the default view that <tt class="docutils literal"><span class="pre">ostinato.pages</span></tt> uses.</p>
+<p>One use case for this may be that one of your pages can have a contact form.
+So you will need a way to add this form to the page context. You also want this
+page to handle the post request etc.</p>
+<p>First you create your view. Note that <tt class="docutils literal"><span class="pre">ostinato.pages</span></tt> makes use of django&#8217;s
+class based views. If you haven&#8217;t used them before, then it would help to read
+up on them.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">ostinato.pages.views</span> <span class="kn">import</span> <span class="n">PageView</span>
+
+<span class="k">class</span> <span class="nc">ContactView</span><span class="p">(</span><span class="n">PageView</span><span class="p">):</span>  <span class="c">## Note we are subclassing PageView</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">c</span><span class="p">[</span><span class="s">&#39;form&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ContactForm</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_to_response</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c">## Handle your form ...</span>
+        <span class="k">return</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="s">&#39;/some/url/&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the example above, we created our own view that will add the form to the
+context, and will also handle the post request. There is nothing special here.
+It&#8217;s just the standard django class based views in action.</p>
+<p>One thing to note is that our <tt class="docutils literal"><span class="pre">ContactView</span></tt> inherrits from <tt class="docutils literal"><span class="pre">PageView</span></tt>
+(which in turn inherrits from <tt class="docutils literal"><span class="pre">TemplateView</span></tt>). You dont <em>have</em> to inherrit
+from PageView, but if you dont, then you need to add the <tt class="docutils literal"><span class="pre">page</span></tt> instance
+to the context yourself, whereas <tt class="docutils literal"><span class="pre">PageView</span></tt> takes care of that for you.</p>
+<p>Ok, now we have our view, we need to tell the relative page content model to
+use this view when it&#8217;s being rendered. We do this on the model.</p>
+<p>Using our <tt class="docutils literal"><span class="pre">AttributionPage</span></tt> example from earlier, we change it like so:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">ostinato.pages.models</span> <span class="kn">import</span> <span class="n">PageContent</span>
+
+<span class="k">class</span> <span class="nc">AttributionPage</span><span class="p">(</span><span class="n">PageContent</span><span class="p">):</span>  <span class="c">## Note the class inheritance</span>
+    <span class="n">preview_image</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ImageField</span><span class="p">(</span><span class="n">upload_to</span><span class="o">=</span><span class="s">&#39;/previews/&#39;</span><span class="p">)</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+    <span class="n">attribution</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">ContentOptions</span><span class="p">:</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="s">&#39;attribution_page.html&#39;</span>
+<span class="hll">        <span class="n">view</span> <span class="o">=</span> <span class="s">&#39;myapp.views.ContactView&#39;</span>  <span class="c">## Full import path to your view</span>
+</span></pre></div>
+</td></tr></table></div>
+<p>See line 11, that&#8217;s all you need!</p>
+</div>
 </div>
 
 
@@ -227,6 +287,7 @@ will do the related lookup for you.</p>
 <li><a class="reference internal" href="#registering-page-content-templates">Registering page content (templates)</a></li>
 <li><a class="reference internal" href="#creating-custom-page-content">Creating custom page content</a></li>
 <li><a class="reference internal" href="#displaying-page-content-in-the-templates">Displaying page content in the templates</a></li>
+<li><a class="reference internal" href="#creating-a-custom-view-for-your-content">Creating a custom view for your content</a></li>
 </ul>
 </li>
 </ul>

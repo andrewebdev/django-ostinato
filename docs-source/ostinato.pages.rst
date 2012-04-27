@@ -205,5 +205,61 @@ A lot better, no?
 Creating a custom view for your content
 ---------------------------------------
 
-tbc ...
+There are cases that you may want to have a custom view to render your template,
+rather than just using the default view that ``ostinato.pages`` uses.
 
+One use case for this may be that one of your pages can have a contact form.
+So you will need a way to add this form to the page context. You also want this
+page to handle the post request etc.
+
+First you create your view. Note that ``ostinato.pages`` makes use of django's
+class based views. If you haven't used them before, then it would help to read
+up on them.
+
+.. code-block:: python
+
+    from ostinato.pages.views import PageView
+
+    class ContactView(PageView):  ## Note we are subclassing PageView
+
+        def get(self, *args, **kwargs):
+            c = self.get_context_data(**kwargs)
+            c['form'] = ContactForm()
+            return self.render_to_response(c)
+
+        def post(self, *args, **kwargs):
+            c = self.get_context_data(**kwargs)
+            ## Handle your form ...
+            return http.HttpResponseRedirect('/some/url/')
+
+In the example above, we created our own view that will add the form to the
+context, and will also handle the post request. There is nothing special here.
+It's just the standard django class based views in action.
+
+One thing to note is that our ``ContactView`` inherrits from ``PageView``
+(which in turn inherrits from ``TemplateView``). You dont *have* to inherrit
+from PageView, but if you dont, then you need to add the ``page`` instance
+to the context yourself, whereas ``PageView`` takes care of that for you.
+
+Ok, now we have our view, we need to tell the relative page content model to
+use this view when it's being rendered. We do this on the model.
+
+Using our ``AttributionPage`` example from earlier, we change it like so:
+
+.. code-block:: python
+    :linenos:
+    :emphasize-lines: 11
+
+    from django.db import models
+    from ostinato.pages.models import PageContent
+
+    class AttributionPage(PageContent):  ## Note the class inheritance
+        preview_image = models.ImageField(upload_to='/previews/')
+        content = models.TextField()
+        attribution = models.CharField(max_length=150)
+
+        class ContentOptions:
+            template = 'attribution_page.html'
+            view = 'myapp.views.ContactView'  ## Full import path to your view
+
+See line 11, that's all you need!
