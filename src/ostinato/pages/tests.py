@@ -1,17 +1,17 @@
 from django.test import TestCase, TransactionTestCase
-from django.test.client import Client
+from django.test.client import Client, RequestFactory
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
-from django.template.response import SimpleTemplateResponse
+from django.template.response import SimpleTemplateResponse, TemplateResponse
 from django.utils import simplejson as json
 from django.utils import timezone
 from django.conf import settings
 
 from ostinato.pages.models import Page, PageContent, LandingPage, BasicPage
-from ostinato.pages.views import PageView, PageReorderView
+from ostinato.pages.views import PageView, PageReorderView, page_dispatch
 
 
 def create_pages():
@@ -227,6 +227,42 @@ class PageViewTestCase(TestCase):
     def test_view_content(self):
         response = self.client.get('/page-1/')
         self.assertIn('Page 1 Content', response.content)
+
+
+class ViewDispatcherTestCase(TestCase):
+
+    urls = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
+
+        for p in Page.objects.all():
+            p.sm.take_action('publish')
+
+    def test_dispatcher_exists(self):
+        page_dispatch
+
+    def test_returns_valid_view(self):
+        rf = RequestFactory()
+        request = rf.get('/page-1/')
+
+        response = page_dispatch(request)
+        self.assertEqual(200, response.status_code)
+        self.assertIsInstance(response, TemplateResponse)
+
+    def test_custom_view_response(self):
+        response = self.client.get('/page-2/')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(
+            'pages/tests/basic_page.html', response.templates[0].name)
+
+    def test_custom_view_context(self):
+        response = self.client.get('/page-2/')
+
+        self.assertIn('page', response.context)
+        self.assertIn('custom', response.context)
+        self.assertEqual('Some Custom Context', response.context['custom'])
 
 
 class NavBarTemplateTagTestCase(TestCase):

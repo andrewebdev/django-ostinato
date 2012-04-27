@@ -140,8 +140,10 @@ class PageContent(models.Model):
         """
         Custom Options for the Content
         ``template`` is the template path relative the templatedirs.
+        ``view`` is a custom view that will handle the rendering for the page
         """
         template = None
+        view = 'ostinato.pages.views.PageView'
 
     @classmethod
     def get_template(cls):
@@ -162,4 +164,5 @@ class BasicPage(PageContent):
 
     class ContentOptions:
         template = 'pages/tests/basic_page.html'
+        view = 'ostinato.pages.views.CustomView'
 

@@ -9,6 +9,7 @@ the pages in the site's navigation.
 Allows for creating custom Content for Pages, which can be customized on a
 per-project-basis.
 
+
 A quick overview
 ----------------
 
@@ -24,7 +25,6 @@ Page Content is a seperate model from pages, and this is the actual content
 for the page. Two of these models already exist within pages, and you are free
 to use them out-of-the-box, but you can easilly create your own if you need
 more control over content in your pages.
-
 
 
 Add ``ostinato.pages`` to your project
@@ -66,6 +66,7 @@ but you can create a hierarchy of pages to define the structure of your site.
 
 Give it a go in the admin. You'll notice that the ``template`` field is a empty
 dropdown. We'll be adding Page Content (and templates) in the next section.
+
 
 Registering page content (templates)
 ------------------------------------
@@ -158,6 +159,7 @@ to run syncdb again.
 
 That's all. Go ahead and test it if you wish.
 
+
 Displaying page content in the templates
 ----------------------------------------
 
@@ -198,3 +200,10 @@ will do the related lookup for you.
     <p>Thanks to, {{ page.contents.attribution }}</p>
 
 A lot better, no?
+
+
+Creating a custom view for your content
+---------------------------------------
+
+tbc ...
+
