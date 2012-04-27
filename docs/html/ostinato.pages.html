@@ -183,7 +183,33 @@ to run syncdb again.</p>
 </div>
 <div class="section" id="displaying-page-content-in-the-templates">
 <h2>Displaying page content in the templates<a class="headerlink" href="#displaying-page-content-in-the-templates" title="Permalink to this headline">¶</a></h2>
-<p>tbc ...</p>
+<p>Ok so earlier we created a custom PageContent model, and gave it a template.
+I&#8217;m going to assume you&#8217;ve already created that template. Lets see how we can
+access the content in the template.</p>
+<p>The page view adds <tt class="docutils literal"><span class="pre">page</span></tt> to your context, which is the current page instance.
+Using that it&#8217;s very easy to do something like this:</p>
+<div class="highlight-html"><div class="highlight"><pre>{{ page.title }}
+</pre></div>
+</div>
+<p>That&#8217;s all fine, but we have content for a page as well, which is stored in
+a different model. There are two ways we can access this content.</p>
+<p>1. <em>The Verbose way</em> - We can use the related name that points to the content
+model. The related name is in the format of, <tt class="docutils literal"><span class="pre">&lt;app_label&gt;_&lt;model&gt;_content</span></tt>.</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">&quot;{{ page.myapp_attributionpage_content.preview_image.url }}&quot;</span> <span class="nt">/&gt;</span>
+{{ page.myapp_attributionpage_content.content }}
+<span class="nt">&lt;p&gt;</span>Thanks to, {{ page.myapp_attributionpage_content.attribution }}<span class="nt">&lt;/p&gt;</span>
+</pre></div>
+</div>
+<p>This works, but wow that&#8217;s a lot of typing. Good that we provide a shortcut for
+you.</p>
+<p>2. <em>The short way</em> - We include a field on the page called <tt class="docutils literal"><span class="pre">contents</span></tt>, which
+will do the related lookup for you.</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">&quot;{{ page.contents.preview_image.url }}&quot;</span> <span class="nt">/&gt;</span>
+{{ page.contents.content }}
+<span class="nt">&lt;p&gt;</span>Thanks to, {{ page.contents.attribution }}<span class="nt">&lt;/p&gt;</span>
+</pre></div>
+</div>
+<p>A lot better, no?</p>
 </div>
 </div>
 

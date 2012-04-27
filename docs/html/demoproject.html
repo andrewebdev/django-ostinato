@@ -58,11 +58,25 @@ The test project uses zc.buildout, which lets you install and run the entire
 demo, including all dependencies, in an isolated environment.</p>
 <div class="section" id="setting-up-the-demo-project">
 <h2>Setting up the demo project<a class="headerlink" href="#setting-up-the-demo-project" title="Permalink to this headline">¶</a></h2>
-<p>tbc...</p>
+<p>After checking out or downloading the source, you will see the <tt class="docutils literal"><span class="pre">demoproject</span></tt>
+folder. There should be two files in that folder <tt class="docutils literal"><span class="pre">bootstrap.py</span></tt> and
+<tt class="docutils literal"><span class="pre">buildout.cfg</span></tt>. The actual django project is in <tt class="docutils literal"><span class="pre">demoproject/src/odemo</span></tt>.</p>
+<p>Lets build the project. To do so you bootstrap it using the python version of
+your choice.</p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">bootstrap.py</span></tt> or you could do, <tt class="docutils literal"><span class="pre">python2.6</span> <span class="pre">bootstrap.py</span></tt>. Just
+remember that ostinato have not been tested with versions lower than 2.6.</p>
+<p>Ok, after the bootstrap, you will see there should now be a <tt class="docutils literal"><span class="pre">bin</span></tt> folder.</p>
+<p>Now run: <tt class="docutils literal"><span class="pre">./bin/buildout</span></tt></p>
+<p>This will start to download django, mptt, an any other dependecies required
+for the project to run.</p>
 </div>
 <div class="section" id="running-the-demo-project">
 <h2>Running the demo project<a class="headerlink" href="#running-the-demo-project" title="Permalink to this headline">¶</a></h2>
-<p>tbc...</p>
+<p>Once the buildout has been created, and is finished. A new file will be in the
+<tt class="docutils literal"><span class="pre">bin</span></tt> folder called <tt class="docutils literal"><span class="pre">odemo</span></tt>. This is basically a wrapper for <tt class="docutils literal"><span class="pre">manage.py</span></tt>
+that ensures that the project is run within buildout, and not in the system.</p>
+<p>So lets sync the database: <a href="#id1"><span class="problematic" id="id2">``</span></a>./bin/odemo syncdb</p>
+<p>After the sync we can run the dev server: <tt class="docutils literal"><span class="pre">./bin/odemo</span> <span class="pre">runserver</span></tt></p>
 </div>
 </div>
 

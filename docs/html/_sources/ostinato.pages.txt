@@ -34,15 +34,15 @@ Start by adding the app to your ``INSTALLED_APPS``
 
 .. code-block:: python
 
-   INSTALLED_APPS = (
-       ...
+    INSTALLED_APPS = (
+        ...
 
-       'ostinato',
-       'ostinato.pages',
-       'ostinato.statemachine',
+        'ostinato',
+        'ostinato.pages',
+        'ostinato.statemachine',
 
-       ...
-   )
+        ...
+    )
 
 **Note** that we also added ``ostinato.statemachine``. Dont worry about the
 specifics, just as long as you know that ``ostinato.pages`` depends on that app,
@@ -161,5 +161,40 @@ That's all. Go ahead and test it if you wish.
 Displaying page content in the templates
 ----------------------------------------
 
-tbc ...
+Ok so earlier we created a custom PageContent model, and gave it a template.
+I'm going to assume you've already created that template. Lets see how we can
+access the content in the template.
 
+The page view adds ``page`` to your context, which is the current page instance.
+Using that it's very easy to do something like this:
+
+.. code-block:: html
+
+    {{ page.title }}
+
+
+That's all fine, but we have content for a page as well, which is stored in
+a different model. There are two ways we can access this content.
+
+1. *The Verbose way* - We can use the related name that points to the content
+model. The related name is in the format of, ``<app_label>_<model>_content``.
+
+.. code-block:: html
+
+    <img src="{{ page.myapp_attributionpage_content.preview_image.url }}" />
+    {{ page.myapp_attributionpage_content.content }}
+    <p>Thanks to, {{ page.myapp_attributionpage_content.attribution }}</p>
+
+This works, but wow that's a lot of typing. Good that we provide a shortcut for
+you.
+
+2. *The short way* - We include a field on the page called ``contents``, which
+will do the related lookup for you.
+
+.. code-block:: html
+
+    <img src="{{ page.contents.preview_image.url }}" />
+    {{ page.contents.content }}
+    <p>Thanks to, {{ page.contents.attribution }}</p>
+
+A lot better, no?

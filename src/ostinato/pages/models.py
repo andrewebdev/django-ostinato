@@ -99,14 +99,14 @@ class Page(MPTTModel):
 
     def get_content_model(self):
         label, model = self.template.split('.')
-        template_type = ContentType.objects.get(app_label=label, model=model)
-        return template_type.model_class()
+        content_type = ContentType.objects.get(app_label=label, model=model)
+        return content_type.model_class()
 
 
     def get_content(self):
         label, model = self.template.split('.')
-        template_type = ContentType.objects.get(app_label=label, model=model)
-        return template_type.get_object_for_this_type(page=self.id)
+        content_type = ContentType.objects.get(app_label=label, model=model)
+        return content_type.get_object_for_this_type(page=self.id)
 
     contents = property(get_content)
 
@@ -126,13 +126,12 @@ def update_publish_date(sender, **kwargs):
 ## Page Templates
 class PageContent(models.Model):
     """
-    Page template does not know anything about instances of it.
-    It only contains the template name, plus any fields that the 
-    developer defines.
-
+    Our base PageContent model. All other content models need to subclass
+    this one.
     """
+
     page = models.OneToOneField(Page,
-        related_name='%(app_label)s_%(class)s_template')
+        related_name='%(app_label)s_%(class)s_content')
 
     class Meta:
         abstract = True
