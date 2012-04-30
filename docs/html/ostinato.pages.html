@@ -271,6 +271,59 @@ use this view when it&#8217;s being rendered. We do this on the model.</p>
 </td></tr></table></div>
 <p>See line 11, that&#8217;s all you need!</p>
 </div>
+<div class="section" id="creating-complex-page-content-with-mixins">
+<h2>Creating complex page content with mixins<a class="headerlink" href="#creating-complex-page-content-with-mixins" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes you may have two different kinds of pages that share other fields.
+Lets say for example we have two or more pages that all needs to update our
+meta title and description tags for SEO.</p>
+<p>It is a bit of a waste to have to add those two fields to each of our content
+models manually, not to mention that it introduces a larger margin for errors.</p>
+<p>We use mixins to solve this:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">ostinato.pages.models</span> <span class="kn">import</span> <span class="n">PageContent</span>
+
+<span class="k">class</span> <span class="nc">SEOContentMixin</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>  <span class="c">## Note it&#39;s a standard model...</span>
+    <span class="n">keywords</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c">## ...and _must_ be abstract</span>
+
+
+<span class="k">class</span> <span class="nc">AttributionPage</span><span class="p">(</span><span class="n">SEOContentMixin</span><span class="p">,</span> <span class="n">PageContent</span><span class="p">):</span>
+    <span class="n">preview_image</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ImageField</span><span class="p">(</span><span class="n">upload_to</span><span class="o">=</span><span class="s">&#39;/previews/&#39;</span><span class="p">)</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+    <span class="n">attribution</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">ContentOptions</span><span class="p">:</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="s">&#39;attribution_page.html&#39;</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="s">&#39;myapp.views.ContactView&#39;</span>  <span class="c">## Full import path to your view</span>
+</pre></div>
+</td></tr></table></div>
+<p>The two points you have to be aware of here:</p>
+<ol class="arabic simple">
+<li>The mixin should be a normal django model</li>
+<li>The mixin <em>must</em> be abstract</li>
+</ol>
+</div>
 </div>
 
 
@@ -288,6 +341,7 @@ use this view when it&#8217;s being rendered. We do this on the model.</p>
 <li><a class="reference internal" href="#creating-custom-page-content">Creating custom page content</a></li>
 <li><a class="reference internal" href="#displaying-page-content-in-the-templates">Displaying page content in the templates</a></li>
 <li><a class="reference internal" href="#creating-a-custom-view-for-your-content">Creating a custom view for your content</a></li>
+<li><a class="reference internal" href="#creating-complex-page-content-with-mixins">Creating complex page content with mixins</a></li>
 </ul>
 </li>
 </ul>

@@ -151,16 +151,25 @@ class PageContent(models.Model):
 
 
 ## Example Templates
-class LandingPage(PageContent):
-    intro = models.TextField()
+class ContentMixin(models.Model):
+    """
+    An example of how you would do mixins. A mixin must be an abstract
+    model.
+    """
     content = models.TextField()
+
+    class Meta:
+        abstract = True  # Required for mixins
+
+
+class LandingPage(ContentMixin, PageContent):
+    intro = models.TextField()
 
     class ContentOptions:
         template = 'pages/tests/landing_page.html'
 
 
-class BasicPage(PageContent):
-    content = models.TextField()
+class BasicPage(ContentMixin, PageContent):
 
     class ContentOptions:
         template = 'pages/tests/basic_page.html'

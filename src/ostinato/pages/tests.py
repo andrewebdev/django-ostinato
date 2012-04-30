@@ -10,7 +10,8 @@ from django.utils import simplejson as json
 from django.utils import timezone
 from django.conf import settings
 
-from ostinato.pages.models import Page, PageContent, LandingPage, BasicPage
+from ostinato.pages.models import (Page, PageContent, LandingPage, BasicPage,
+    ContentMixin)
 from ostinato.pages.views import PageView, PageReorderView, page_dispatch
 
 
@@ -145,6 +146,15 @@ class PagesStateMachineTestCase(TestCase):
 
         self.assertEqual(1, Page.objects.published().count())
         self.assertEqual(self.p, Page.objects.published()[0])
+
+
+class PageContentMixinTestCase(TestCase):
+
+    def test_mixin_exist(self):
+        ContentMixin
+
+    def test_has_content_field(self):
+        self.assertTrue(ContentMixin._meta.abstract)
 
 
 class PageContentModelTestCase(TestCase):

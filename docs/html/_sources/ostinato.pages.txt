@@ -263,3 +263,46 @@ Using our ``AttributionPage`` example from earlier, we change it like so:
             view = 'myapp.views.ContactView'  ## Full import path to your view
 
 See line 11, that's all you need!
+
+
+Creating complex page content with mixins
+-----------------------------------------
+
+Sometimes you may have two different kinds of pages that share other fields.
+Lets say for example we have two or more pages that all needs to update our
+meta title and description tags for SEO.
+
+It is a bit of a waste to have to add those two fields to each of our content
+models manually, not to mention that it introduces a larger margin for errors.
+
+We use mixins to solve this:
+
+.. code-block:: python
+    :linenos:
+
+    from django.db import models
+    from ostinato.pages.models import PageContent
+
+    class SEOContentMixin(models.Model):  ## Note it's a standard model...
+        keywords = models.CharField(max_length=200)
+        description = models.TextField()
+
+        class Meta:
+            abstract = True  ## ...and _must_ be abstract
+
+
+    class AttributionPage(SEOContentMixin, PageContent):
+        preview_image = models.ImageField(upload_to='/previews/')
+        content = models.TextField()
+        attribution = models.CharField(max_length=150)
+
+        class ContentOptions:
+            template = 'attribution_page.html'
+            view = 'myapp.views.ContactView'  ## Full import path to your view
+
+The two points you have to be aware of here:
+
+#. The mixin should be a normal django model
+
+#. The mixin *must* be abstract
+
