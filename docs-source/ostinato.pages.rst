@@ -306,3 +306,46 @@ The two points you have to be aware of here:
 
 #. The mixin *must* be abstract
 
+
+Template tags and filters
+-------------------------
+
+``ostinato.pages`` comes with a couple of tempalate tags and filters to
+help with some of the more common tasks.
+
+**navbar(for_page=None)**
+
+A inclusion tag that renders the navbar, for the root by default. It will render
+all child pages for the node. This tag will only render pages that has
+``show_in_nav`` selected and is published.
+
+.. code-block:: html
+
+    {% load pages_tags %}
+
+    {% navbar %}
+
+This inclusion tag uses ``pages/navbar.html`` to render the nav, just in case
+you want to customize it.
+
+This inclusion tag can also take a extra arument to render the children for a
+specific page.
+
+.. code-block:: html
+
+    {% load pages_tags %}
+
+    {% navbar for_page=page %}
+
+
+**get_page(slug)**
+
+A simple tag that will get a page by the slug, and add it to the context.
+
+.. code-block:: html
+    
+    {% load pages_tags %}
+
+    {% get_page 'page-1' as mypage %}
+    <h1>{{ mypage.title }}</h1>
+

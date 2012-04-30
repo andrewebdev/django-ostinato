@@ -324,6 +324,37 @@ models manually, not to mention that it introduces a larger margin for errors.</
 <li>The mixin <em>must</em> be abstract</li>
 </ol>
 </div>
+<div class="section" id="template-tags-and-filters">
+<h2>Template tags and filters<a class="headerlink" href="#template-tags-and-filters" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">ostinato.pages</span></tt> comes with a couple of tempalate tags and filters to
+help with some of the more common tasks.</p>
+<p><strong>navbar(for_page=None)</strong></p>
+<p>A inclusion tag that renders the navbar, for the root by default. It will render
+all child pages for the node. This tag will only render pages that has
+<tt class="docutils literal"><span class="pre">show_in_nav</span></tt> selected and is published.</p>
+<div class="highlight-html"><div class="highlight"><pre>{% load pages_tags %}
+
+{% navbar %}
+</pre></div>
+</div>
+<p>This inclusion tag uses <tt class="docutils literal"><span class="pre">pages/navbar.html</span></tt> to render the nav, just in case
+you want to customize it.</p>
+<p>This inclusion tag can also take a extra arument to render the children for a
+specific page.</p>
+<div class="highlight-html"><div class="highlight"><pre>{% load pages_tags %}
+
+{% navbar for_page=page %}
+</pre></div>
+</div>
+<p><strong>get_page(slug)</strong></p>
+<p>A simple tag that will get a page by the slug, and add it to the context.</p>
+<div class="highlight-html"><div class="highlight"><pre>{% load pages_tags %}
+
+{% get_page &#39;page-1&#39; as mypage %}
+<span class="nt">&lt;h1&gt;</span>{{ mypage.title }}<span class="nt">&lt;/h1&gt;</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -342,6 +373,7 @@ models manually, not to mention that it introduces a larger margin for errors.</
 <li><a class="reference internal" href="#displaying-page-content-in-the-templates">Displaying page content in the templates</a></li>
 <li><a class="reference internal" href="#creating-a-custom-view-for-your-content">Creating a custom view for your content</a></li>
 <li><a class="reference internal" href="#creating-complex-page-content-with-mixins">Creating complex page content with mixins</a></li>
+<li><a class="reference internal" href="#template-tags-and-filters">Template tags and filters</a></li>
 </ul>
 </li>
 </ul>
