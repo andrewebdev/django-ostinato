@@ -302,6 +302,24 @@ class NavBarTemplateTagTestCase(TestCase):
             self.response.content)
 
 
+class GetPageTemplateTagTestCase(TestCase):
+
+    urls = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
+        t = Template('{% load pages_tags %}{% get_page "page-1" as somepage %}{{ somepage }}')
+        self.response = SimpleTemplateResponse(t)
+
+    def test_tag_renders(self):
+        self.response.render()
+        self.assertTrue(self.response.is_rendered)
+
+    def test_page_in_context(self):
+        self.response.render()
+        self.assertIn('Page 1', self.response.content)
+
+
 class PageReorderViewTestCase(TransactionTestCase):
 
     url = 'ostinato.pages.urls'

@@ -20,3 +20,9 @@ def navbar(context, for_page=None):
         
     return locals()
 
+
+@register.assignment_tag  # Requires Django 1.4+
+def get_page(slug):
+    """ Finds the page with ``slug`` and adds that to the context """
+    return Page.objects.get(slug=slug)
+
