@@ -20,6 +20,10 @@
             {% navbar %}
         </nav>
 
+        {% if not page.is_leaf_node %}
+            {% navbar for_page=page %}
+        {% endif %}
+
         <div id="content">
             {% block content %}{% endblock %}
         </div>

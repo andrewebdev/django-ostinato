@@ -130,6 +130,7 @@ INSTALLED_APPS = (
     'ostinato.statemachine',
 
     'odemo',
+    'odemo.news',
 )
 
 
@@ -137,6 +138,10 @@ INSTALLED_APPS = (
 OSTINATO_PAGE_TEMPLATES = (
     ('pages.landingpage', 'Landing Page'),
     ('pages.basicpage', 'Basic Page'),
+    ('odemo.listpage', 'List Page'),
+    ('news.newslistpagecontent', 'News List'),
+    ('news.pagewithnews', 'Page with News'),
+    ('odemo.contactpage', 'Page with Contact Form'),
 )
 
 
