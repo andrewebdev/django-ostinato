@@ -10,6 +10,9 @@ from ostinato.statemachine.forms import StateMachineModelForm
 from ostinato.pages.models import Page, DefaultStateMachine
 
 
+GRAPPELLI = 'grappelli' in settings.INSTALLED_APPS
+
+
 def content_inline_factory(page):
 
     class PageContentInline(admin.StackedInline):
@@ -61,6 +64,9 @@ class PageAdmin(MPTTModelAdmin):
     )
     prepopulated_fields = {'slug': ('title',)}
 
+    if GRAPPELLI:
+        change_list_template = 'admin/mptt_grappelli_change_list.html'
+
     class Media:
         static_prefix = lambda p: os.path.join(settings.STATIC_URL, '%s' % p)
 
@@ -71,11 +77,14 @@ class PageAdmin(MPTTModelAdmin):
             ),
         }
 
-        js = (
-            static_prefix('ostinato/js/jquery-1.7.1.min.js'),
-            static_prefix('ostinato/js/jquery-ui-1.8.18.custom.min.js'),
-            static_prefix('pages/js/page_admin.js'),
-        )
+        js = ()
+
+        if not GRAPPELLI:  # Grappelli has it's own jquery and jquery ui
+            js = (
+                static_prefix('ostinato/js/jquery-1.7.1.min.js'),
+                static_prefix('ostinato/js/jquery-ui-1.8.18.custom.min.js'),
+            )
+        js += (static_prefix('pages/js/page_admin.js'),)
 
     def state(self, obj):
         """ Just a helper for the admin """

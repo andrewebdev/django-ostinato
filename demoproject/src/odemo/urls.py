@@ -10,9 +10,12 @@ admin.autodiscover()
 
 
 urlpatterns = patterns('',
-    url(r'^admin/', include(admin.site.urls)),
     url(r'^news/(?P<id>\d+)/$', DetailView.as_view(model=NewsItem),
         name='newsitem_detail'),
+    
+    url(r'^admin/', include(admin.site.urls)),
+    (r'^grappelli/', include('grappelli.urls')),
+
 )
 
 
