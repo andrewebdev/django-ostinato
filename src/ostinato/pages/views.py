@@ -36,8 +36,7 @@ def page_dispatch(request, *args, **kwargs):
             raise http.Http404
 
     if page.sm.state == 'private':
-        if self.page.author != self.request.user or\
-                not self.request.user.is_superuser:
+        if page.author != request.user or not request.user.is_superuser:
             return http.HttpResponseForbidden()
 
     content = page.get_content_model()
