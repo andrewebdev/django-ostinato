@@ -3,7 +3,7 @@
 
 {% block object-tools %}
     {{ block.super }}
-    <form id="ostinato_page_move_form" action="{% url 'ostinato_page_reorder' %}" method="post" accept-charset="utf-8">{% csrf_token %}
+    <form id="ostinato_page_move_form" action="{% url ostinato_page_reorder %}" method="post" accept-charset="utf-8">{% csrf_token %}
         <input type="hidden" name="node" />
         <input type="hidden" name="target" />
         <input type="hidden" name="position" />
