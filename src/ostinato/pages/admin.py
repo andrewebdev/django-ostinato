@@ -77,14 +77,11 @@ class PageAdmin(MPTTModelAdmin):
             ),
         }
 
-        js = ()
-
-        if not GRAPPELLI:  # Grappelli has it's own jquery and jquery ui
-            js = (
-                static_prefix('ostinato/js/jquery-1.7.1.min.js'),
-                static_prefix('ostinato/js/jquery-ui-1.8.18.custom.min.js'),
-            )
-        js += (static_prefix('pages/js/page_admin.js'),)
+        js = (
+            static_prefix('ostinato/js/jquery-1.7.1.min.js'),
+            static_prefix('ostinato/js/jquery-ui-1.8.18.custom.min.js'),
+            static_prefix('pages/js/page_admin.js'),
+        )
 
     def state(self, obj):
         """ Just a helper for the admin """
