@@ -132,6 +132,7 @@ INSTALLED_APPS = (
     'ostinato',
     'ostinato.pages',
     'ostinato.statemachine',
+    'ckeditor',
 
     'odemo',
     'odemo.news',
@@ -148,6 +149,7 @@ OSTINATO_PAGE_TEMPLATES = (
     ('odemo.contactpage', 'Page with Contact Form'),
 )
 
+CKEDITOR_UPLOAD_PATH = projectdir("media/uploads")
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

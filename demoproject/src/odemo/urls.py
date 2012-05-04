@@ -13,6 +13,8 @@ urlpatterns = patterns('',
     url(r'^news/(?P<id>\d+)/$', DetailView.as_view(model=NewsItem),
         name='newsitem_detail'),
     
+    (r'^ckeditor/', include('ckeditor.urls')),
+    
     url(r'^admin/', include(admin.site.urls)),
     # (r'^grappelli/', include('grappelli.urls')),
 
