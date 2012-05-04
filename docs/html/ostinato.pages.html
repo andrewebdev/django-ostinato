@@ -355,6 +355,55 @@ specific page.</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="custom-forms-for-page-content">
+<h2>Custom forms for Page Content<a class="headerlink" href="#custom-forms-for-page-content" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">ostinato.pages</span></tt> also allows you to specify a custom form for page content.
+You do this in the ContentOptions class like the example below:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">ostinato.pages.models</span> <span class="kn">import</span> <span class="n">PageContent</span>
+
+<span class="k">class</span> <span class="nc">SEOContentMixin</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>  <span class="c">## Note it&#39;s a standard model...</span>
+    <span class="n">keywords</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c">## ...and _must_ be abstract</span>
+
+
+<span class="k">class</span> <span class="nc">AttributionPage</span><span class="p">(</span><span class="n">SEOContentMixin</span><span class="p">,</span> <span class="n">PageContent</span><span class="p">):</span>
+    <span class="n">preview_image</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ImageField</span><span class="p">(</span><span class="n">upload_to</span><span class="o">=</span><span class="s">&#39;/previews/&#39;</span><span class="p">)</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+    <span class="n">attribution</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">ContentOptions</span><span class="p">:</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="s">&#39;attribution_page.html&#39;</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="s">&#39;myapp.views.ContactView&#39;</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="s">&#39;myapp.forms.CustomForm&#39;</span>
+</pre></div>
+</td></tr></table></div>
+<p>As you can see we just added that at the end. Just create your custom form
+on the import path you specified, and the admin will automatically load the
+correct form for your page content.</p>
+</div>
 </div>
 
 
@@ -374,6 +423,7 @@ specific page.</p>
 <li><a class="reference internal" href="#creating-a-custom-view-for-your-content">Creating a custom view for your content</a></li>
 <li><a class="reference internal" href="#creating-complex-page-content-with-mixins">Creating complex page content with mixins</a></li>
 <li><a class="reference internal" href="#template-tags-and-filters">Template tags and filters</a></li>
+<li><a class="reference internal" href="#custom-forms-for-page-content">Custom forms for Page Content</a></li>
 </ul>
 </li>
 </ul>

@@ -19,8 +19,10 @@ class ContactPage(CKContentMixin):
         view = 'odemo.views.ContactView'
 
 
-class ListPage(CKContentMixin):
+class ListPage(ContentMixin, PageContent):
+    """ Example of a page that uses a custom form """
 
     class ContentOptions:
         template = 'page_templates/list_page.html'
+        form = 'odemo.forms.CustomForm'
 

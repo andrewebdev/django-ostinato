@@ -14,12 +14,21 @@ GRAPPELLI = 'grappelli' in settings.INSTALLED_APPS
 
 
 def content_inline_factory(page):
+    content_model = page.get_content_model()
 
     class PageContentInline(admin.StackedInline):
-        model = page.get_content_model()
+        model = content_model
         extra = 0
         max_num = 1
         can_delete = False
+
+        ## Check for a custom form and try to load it
+        if hasattr(content_model.ContentOptions, 'form'):
+            module_path, form_class = content_model.\
+                ContentOptions.form.rsplit('.', 1)
+
+            form = __import__(module_path, locals(), globals(),
+                [form_class], -1).__dict__[form_class]
 
     return PageContentInline
 

@@ -349,3 +349,38 @@ A simple tag that will get a page by the slug, and add it to the context.
     {% get_page 'page-1' as mypage %}
     <h1>{{ mypage.title }}</h1>
 
+
+Custom forms for Page Content
+-----------------------------
+
+``ostinato.pages`` also allows you to specify a custom form for page content.
+You do this in the ContentOptions class like the example below:
+
+.. code-block:: python
+    :linenos:
+
+    from django.db import models
+    from ostinato.pages.models import PageContent
+
+    class SEOContentMixin(models.Model):  ## Note it's a standard model...
+        keywords = models.CharField(max_length=200)
+        description = models.TextField()
+
+        class Meta:
+            abstract = True  ## ...and _must_ be abstract
+
+
+    class AttributionPage(SEOContentMixin, PageContent):
+        preview_image = models.ImageField(upload_to='/previews/')
+        content = models.TextField()
+        attribution = models.CharField(max_length=150)
+
+        class ContentOptions:
+            template = 'attribution_page.html'
+            view = 'myapp.views.ContactView'
+            form = 'myapp.forms.CustomForm'
+
+As you can see we just added that at the end. Just create your custom form
+on the import path you specified, and the admin will automatically load the
+correct form for your page content.
+
