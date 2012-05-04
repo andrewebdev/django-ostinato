@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="django-ostinato",
-    version="0.5-beta2",
+    version="0.5",
     url="",
     description="Django-ostinato brings common CMS features to pluggable django apps",
     author="Andre Engelbrecht",
