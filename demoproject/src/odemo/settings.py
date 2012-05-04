@@ -66,7 +66,7 @@ STATIC_ROOT = projectdir('static')
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
-ADMIN_MEDIA_PREFIX = STATIC_URL + "grappelli/"
+# ADMIN_MEDIA_PREFIX = STATIC_URL + "grappelli/"
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -123,7 +123,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'grappelli',
+    # 'grappelli',
     'django.contrib.admin',
 
     'mptt',

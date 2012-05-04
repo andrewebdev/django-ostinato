@@ -14,7 +14,7 @@ urlpatterns = patterns('',
         name='newsitem_detail'),
     
     url(r'^admin/', include(admin.site.urls)),
-    (r'^grappelli/', include('grappelli.urls')),
+    # (r'^grappelli/', include('grappelli.urls')),
 
 )
 
