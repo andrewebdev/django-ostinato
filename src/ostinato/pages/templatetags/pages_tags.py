@@ -13,11 +13,18 @@ def navbar(context, for_page=None):
     ``parent`` specifies the start level for the navbar,
         defaults to root level pages
     """
-    if for_page:
-        navbar = Page.objects.get_navbar(for_page=for_page)
-    else:
-        navbar = Page.objects.get_navbar()
-        
+    navbar = Page.objects.get_navbar(for_page=for_page)
+    return locals()
+
+
+@register.inclusion_tag('pages/breadcrumbs.html', takes_context=True)
+def breadcrumbs(context, for_page=None):
+    """ Renders the breadcrumbs for the current page in the context """
+    if not for_page:
+        # Attempt to get the page from the context
+        for_page = context['page']
+
+    breadcrumbs = Page.objects.get_breadcrumbs(for_page=for_page)
     return locals()
 
 

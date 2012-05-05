@@ -33,6 +33,14 @@ def create_pages():
         modified_date = "2012-04-10 12:14:51.203925+00:00",
         template='pages.basicpage',
     )
+    p3 = Page.objects.create(
+        title="Page 3", slug="page-3", short_title='Page 3',
+        author=user, show_in_nav=True,
+        created_date = "2012-04-10 12:14:51.203925+00:00",
+        modified_date = "2012-04-10 12:14:51.203925+00:00",
+        template='pages.basicpage',
+        parent=p,
+    )
 
     ## Create some content
     LandingPage.objects.create(
@@ -54,7 +62,7 @@ class PageModelTestCase(TestCase):
     def test_related_lookup(self):
         u = User.objects.get(username='user1')
         pages = u.pages_authored.all()
-        self.assertEqual(2, pages.count())
+        self.assertEqual(3, pages.count())
 
     def test_unicode(self):
         self.assertEqual('Page 1', Page.objects.get(id=1).__unicode__())
@@ -69,28 +77,21 @@ class PageModelTestCase(TestCase):
     def test_absolute_url(self):
         p = Page.objects.get(slug='page-1')
         p2 = Page.objects.get(slug='page-2')
+        p3 = Page.objects.get(slug='page-3')
 
         self.assertEqual('/', p.get_absolute_url())  # Root page
         self.assertEqual('/page-2/', p2.get_absolute_url())
-
-        ## Test nested pages
-        p3 = Page.objects.create(
-            title='Page 3',
-            slug='page-3',
-            author=User.objects.get(id=1),
-            parent=p,
-        )
         self.assertEqual('/page-1/page-3/', p3.get_absolute_url())
 
     def test_absolute_url_based_on_location(self):
         p = Page.objects.get(slug='page-1')
-        p3 = Page.objects.create(
-            title='Page 3', slug='page-3',
+        p4 = Page.objects.create(
+            title='Page 4', slug='page-4',
             author=User.objects.get(id=1),
             parent=p,
             redirect='http://www.google.com',
         )
-        self.assertEqual('http://www.google.com', p3.get_absolute_url())
+        self.assertEqual('http://www.google.com', p4.get_absolute_url())
 
     def test_get_content_model(self):
         p = Page.objects.get(slug='page-1')
@@ -204,6 +205,21 @@ class PageManagerTestCase(TestCase):
         p.save()
         self.assertEqual(expected_nav, Page.objects.get_navbar())
 
+    def test_get_breadcrumbs(self):
+        for p in Page.objects.all():
+            p.sm.take_action('publish')
+            p.save()
+
+        expected_crumbs = [{
+            'title': u'Page 1',
+            'url': '/',
+        }, {
+            'title': u'Page 3',
+            'url': '/page-1/page-3/',
+        }]
+        p = Page.objects.get(slug='page-3')
+        self.assertEqual(expected_crumbs, Page.objects.get_breadcrumbs(p))
+
 
 class PageViewTestCase(TestCase):
 
@@ -315,9 +331,28 @@ class GetPageTemplateTagTestCase(TestCase):
         self.response.render()
         self.assertTrue(self.response.is_rendered)
 
-    def test_page_in_context(self):
+    def test_page_in_content(self):
         self.response.render()
         self.assertIn('Page 1', self.response.content)
+
+
+class BreadCrumbsTempalteTagTestCase(TestCase):
+
+    urls = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
+        t = Template('{% load pages_tags %}{% get_page "page-3" as page %}{% breadcrumbs %}')
+        self.response = SimpleTemplateResponse(t)
+
+    def test_tag_renders(self):
+        self.response.render()
+        self.assertTrue(self.response.is_rendered)
+
+    def test_breadcrumbs_in_context(self):
+        self.response.render()
+        self.assertIn('<a href="/">Page 1</a> &gt;&gt; ', self.response.content)
+        self.assertIn('<strong>Page 3</strong>', self.response.content)
 
 
 class PageReorderViewTestCase(TransactionTestCase):

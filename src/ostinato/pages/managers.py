@@ -28,3 +28,27 @@ class PageManager(models.Manager):
 
         return to_return
 
+    def get_breadcrumbs(self, for_page):
+        """
+        Returns a list of all the parents, plus the current page. Each item
+        in the list contains a short title and url.
+        """
+        to_return = []
+        parents = for_page.get_ancestors()
+
+        if parents:
+            for page in parents:
+                to_return.append({
+                    'title': page.get_short_title(),
+                    'url': page.get_absolute_url(),
+                })
+
+        to_return.append({
+            'title': for_page.get_short_title(),
+            'url': for_page.get_absolute_url()
+        })
+
+        return to_return
+
+
+
