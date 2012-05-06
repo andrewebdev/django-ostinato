@@ -18,7 +18,7 @@ def content_inline_factory(page):
 
     class PageContentInline(admin.StackedInline):
         model = content_model
-        extra = 0
+        extra = 1
         max_num = 1
         can_delete = False
 
