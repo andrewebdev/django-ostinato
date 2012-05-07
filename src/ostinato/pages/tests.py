@@ -13,6 +13,7 @@ from django.conf import settings
 from ostinato.pages.models import (Page, PageContent, LandingPage, BasicPage,
     ContentMixin)
 from ostinato.pages.views import PageView, PageReorderView, page_dispatch
+from ostinato.pages.templatetags.pages_tags import get_page_from_path
 
 
 def create_pages():
@@ -219,6 +220,16 @@ class PageManagerTestCase(TestCase):
         }]
         p = Page.objects.get(slug='page-3')
         self.assertEqual(expected_crumbs, Page.objects.get_breadcrumbs(p))
+
+    def test_get_page_from_path(self):
+        for p in Page.objects.all():
+            p.sm.take_action('publish')
+            p.save()
+
+        rf = RequestFactory()
+        request = rf.get('/page-1/page-3/')
+
+        self.assertEqual('page-3', Page.objects.get_from_path(request).slug)
 
 
 class PageViewTestCase(TestCase):

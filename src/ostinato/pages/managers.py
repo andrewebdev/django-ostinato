@@ -50,5 +50,18 @@ class PageManager(models.Manager):
 
         return to_return
 
+    def get_from_path(self, request):
+        """ Returns a page object, base on the url path in the request. """
+
+        path = request.path.split('/')
+        path.reverse()
+
+        for node in path:
+            try:
+                if node:
+                    page = self.get_query_set().get(slug=node)
+                    return page
+            except:
+                pass
 
 
