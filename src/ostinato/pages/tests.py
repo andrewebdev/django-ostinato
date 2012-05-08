@@ -13,7 +13,6 @@ from django.conf import settings
 from ostinato.pages.models import (Page, PageContent, LandingPage, BasicPage,
     ContentMixin)
 from ostinato.pages.views import PageView, PageReorderView, page_dispatch
-from ostinato.pages.templatetags.pages_tags import get_page_from_path
 
 
 def create_pages():
@@ -189,15 +188,18 @@ class PageManagerTestCase(TestCase):
             p.save()
 
         expected_nav = [{
+            'slug': u'page-1',
             'title': u'Page 1',
             'url': '/',
         }, {
+            'slug': u'page-2',
             'title': u'P2',
             'url': '/page-2/',
         }]
         self.assertEqual(expected_nav, Page.objects.get_navbar())
 
         expected_nav = [{
+            'slug': u'page-2',
             'title': u'P2',
             'url': '/page-2/',
         }]
@@ -212,9 +214,11 @@ class PageManagerTestCase(TestCase):
             p.save()
 
         expected_crumbs = [{
+            'slug': u'page-1',
             'title': u'Page 1',
             'url': '/',
         }, {
+            'slug': u'page-3',
             'title': u'Page 3',
             'url': '/page-1/page-3/',
         }]
@@ -323,9 +327,9 @@ class NavBarTemplateTagTestCase(TestCase):
     def test_navbar_content(self):
         self.response.render()
 
-        self.assertIn('<li><a class="" href="/">Page 1</a></li>',
+        self.assertIn('<a href="/">Page 1</a>',
             self.response.content)
-        self.assertIn('<li><a class="" href="/page-2/">P2</a></li>', 
+        self.assertIn('<a href="/page-2/">P2</a>', 
             self.response.content)
 
 

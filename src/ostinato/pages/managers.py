@@ -20,10 +20,11 @@ class PageManager(models.Manager):
             .order_by('tree_id')
 
         if nav_items:
-            for item in nav_items:
+            for page in nav_items:
                 to_return.append({
-                    'title': item.get_short_title(),
-                    'url': item.get_absolute_url(),
+                    'slug': page.slug,
+                    'title': page.get_short_title(),
+                    'url': page.get_absolute_url(),
                 })
 
         return to_return
@@ -39,11 +40,13 @@ class PageManager(models.Manager):
         if parents:
             for page in parents:
                 to_return.append({
+                    'slug': page.slug,
                     'title': page.get_short_title(),
                     'url': page.get_absolute_url(),
                 })
 
         to_return.append({
+            'slug': for_page.slug,
             'title': for_page.get_short_title(),
             'url': for_page.get_absolute_url()
         })
