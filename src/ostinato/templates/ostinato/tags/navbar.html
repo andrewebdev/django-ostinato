@@ -1,9 +1,0 @@
-{% load ostinato_tags %}
-
-{% if navbar %}
-<ul>
-    {% for navitem in navbar %}
-	<li><a class="" href="{{ navitem.url }}">{{ navitem.title }}</a></li>
-    {% endfor %}
-</ul>
-{% endif %}
