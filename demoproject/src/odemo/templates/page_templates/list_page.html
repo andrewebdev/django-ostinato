@@ -16,5 +16,11 @@
     {% endfor %}
     </ul>
 
+    <hr />
+
+    {% with page.contents.related_page_group as p %}
+    <h2>This page is also indirectly related to: <a href="{{ p.get_absolute_url }}">{{ p }}</a></h2>
+    {% endwith %}
+
 {% endblock %}
 

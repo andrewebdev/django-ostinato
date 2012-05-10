@@ -21,6 +21,7 @@ def content_inline_factory(page):
         extra = 1
         max_num = 1
         can_delete = False
+        fk_name = 'page'
 
         ## Check for a custom form and try to load it
         if hasattr(content_model.ContentOptions, 'form'):
@@ -55,7 +56,7 @@ class PageAdmin(MPTTModelAdmin):
 
     search_fields = ('title', 'short_title', 'slug', 'author')
     date_hierarchy = 'publish_date'
-    inlines = []
+    inlines = ()
 
     fieldsets = (
         (None, {
@@ -112,7 +113,7 @@ class PageAdmin(MPTTModelAdmin):
 
     def add_view(self, request, form_url='', extra_context=None):
         # We need to clear the inlines. Django keeps it cached somewhere
-        self.inlines = []
+        self.inlines = ()
         return super(PageAdmin, self).add_view(request, form_url, extra_context)
 
 
@@ -121,13 +122,13 @@ class PageAdmin(MPTTModelAdmin):
         We need to dynamically create the inline models since it
         changes based on the template.
         """
-        self.inlines = []
+        self.inlines = ()
 
         if object_id:
             page = self.get_object(request, unquote(object_id))
 
             if page.template:
-                self.inlines = [content_inline_factory(page)]
+                self.inlines = (content_inline_factory(page),)
 
         return super(PageAdmin, self).change_view(
             request, object_id, form_url, extra_context)

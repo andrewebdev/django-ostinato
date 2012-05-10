@@ -1,4 +1,5 @@
-from ostinato.pages.models import PageContent, ContentMixin
+from django.db import models
+from ostinato.pages.models import PageContent, ContentMixin, Page
 
 from ckeditor.fields import RichTextField
 
@@ -21,6 +22,9 @@ class ContactPage(CKContentMixin):
 
 class ListPage(ContentMixin, PageContent):
     """ Example of a page that uses a custom form """
+
+    related_page_group = models.ForeignKey(Page,
+        related_name='related_to_listpage')
 
     class ContentOptions:
         template = 'page_templates/list_page.html'
