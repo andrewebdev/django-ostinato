@@ -52,6 +52,8 @@ class Page(MPTTModel):
     ## GenericRelation gives us extra api methods
     _sm = generic.GenericRelation(DefaultStateMachine)
 
+    ## required for caching contents
+    _contents = None
 
     def __unicode__(self):
         return '%s' % self.title
@@ -104,9 +106,12 @@ class Page(MPTTModel):
 
 
     def get_content(self):
-        label, model = self.template.split('.')
-        content_type = ContentType.objects.get(app_label=label, model=model)
-        return content_type.get_object_for_this_type(page=self.id)
+        if not self._contents:
+            label, model = self.template.split('.')
+            content_type = ContentType.objects.get(app_label=label, model=model)
+            self._contents = content_type.get_object_for_this_type(page=self.id)
+
+        return self._contents
 
     contents = property(get_content)
 

@@ -101,6 +101,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'odemo.urls'
@@ -125,6 +126,7 @@ INSTALLED_APPS = (
 
     # 'grappelli',
     'django.contrib.admin',
+    'debug_toolbar',
 
     'mptt',
     'tagging',
@@ -150,6 +152,11 @@ OSTINATO_PAGE_TEMPLATES = (
 )
 
 CKEDITOR_UPLOAD_PATH = projectdir("media/uploads")
+
+
+## debugging tools
+INTERNAL_IPS = ('127.0.0.1',)
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
