@@ -16,6 +16,10 @@ class PageManager(models.Manager):
         return immediate child pages for that page.
         """
         to_return = []
+
+        if for_page == '':
+            for_page = None
+
         nav_items = self.published().filter(parent=for_page, show_in_nav=True)\
             .order_by('tree_id')
 
@@ -53,12 +57,14 @@ class PageManager(models.Manager):
 
         return to_return
 
-    def get_from_path(self, request):
-        """ Returns a page object, base on the url path in the request. """
+    def get_from_path(self, url_path):
+        """ Returns a page object, base on the url path. """
 
-        path = request.path.split('/')
+        path = url_path.split('/')
         path.reverse()
 
+        ## TODO: Maybe we should cache the page paths somewhere, so that
+        ## we dont have to do a query for each page.
         for node in path:
             try:
                 if node:

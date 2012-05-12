@@ -10,7 +10,7 @@ admin.autodiscover()
 
 
 urlpatterns = patterns('',
-    url(r'^news/(?P<id>\d+)/$', DetailView.as_view(model=NewsItem),
+    url(r'^news/(?P<pk>\d+)/$', DetailView.as_view(model=NewsItem),
         name='newsitem_detail'),
     
     (r'^ckeditor/', include('ckeditor.urls')),

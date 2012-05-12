@@ -1,6 +1,7 @@
 # Django settings for odemo project.
 
 import os
+import django.conf.global_settings as DEFAULT_SETTINGS
 
 PROJECTDIR = os.path.dirname(__file__)
 projectdir = lambda p: os.path.join(PROJECTDIR, p)
@@ -103,6 +104,9 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
+
+# TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
+# )
 
 ROOT_URLCONF = 'odemo.urls'
 

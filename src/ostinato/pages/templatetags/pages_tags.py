@@ -28,17 +28,6 @@ def breadcrumbs(context, for_page=None):
     return locals()
 
 
-# @register.assignment_tag(takes_context=True)  # Requires Django 1.4 +
-# def get_page_from_path(context):
-#     try:
-#         request = context['request']
-#     except KeyError:
-#         raise Exception("Could not get the request from context. Please make "\
-#             "sure that 'django.core.context_processors.request', is in your "\
-#             "TEMPLATE_CONTEXT_PROCESSORS")
-#     return Page.objects.get_from_path(context['request'])
-
-
 @register.assignment_tag  # Requires Django 1.4+
 def get_page(slug):
     """ Finds the page with ``slug`` and adds that to the context """

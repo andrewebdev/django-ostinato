@@ -13,6 +13,7 @@ from django.conf import settings
 from ostinato.pages.models import (Page, PageContent, LandingPage, BasicPage,
     ContentMixin)
 from ostinato.pages.views import PageView, PageReorderView, page_dispatch
+from ostinato.pages.context_processors import get_page_from_path
 
 
 def create_pages():
@@ -233,7 +234,8 @@ class PageManagerTestCase(TestCase):
         rf = RequestFactory()
         request = rf.get('/page-1/page-3/')
 
-        self.assertEqual('page-3', Page.objects.get_from_path(request).slug)
+        self.assertEqual('page-3',
+            Page.objects.get_from_path(request.path).slug)
 
 
 class PageViewTestCase(TestCase):
@@ -331,6 +333,20 @@ class NavBarTemplateTagTestCase(TestCase):
             self.response.content)
         self.assertIn('<a href="/page-2/">P2</a>', 
             self.response.content)
+
+
+class ContextProcessorsTestCase(TestCase):
+
+    urls = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
+        self.rf = RequestFactory()
+
+    def test_get_page_from_path(self):
+        request = self.rf.get('/page-1/some_page/some_other_page/')
+        self.assertEqual({'page': Page.objects.get(slug='page-1')},
+            get_page_from_path(request))
 
 
 class GetPageTemplateTagTestCase(TestCase):
