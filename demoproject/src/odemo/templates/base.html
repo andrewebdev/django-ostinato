@@ -17,7 +17,7 @@
         <h1>Ostinato Demo</h1>
 
         <nav>
-            {% navbar %}
+            {% navbar path=request.path %}
         </nav>
 
         {% if not page.is_leaf_node %}

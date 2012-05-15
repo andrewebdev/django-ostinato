@@ -1,11 +1,10 @@
 {% load pages_tags %}
 
-
 {% if navbar %}
 <ul>
-    {% for page in navbar %}
-    <li {% if page.slug == context.page.slug %}class="active"{% endif %}>
-        <a href="{{ page.url }}">{{ page.title }}</a></li>
+    {% for p in navbar %}
+    <li {% if p.slug == page.slug %}class="active"{% endif %}>
+        <a href="{{ p.url }}">{{ p.title }}</a></li>
     {% endfor %}
 </ul>
 {% endif %}
