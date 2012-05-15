@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.dispatch import Signal
 
-from managers import StateMachineManager
+from ostinato.statemachine.managers import StateMachineManager
 
 
 class InvalidAction(Exception):
@@ -33,21 +33,26 @@ class StateMachineBase(models.Model):
         unique_together = (('content_type', 'object_id'),)
         abstract = True
 
+
     def __unicode__(self):
         return '%s, %d (%s)' % (self.content_type.name, self.object_id, self.state)
+
 
     def save(self, *args, **kwargs):
         if not self.state:
             self.state = self.SMOptions.initial_state
         return super(StateMachineBase, self).save(*args, **kwargs)
 
+
     def get_actions(self):
         return self.SMOptions.state_actions[self.state]
+
 
     def get_action_display(self, action):
         for i in self._meta.permissions:
             if i[0] == action:
                 return i[1]
+
 
     def take_action(self, action):
         if action in self.get_actions():
