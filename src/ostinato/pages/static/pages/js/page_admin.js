@@ -15,14 +15,18 @@ function move_node(move_data) {
 
 django.jQuery(document).ready(function() {
 
-    var page_id;
+    var page_id, selected_template;
 
     // When changing the template, we should 'refresh' the Page
-    django.jQuery('#id_template').change(function() {
+    django.jQuery('#id_template').focus(function() {
+        selected_template = $(this).val();
+    }).change(function() {
         var refresh = confirm('Changing the template will save and reload the page. Are you sure you want to do this now?');
-        if (confirm) {
+        if (refresh) {
             django.jQuery('input[name="_continue"]').click();
-        }    
+        } else {
+            $(this).val(selected_template);
+        }
     });
 
     $('.ostinato_page_move').button({
