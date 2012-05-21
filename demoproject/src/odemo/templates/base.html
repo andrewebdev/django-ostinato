@@ -20,9 +20,13 @@
             {% navbar path=request.path %}
         </nav>
 
+        {% if page %}
         {% if not page.is_leaf_node %}
+            <h3>Sub Nav</h3>
             {% navbar for_page=page %}
         {% endif %}
+        {% endif %}
+        <hr />
 
         <div id="content">
             {% block content %}{% endblock %}

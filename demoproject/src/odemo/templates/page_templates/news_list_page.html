@@ -7,7 +7,7 @@
 
     <ul>
         {% for item in latest_news %}
-        <li>{{ item.title }} - {{ item.publish_date }}</li>
+        <li><a href="{{ item.get_absolute_url }}">{{ item.title }}</a> - {{ item.publish_date }}</li>
         {% endfor %}
     <ul>
 

@@ -6,16 +6,6 @@
 
     <p>{{ page.contents.content|safe }}</p>
 
-    <h2>Sub Pages</h2>
-
-    <ul>
-    {% for p in page.get_children %}
-        {% if p.sm.state == 'published' %}
-        <li><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></li>
-        {% endif %}
-    {% endfor %}
-    </ul>
-
     <hr />
 
     {% with page.contents.related_page_group as p %}

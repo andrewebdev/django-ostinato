@@ -9,8 +9,10 @@
     <hr />
     <h2>Related News</h2>
 
-    <h3>{{ page.contents.news_item.title }}</h3>
-    <p>{{ page.contents.news_item.content }}</p>
+    {% with page.contents.news_item as news %}
+    <h3><a href="{{ news.get_absolute_url }}">{{ news.title }}</a></h3>
+    <p>{{ news.content }}</p>
+    {% endwith %}
 
 {% endblock %}
 
