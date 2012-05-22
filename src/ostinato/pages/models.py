@@ -32,8 +32,8 @@ class Page(MPTTModel):
     redirect = models.CharField(max_length=200, blank=True, null=True,
         help_text='Use this to point to redirect to another page or website.')
 
-    show_in_nav = models.BooleanField(default=False)
-    show_in_sitemap = models.BooleanField(default=False)
+    show_in_nav = models.BooleanField(default=True)
+    show_in_sitemap = models.BooleanField(default=True)
 
     created_date = models.DateTimeField(null=True, blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)
@@ -146,38 +146,14 @@ class PageContent(models.Model):
         """
         Custom Options for the Content
         ``template`` is the template path relative the templatedirs.
-        ``view`` is a custom view that will handle the rendering for the page
+        ``view`` is a custom view that will handle the rendering for the page.
+        ``form`` a custom form to use in the admin.
         """
         template = None
         view = 'ostinato.pages.views.PageView'
+        form = None
 
     @classmethod
     def get_template(cls):
         return cls.ContentOptions.template
-
-
-## Example Templates
-class ContentMixin(models.Model):
-    """
-    An example of how you would do mixins. A mixin must be an abstract
-    model.
-    """
-    content = models.TextField()
-
-    class Meta:
-        abstract = True  # Required for mixins
-
-
-class LandingPage(ContentMixin, PageContent):
-    intro = models.TextField()
-
-    class ContentOptions:
-        template = 'pages/tests/landing_page.html'
-
-
-class BasicPage(ContentMixin, PageContent):
-
-    class ContentOptions:
-        template = 'pages/tests/basic_page.html'
-        view = 'ostinato.pages.views.CustomView'
 

@@ -1,6 +1,7 @@
 from django.db import models
 
-from ostinato.pages.models import PageContent, ContentMixin
+from ostinato.pages.models import PageContent
+from odemo.models import CKContentMixin
 
 
 class NewsItem(models.Model):
@@ -18,7 +19,7 @@ class NewsItem(models.Model):
 
 
 ## Create a News List page
-class NewsListPageContent(ContentMixin, PageContent):
+class NewsListPageContent(CKContentMixin):
     ## We could store some information here, like how many items we want
     ## to show on the page.
 
@@ -27,7 +28,7 @@ class NewsListPageContent(ContentMixin, PageContent):
         view = 'odemo.news.views.NewsPageView'
 
 
-class PageWithNews(ContentMixin, PageContent):
+class PageWithNews(CKContentMixin):
     """
     A normal page with some content, but also contains a link to a specific
     news item.

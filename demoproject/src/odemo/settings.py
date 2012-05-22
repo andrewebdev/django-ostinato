@@ -150,8 +150,8 @@ INSTALLED_APPS = (
 
 ## OSTINATO SETTINGS_
 OSTINATO_PAGE_TEMPLATES = (
-    ('pages.landingpage', 'Landing Page'),
-    ('pages.basicpage', 'Basic Page'),
+    ('odemo.landingpage', 'Landing Page'),
+    ('odemo.basicpage', 'Basic Page'),
     ('odemo.listpage', 'List Page'),
     ('news.newslistpagecontent', 'News List'),
     ('news.pagewithnews', 'Page with News'),

@@ -1,16 +1,40 @@
 from django.db import models
-from ostinato.pages.models import PageContent, ContentMixin, Page
 
+from ostinato.pages.models import Page, PageContent
 from ckeditor.fields import RichTextField
+
+
+class ContentMixin(models.Model):
+    """
+    An example of how you would do mixins. A mixin must be an abstract
+    model.
+    """
+    content = models.TextField()
+
+    class Meta:
+        abstract = True  # Required for mixins
 
 
 class CKContentMixin(PageContent):
     """ An Example of using a custom field directly on the model """
-
     content = RichTextField()
 
     class Meta:
         abstract = True
+
+
+class LandingPage(ContentMixin, PageContent):
+    intro = models.TextField()
+
+    class ContentOptions:
+        template = 'pages/tests/landing_page.html'
+
+
+class BasicPage(ContentMixin, PageContent):
+
+    class ContentOptions:
+        template = 'pages/tests/basic_page.html'
+        view = 'ostinato.pages.views.CustomView'
 
 
 class ContactPage(CKContentMixin):
