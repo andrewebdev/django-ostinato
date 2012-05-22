@@ -11,9 +11,34 @@ from django.utils import simplejson as json
 from django.utils import timezone
 from django.conf import settings
 
-from ostinato.pages.models import (Page, PageContent, LandingPage, BasicPage,
-    ContentMixin)
+from ostinato.pages.models import Page, PageContent
 from ostinato.pages.views import PageView, PageReorderView, page_dispatch
+
+
+## Create some Page Content
+class ContentMixin(models.Model):
+    """
+    An example of how you would do mixins. A mixin must be an abstract
+    model.
+    """
+    content = models.TextField()
+
+    class Meta:
+        abstract = True  # Required for mixins
+
+
+class LandingPage(ContentMixin, PageContent):
+    intro = models.TextField()
+
+    class ContentOptions:
+        template = 'pages/tests/landing_page.html'
+
+
+class BasicPage(ContentMixin, PageContent):
+
+    class ContentOptions:
+        template = 'pages/tests/basic_page.html'
+        view = 'ostinato.pages.views.CustomView'
 
 
 def create_pages():
