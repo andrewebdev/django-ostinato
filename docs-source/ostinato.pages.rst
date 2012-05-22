@@ -27,6 +27,12 @@ to use them out-of-the-box, but you can easilly create your own if you need
 more control over content in your pages.
 
 
+Requirements
+------------
+
+* django-mptt
+
+
 Add ``ostinato.pages`` to your project
 -----------------------------------------
 
@@ -37,6 +43,7 @@ Start by adding the app to your ``INSTALLED_APPS``
     INSTALLED_APPS = (
         ...
 
+        'mptt',
         'ostinato',
         'ostinato.pages',
         'ostinato.statemachine',

@@ -71,12 +71,19 @@ for the page. Two of these models already exist within pages, and you are free
 to use them out-of-the-box, but you can easilly create your own if you need
 more control over content in your pages.</p>
 </div>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>django-mptt</li>
+</ul>
+</div>
 <div class="section" id="add-ostinato-pages-to-your-project">
 <h2>Add <tt class="docutils literal"><span class="pre">ostinato.pages</span></tt> to your project<a class="headerlink" href="#add-ostinato-pages-to-your-project" title="Permalink to this headline">¶</a></h2>
 <p>Start by adding the app to your <tt class="docutils literal"><span class="pre">INSTALLED_APPS</span></tt></p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">(</span>
     <span class="o">...</span>
 
+    <span class="s">&#39;mptt&#39;</span><span class="p">,</span>
     <span class="s">&#39;ostinato&#39;</span><span class="p">,</span>
     <span class="s">&#39;ostinato.pages&#39;</span><span class="p">,</span>
     <span class="s">&#39;ostinato.statemachine&#39;</span><span class="p">,</span>
@@ -426,6 +433,7 @@ correct form for your page content.</p>
   <ul>
 <li><a class="reference internal" href="#">ostinato.pages</a><ul>
 <li><a class="reference internal" href="#a-quick-overview">A quick overview</a></li>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
 <li><a class="reference internal" href="#add-ostinato-pages-to-your-project">Add <tt class="docutils literal"><span class="pre">ostinato.pages</span></tt> to your project</a></li>
 <li><a class="reference internal" href="#registering-page-content-templates">Registering page content (templates)</a></li>
 <li><a class="reference internal" href="#creating-custom-page-content">Creating custom page content</a></li>
