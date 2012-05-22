@@ -41,6 +41,11 @@ class BasicPage(ContentMixin, PageContent):
         view = 'ostinato.pages.views.CustomView'
 
 
+class OtherPage(ContentMixin, PageContent):
+    """ Test content that doesn't have a template specified """
+    pass
+
+
 def create_pages():
     user = User.objects.create(username='user1', password='secret',
         email='user1@example.com')
@@ -175,27 +180,6 @@ class PagesStateMachineTestCase(TestCase):
         self.assertEqual(self.p, Page.objects.published()[0])
 
 
-class PageContentMixinTestCase(TestCase):
-
-    def test_mixin_exist(self):
-        ContentMixin
-
-    def test_has_content_field(self):
-        self.assertTrue(ContentMixin._meta.abstract)
-
-
-class PageContentModelTestCase(TestCase):
-
-    def test_model_exists(self):
-        PageContent
-
-    def test_model_is_abstract(self):
-        self.assertTrue(PageContent._meta.abstract)
-
-    def test_template_meta(self):
-        PageContent.ContentOptions
-
-
 class PageManagerTestCase(TestCase):
 
     urls = 'ostinato.pages.urls'
@@ -261,6 +245,28 @@ class PageManagerTestCase(TestCase):
 
         self.assertEqual('page-3',
             Page.objects.get_from_path(request.path).slug)
+
+
+class PageContentModelTestCase(TestCase):
+
+    def test_model_exists(self):
+        PageContent
+
+    def test_model_is_abstract(self):
+        self.assertTrue(PageContent._meta.abstract)
+
+    def test_content_options(self):
+        PageContent.ContentOptions
+
+    def test_get_template(self):
+        create_pages()
+        p = Page.objects.get(slug='page-1')
+        self.assertEqual('pages/tests/landing_page.html', p.get_template())
+
+    def test_get_template_when_none(self):
+        p = Page.objects.create(title='Test Page', slug='test-page',
+            template='pages.otherpage')
+        self.assertEqual('pages/other_page.html', p.get_template())
 
 
 class PageViewTestCase(TestCase):

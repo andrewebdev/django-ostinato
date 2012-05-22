@@ -1,3 +1,5 @@
+import re
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
@@ -118,7 +120,7 @@ class Page(MPTTModel):
 
 
     def get_template(self):
-        return self.get_content_model().ContentOptions.template
+        return self.get_content_model().get_template()
 
 
 @receiver(pre_save, sender=Page)
@@ -155,5 +157,11 @@ class PageContent(models.Model):
 
     @classmethod
     def get_template(cls):
-        return cls.ContentOptions.template
+        template = getattr(cls.ContentOptions, 'template', None)
+
+        if not template:
+            cls_name = re.findall('[A-Z][^A-Z]*', cls.__name__)
+            template = 'pages/%s.html' % '_'.join([i.lower() for i in cls_name])
+
+        return template
 
