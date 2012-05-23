@@ -13,11 +13,13 @@ from django.conf import settings
 from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
 
+from ostinato.pages.utils import TemplateProcessor
 from ostinato.pages.managers import PageManager
 
 
-TEMPLATE_CHOICES = getattr(settings, 'OSTINATO_PAGE_TEMPLATES')
 DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 5)
+tp = TemplateProcessor()
+TEMPLATE_CHOICES = tp.get_templates()
 
 
 ## Models

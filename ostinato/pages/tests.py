@@ -11,10 +11,19 @@ from django.utils import simplejson as json
 from django.utils import timezone
 from django.conf import settings
 
+from ostinato.pages.utils import TemplateProcessor, InvalidTemplate
 from ostinato.pages.models import Page, PageContent
 from ostinato.pages.views import PageView, PageReorderView, page_dispatch
 
 
+## Custom Settings
+SETTING_ARGS = {
+    'OSTINATO_PAGE_TEMPLATES': (
+        ('pages.landingpage', 'Landing Page'),
+        ('pages.basicpage', 'Basic Page'),
+        ('pages.OTHERPAGE', 'Other Page'),
+    ),
+}
 ## Create some Page Content
 class ContentMixin(models.Model):
     """
@@ -79,6 +88,36 @@ def create_pages():
 
 
 ## Actual Tests
+class TemplateProcessorTestCase(TestCase):  # utils.py
+
+    def test_class_exists(self):
+        TemplateProcessor
+
+    def test_init_caches_and_lowercase(self):
+        with self.settings(**SETTING_ARGS):
+            tp = TemplateProcessor()
+            templates = (
+                ('pages.landingpage', 'Landing Page'),
+                ('pages.basicpage', 'Basic Page'),
+                ('pages.otherpage', 'Other Page'),
+            )
+            self.assertEqual(templates, tp._templates)
+
+    def test_validate_template(self):
+        with self.settings(OSTINATO_PAGE_TEMPLATES=(('faulty.page', 'Fault'),)):
+            with self.assertRaises(InvalidTemplate):
+                tp = TemplateProcessor()
+
+    def test_get_templates(self):
+        with self.settings(**SETTING_ARGS):
+            tp = TemplateProcessor()
+            templates = (
+                ('pages.landingpage', 'Landing Page'),
+                ('pages.basicpage', 'Basic Page'),
+                ('pages.otherpage', 'Other Page'),
+            )
+            self.assertEqual(templates, tp.get_templates())
+
 
 class PageModelTestCase(TestCase):
 
