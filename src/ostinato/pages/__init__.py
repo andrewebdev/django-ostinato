@@ -15,4 +15,3 @@ for t in OSTINATO_PAGE_TEMPLATES:
             ' identifier, "%s"''' % t[0])
 
 
-

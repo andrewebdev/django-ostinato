@@ -100,123 +100,124 @@ you want it to, in which case you can add it where-ever you wish.</p>
 </pre></div>
 </div>
 <p><em>Remember</em> to run <tt class="docutils literal"><span class="pre">syncdb</span></tt> after you&#8217;ve done this.</p>
-<p>That&#8217;s it, you now have a basic Pages app. You cannot add content to it yet,
-but you can create a hierarchy of pages to define the structure of your site.</p>
-<p>Give it a go in the admin. You&#8217;ll notice that the <tt class="docutils literal"><span class="pre">template</span></tt> field is a empty
-dropdown. We&#8217;ll be adding Page Content (and templates) in the next section.</p>
+<p>That&#8217;s it, you now have a basic Pages app. We cannot do anything with it yet,
+since we first need to create actual templates and content. We&#8217;ll do this
+in the next section.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Publication and Timezones</strong></p>
+<p class="last">Django 1.4 changed how timezones are treated. So if you mark a page as
+published, please remember that it is published, relative to the timezone
+you specified in your settings.py.</p>
 </div>
-<div class="section" id="registering-page-content-templates">
-<h2>Registering page content (templates)<a class="headerlink" href="#registering-page-content-templates" title="Permalink to this headline">¶</a></h2>
-<p>Ok, now that you&#8217;ve played with the Pages, you can see that there are some basic
-things you can do with them, but the pages dont have any fields for entering the
-actual content you want to display on the site.</p>
-<p>The reason ostinato treats content seperate from the page, is so that <em>you</em> have
-control over what kind of content you want the user to enter, based on the
-page template.</p>
-<p>ositnato.pages provides you with 2 PageContent which you can use if all you need
-are some basic fields. Lets add those two now.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">OSTINATO_PAGE_TEMPLATES</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s">&#39;pages.landingpage&#39;</span><span class="p">,</span> <span class="s">&#39;Landing Page&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;pages.basicpage&#39;</span><span class="p">,</span> <span class="s">&#39;Basic Page&#39;</span><span class="p">),</span>
-<span class="p">)</span>
-</pre></div>
 </div>
-<p>This setting contains a list of PageContent areas, which <em>also</em> determines what
-templates are available to the pages, hence the name, <tt class="docutils literal"><span class="pre">OSTINATO_PAGE_TEMPLATES</span></tt>.</p>
-<p>1. The first part of each &#8220;template&#8221;, is the <tt class="docutils literal"><span class="pre">&lt;app_label&gt;.&lt;model&gt;</span></tt> codename for the
-PageContent model. In this case we are using the ones that are included with
-<tt class="docutils literal"><span class="pre">ostinato.pages</span></tt>.</p>
-<p>2. The second part of the tuple contains a nice human friendly name for the
-template.</p>
-<p>Right, run your server again, and check the admin, you can now select one of
-those two templates for a page. After selecting a template, click
-<tt class="docutils literal"><span class="pre">save</span> <span class="pre">and</span> <span class="pre">continue...</span></tt> and you will see at the bottom of the page the option
-to add content to the page.</p>
-<p>The two templates have some basic fields. The landing page has introduction and
-content text areas, and the basic page only has a content field.</p>
-<p>Ok, so what if you need some more control? You want a template that has
-something completely different? Head over to the next section.</p>
-</div>
-<div class="section" id="creating-custom-page-content">
-<h2>Creating custom page content<a class="headerlink" href="#creating-custom-page-content" title="Permalink to this headline">¶</a></h2>
-<p>Ok, so lets say the client wants a unique set of pages on the site that contains
-a <tt class="docutils literal"><span class="pre">preview_image</span></tt>, <tt class="docutils literal"><span class="pre">attribution</span> <span class="pre">field</span></tt> and a <tt class="docutils literal"><span class="pre">text</span> <span class="pre">area</span></tt>?</p>
-<p>We will need to create a new <tt class="docutils literal"><span class="pre">PageContent</span></tt> model first. You can do this in
-your project or custom app <tt class="docutils literal"><span class="pre">models.py</span></tt>.</p>
-<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<div class="section" id="creating-page-content">
+<h2>Creating page content<a class="headerlink" href="#creating-page-content" title="Permalink to this headline">¶</a></h2>
+<p>Ok, so lets say the client wants a landing page that contains a small <tt class="docutils literal"><span class="pre">intro</span></tt>
+and <tt class="docutils literal"><span class="pre">content</span></tt>, and a general page that contains only <tt class="docutils literal"><span class="pre">content</span></tt>. It was
+decided by you that these would all be TextFields.</p>
+<p>Lets create these now. You need to place these in your app/project
+<tt class="docutils literal"><span class="pre">models.py</span></tt>.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">ostinato.pages.models</span> <span class="kn">import</span> <span class="n">PageContent</span>
 
-<span class="k">class</span> <span class="nc">AttributionPage</span><span class="p">(</span><span class="n">PageContent</span><span class="p">):</span>  <span class="c">## Note the class inheritance</span>
-    <span class="n">preview_image</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ImageField</span><span class="p">(</span><span class="n">upload_to</span><span class="o">=</span><span class="s">&#39;/previews/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">LandingPage</span><span class="p">(</span><span class="n">PageContent</span><span class="p">):</span>  <span class="c"># Note the class inheritance</span>
+    <span class="n">intro</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
-    <span class="n">attribution</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
 
-    <span class="k">class</span> <span class="nc">ContentOptions</span><span class="p">:</span>
-        <span class="n">template</span> <span class="o">=</span> <span class="s">&#39;attribution_page.html&#39;</span>
+<span class="k">class</span> <span class="nc">GeneralPage</span><span class="p">(</span><span class="n">PageContent</span><span class="p">):</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
 </pre></div>
 </td></tr></table></div>
-<p>Before we register this in our templates, lets go through what we&#8217;ve done.</p>
-<p>As you can see, this is a standard django model, except that we inherit from
-<tt class="docutils literal"><span class="pre">ostinato.pages.models.PageContent</span></tt> and that we add a new meta class inside
-our model called, <tt class="docutils literal"><span class="pre">ContentOptions</span></tt>.</p>
-<p>The option, <tt class="docutils literal"><span class="pre">template</span></tt> in <tt class="docutils literal"><span class="pre">ContentOptions</span></tt> is the path to the template that
-will be used to render your page. You can create that now, or leave it for later.</p>
-<p>Ok, now we add this to our <tt class="docutils literal"><span class="pre">OSTINATO_PAGE_TEMPLATES</span></tt>, we will assume you
-created the PageContent models in your <tt class="docutils literal"><span class="pre">myapp</span></tt> application.</p>
+<p>As you can see, these are standard django models, except that we inherit from
+<tt class="docutils literal"><span class="pre">ostinato.pages.models.PageContent</span></tt>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Since the content you just created are django models, you need to
+remember to run syncdb.</p>
+</div>
+<p>Ok, so your page content is now registered, but <tt class="docutils literal"><span class="pre">ostinato.pages</span></tt> still does
+not know that they exist. The next section will explain how we register them.</p>
+</div>
+<div class="section" id="registering-page-content-and-templates">
+<h2>Registering page content and templates<a class="headerlink" href="#registering-page-content-and-templates" title="Permalink to this headline">¶</a></h2>
+<p>Now that we have page content, we register them by adding it to our
+<tt class="docutils literal"><span class="pre">OSTINATO_PAGE_TEMPLATES</span></tt> in the project <tt class="docutils literal"><span class="pre">settings.py</span></tt>.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">OSTINATO_PAGE_TEMPLATES</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s">&#39;pages.landingpage&#39;</span><span class="p">,</span> <span class="s">&#39;Landing Page&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;pages.basicpage&#39;</span><span class="p">,</span> <span class="s">&#39;Basic Page&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;myapp.attributionpage&#39;</span><span class="p">,</span> <span class="s">&#39;Page with attribution&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;myapp.landingpage&#39;</span><span class="p">,</span> <span class="s">&#39;Landing Page&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;myapp.generalpage&#39;</span><span class="p">,</span> <span class="s">&#39;General Page&#39;</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>Remember</strong>, since the content model you just created is a model, you will need
-to run syncdb again.</p>
-<p>That&#8217;s all. Go ahead and test it if you wish.</p>
+<p>1. The first part of each &#8220;template&#8221;, is the <tt class="docutils literal"><span class="pre">&lt;app_label&gt;.&lt;model&gt;</span></tt> codename
+for the PageContent model. Remember that django contenttypes expects this to be
+all lowercase.</p>
+<p>2. The second part of the tuple contains a nice human friendly name for the
+template, which will be used in the dropdown list when choosing your template.</p>
+<p>After doing this you should see the templates in the dropdown when
+adding/editing pages.</p>
 </div>
 <div class="section" id="displaying-page-content-in-the-templates">
 <h2>Displaying page content in the templates<a class="headerlink" href="#displaying-page-content-in-the-templates" title="Permalink to this headline">¶</a></h2>
-<p>Ok so earlier we created a custom PageContent model, and gave it a template.
-I&#8217;m going to assume you&#8217;ve already created that template. Lets see how we can
-access the content in the template.</p>
+<p>By default the template used by the page is determined by the page content.
+The default template location is <tt class="docutils literal"><span class="pre">pages/&lt;content_model_name&gt;.html</span></tt>.
+So the templates for our two content models (which you&#8217;ll need to create now)
+are:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">pages/landing_page.html</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">pages/general_page.html</span></tt></li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>You can override these templates by using the <tt class="docutils literal"><span class="pre">ContentOptions</span></tt> meta class
+in your page content model.</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">GeneralPage</span><span class="p">(</span><span class="n">PageContent</span><span class="p">):</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">ContentOptions</span><span class="p">:</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="s">&#39;some/custom/template.html&#39;</span>
+</pre></div>
+</div>
+</div>
+<p>Lets see how we can access the content in the template.</p>
 <p>The page view adds <tt class="docutils literal"><span class="pre">page</span></tt> to your context, which is the current page instance.
 Using that it&#8217;s very easy to do something like this:</p>
-<div class="highlight-html"><div class="highlight"><pre>{{ page.title }}
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;h1&gt;</span>{{ page.title }}<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;byline&quot;</span><span class="nt">&gt;</span>Author: {{ page.author }}<span class="nt">&lt;/p&gt;</span>
 </pre></div>
 </div>
 <p>That&#8217;s all fine, but we have content for a page as well, which is stored in
-a different model. There are two ways we can access this content.</p>
-<p>1. <em>The Verbose way</em> - We can use the related name that points to the content
-model. The related name is in the format of, <tt class="docutils literal"><span class="pre">&lt;app_label&gt;_&lt;model&gt;_content</span></tt>.</p>
-<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">&quot;{{ page.myapp_attributionpage_content.preview_image.url }}&quot;</span> <span class="nt">/&gt;</span>
-{{ page.myapp_attributionpage_content.content }}
-<span class="nt">&lt;p&gt;</span>Thanks to, {{ page.myapp_attributionpage_content.attribution }}<span class="nt">&lt;/p&gt;</span>
+a different model. We include a field on the page called <tt class="docutils literal"><span class="pre">contents</span></tt>, which
+will get the related page content for you.</p>
+<p>In the following example, we assume that you are editing your
+<tt class="docutils literal"><span class="pre">landing_page.html</span></tt>.</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;p&gt;</span>{{ page.contents.intro }}<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;p&gt;</span>{{ page.contents.content }}<span class="nt">&lt;/p&gt;</span>
 </pre></div>
 </div>
-<p>This works, but wow that&#8217;s a lot of typing. Good that we provide a shortcut for
-you.</p>
-<p>2. <em>The short way</em> - We include a field on the page called <tt class="docutils literal"><span class="pre">contents</span></tt>, which
-will do the related lookup for you.</p>
-<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">&quot;{{ page.contents.preview_image.url }}&quot;</span> <span class="nt">/&gt;</span>
-{{ page.contents.content }}
-<span class="nt">&lt;p&gt;</span>Thanks to, {{ page.contents.attribution }}<span class="nt">&lt;/p&gt;</span>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>You can also access the content using the django related field lookups, but
+this method is very verbose and requires a lot of typing. The related name
+is in the format of, <tt class="docutils literal"><span class="pre">&lt;app_label&gt;_&lt;model&gt;_content</span></tt>.</p>
+<div class="last highlight-html"><div class="highlight"><pre><span class="nt">&lt;p&gt;</span>{{ page.myapp_landingpage_content.intro }}<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;p&gt;</span>{{ page.myapp_landingpage_content.content }}<span class="nt">&lt;/p&gt;</span>
 </pre></div>
 </div>
-<p>A lot better, no?</p>
+</div>
 </div>
 <div class="section" id="creating-a-custom-view-for-your-content">
 <h2>Creating a custom view for your content<a class="headerlink" href="#creating-a-custom-view-for-your-content" title="Permalink to this headline">¶</a></h2>
-<p>There are cases that you may want to have a custom view to render your template,
-rather than just using the default view that <tt class="docutils literal"><span class="pre">ostinato.pages</span></tt> uses.</p>
+<p>There are cases where you may want to have a custom view to render your
+template rather than just using the default view used by <tt class="docutils literal"><span class="pre">ostinato.pages</span></tt>.</p>
 <p>One use case for this may be that one of your pages can have a contact form.
 So you will need a way to add this form to the page context. You also want this
 page to handle the post request etc.</p>
@@ -225,7 +226,7 @@ class based views. If you haven&#8217;t used them before, then it would help to 
 up on them.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">ostinato.pages.views</span> <span class="kn">import</span> <span class="n">PageView</span>
 
-<span class="k">class</span> <span class="nc">ContactView</span><span class="p">(</span><span class="n">PageView</span><span class="p">):</span>  <span class="c">## Note we are subclassing PageView</span>
+<span class="k">class</span> <span class="nc">ContactView</span><span class="p">(</span><span class="n">PageView</span><span class="p">):</span>  <span class="c"># Note we are subclassing PageView</span>
 
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -241,37 +242,59 @@ up on them.</p>
 <p>In the example above, we created our own view that will add the form to the
 context, and will also handle the post request. There is nothing special here.
 It&#8217;s just the standard django class based views in action.</p>
-<p>One thing to note is that our <tt class="docutils literal"><span class="pre">ContactView</span></tt> inherrits from <tt class="docutils literal"><span class="pre">PageView</span></tt>
-(which in turn inherrits from <tt class="docutils literal"><span class="pre">TemplateView</span></tt>). You dont <em>have</em> to inherrit
-from PageView, but if you dont, then you need to add the <tt class="docutils literal"><span class="pre">page</span></tt> instance
+<p>One thing to note is that our <tt class="docutils literal"><span class="pre">ContactView</span></tt> inherits from <tt class="docutils literal"><span class="pre">PageView</span></tt>
+(which in turn inherits from <tt class="docutils literal"><span class="pre">TemplateView</span></tt>). You don&#8217;t <em>have</em> to inherit
+from PageView, but if you don&#8217;t, then you need to add the <tt class="docutils literal"><span class="pre">page</span></tt> instance
 to the context yourself, whereas <tt class="docutils literal"><span class="pre">PageView</span></tt> takes care of that for you.</p>
-<p>Ok, now we have our view, we need to tell the relative page content model to
-use this view when it&#8217;s being rendered. We do this on the model.</p>
-<p>Using our <tt class="docutils literal"><span class="pre">AttributionPage</span></tt> example from earlier, we change it like so:</p>
-<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<p>Next we need to tell the page content model to use this view when it&#8217;s being
+rendered. We do this in the <tt class="docutils literal"><span class="pre">ContentOptions</span></tt> meta class for the page content.</p>
+<p>Using our <tt class="docutils literal"><span class="pre">LandingPage</span></tt> example from earlier, we change it like so:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">ostinato.pages.models</span> <span class="kn">import</span> <span class="n">PageContent</span>
 
-<span class="k">class</span> <span class="nc">AttributionPage</span><span class="p">(</span><span class="n">PageContent</span><span class="p">):</span>  <span class="c">## Note the class inheritance</span>
-    <span class="n">preview_image</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ImageField</span><span class="p">(</span><span class="n">upload_to</span><span class="o">=</span><span class="s">&#39;/previews/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">LandingPage</span><span class="p">(</span><span class="n">PageContent</span><span class="p">):</span>
+    <span class="n">intro</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
-    <span class="n">attribution</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
 
     <span class="k">class</span> <span class="nc">ContentOptions</span><span class="p">:</span>
-        <span class="n">template</span> <span class="o">=</span> <span class="s">&#39;attribution_page.html&#39;</span>
-<span class="hll">        <span class="n">view</span> <span class="o">=</span> <span class="s">&#39;myapp.views.ContactView&#39;</span>  <span class="c">## Full import path to your view</span>
+<span class="hll">        <span class="n">view</span> <span class="o">=</span> <span class="s">&#39;myapp.views.ContactView&#39;</span>  <span class="c"># Full import path to your view</span>
 </span></pre></div>
 </td></tr></table></div>
-<p>See line 11, that&#8217;s all you need!</p>
+</div>
+<div class="section" id="custom-forms-for-page-content">
+<h2>Custom forms for Page Content<a class="headerlink" href="#custom-forms-for-page-content" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">ostinato.pages</span></tt> also allows you to specify a custom form for page content.
+You do this in the ContentOptions class like the example below:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">ostinato.pages.models</span> <span class="kn">import</span> <span class="n">PageContent</span>
+
+<span class="k">class</span> <span class="nc">LandingPage</span><span class="p">(</span><span class="n">SEOContentMixin</span><span class="p">,</span> <span class="n">PageContent</span><span class="p">):</span>
+    <span class="n">intro</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">ContentOptions</span><span class="p">:</span>
+<span class="hll">        <span class="n">form</span> <span class="o">=</span> <span class="s">&#39;myapp.forms.CustomForm&#39;</span>  <span class="c"># Full import path to your form</span>
+</span></pre></div>
+</td></tr></table></div>
+<p>As you can see we just added that at the end. Just create your custom form
+on the import path you specified, and the admin will automatically load the
+correct form for your page content.</p>
 </div>
 <div class="section" id="creating-complex-page-content-with-mixins">
 <h2>Creating complex page content with mixins<a class="headerlink" href="#creating-complex-page-content-with-mixins" title="Permalink to this headline">¶</a></h2>
@@ -294,30 +317,20 @@ models manually, not to mention that it introduces a larger margin for errors.</
 11
 12
 13
-14
-15
-16
-17
-18
-19</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+14</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">ostinato.pages.models</span> <span class="kn">import</span> <span class="n">PageContent</span>
 
-<span class="k">class</span> <span class="nc">SEOContentMixin</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>  <span class="c">## Note it&#39;s a standard model...</span>
+<span class="k">class</span> <span class="nc">SEOContentMixin</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>  <span class="c"># Note it&#39;s a standard model...</span>
     <span class="n">keywords</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
     <span class="n">description</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
 
     <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c">## ...and _must_ be abstract</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c"># ...and _must_ be abstract</span>
 
 
-<span class="k">class</span> <span class="nc">AttributionPage</span><span class="p">(</span><span class="n">SEOContentMixin</span><span class="p">,</span> <span class="n">PageContent</span><span class="p">):</span>
-    <span class="n">preview_image</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ImageField</span><span class="p">(</span><span class="n">upload_to</span><span class="o">=</span><span class="s">&#39;/previews/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">LandingPage</span><span class="p">(</span><span class="n">SEOContentMixin</span><span class="p">,</span> <span class="n">PageContent</span><span class="p">):</span>
+    <span class="n">intro</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
-    <span class="n">attribution</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
-
-    <span class="k">class</span> <span class="nc">ContentOptions</span><span class="p">:</span>
-        <span class="n">template</span> <span class="o">=</span> <span class="s">&#39;attribution_page.html&#39;</span>
-        <span class="n">view</span> <span class="o">=</span> <span class="s">&#39;myapp.views.ContactView&#39;</span>  <span class="c">## Full import path to your view</span>
 </pre></div>
 </td></tr></table></div>
 <p>The two points you have to be aware of here:</p>
@@ -367,55 +380,6 @@ context-processor.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="custom-forms-for-page-content">
-<h2>Custom forms for Page Content<a class="headerlink" href="#custom-forms-for-page-content" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">ostinato.pages</span></tt> also allows you to specify a custom form for page content.
-You do this in the ContentOptions class like the example below:</p>
-<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
-<span class="kn">from</span> <span class="nn">ostinato.pages.models</span> <span class="kn">import</span> <span class="n">PageContent</span>
-
-<span class="k">class</span> <span class="nc">SEOContentMixin</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>  <span class="c">## Note it&#39;s a standard model...</span>
-    <span class="n">keywords</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-    <span class="n">description</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
-
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c">## ...and _must_ be abstract</span>
-
-
-<span class="k">class</span> <span class="nc">AttributionPage</span><span class="p">(</span><span class="n">SEOContentMixin</span><span class="p">,</span> <span class="n">PageContent</span><span class="p">):</span>
-    <span class="n">preview_image</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ImageField</span><span class="p">(</span><span class="n">upload_to</span><span class="o">=</span><span class="s">&#39;/previews/&#39;</span><span class="p">)</span>
-    <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
-    <span class="n">attribution</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
-
-    <span class="k">class</span> <span class="nc">ContentOptions</span><span class="p">:</span>
-        <span class="n">template</span> <span class="o">=</span> <span class="s">&#39;attribution_page.html&#39;</span>
-        <span class="n">view</span> <span class="o">=</span> <span class="s">&#39;myapp.views.ContactView&#39;</span>
-        <span class="n">form</span> <span class="o">=</span> <span class="s">&#39;myapp.forms.CustomForm&#39;</span>
-</pre></div>
-</td></tr></table></div>
-<p>As you can see we just added that at the end. Just create your custom form
-on the import path you specified, and the admin will automatically load the
-correct form for your page content.</p>
-</div>
 </div>
 
 
@@ -430,13 +394,13 @@ correct form for your page content.</p>
 <li><a class="reference internal" href="#a-quick-overview">A quick overview</a></li>
 <li><a class="reference internal" href="#requirements">Requirements</a></li>
 <li><a class="reference internal" href="#add-ostinato-pages-to-your-project">Add <tt class="docutils literal"><span class="pre">ostinato.pages</span></tt> to your project</a></li>
-<li><a class="reference internal" href="#registering-page-content-templates">Registering page content (templates)</a></li>
-<li><a class="reference internal" href="#creating-custom-page-content">Creating custom page content</a></li>
+<li><a class="reference internal" href="#creating-page-content">Creating page content</a></li>
+<li><a class="reference internal" href="#registering-page-content-and-templates">Registering page content and templates</a></li>
 <li><a class="reference internal" href="#displaying-page-content-in-the-templates">Displaying page content in the templates</a></li>
 <li><a class="reference internal" href="#creating-a-custom-view-for-your-content">Creating a custom view for your content</a></li>
+<li><a class="reference internal" href="#custom-forms-for-page-content">Custom forms for Page Content</a></li>
 <li><a class="reference internal" href="#creating-complex-page-content-with-mixins">Creating complex page content with mixins</a></li>
 <li><a class="reference internal" href="#template-tags-and-filters">Template tags and filters</a></li>
-<li><a class="reference internal" href="#custom-forms-for-page-content">Custom forms for Page Content</a></li>
 </ul>
 </li>
 </ul>
