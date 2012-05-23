@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% load content_filters %}
+{% load content_filters demo_filters %}
 
 
 {% block content %}
     <h1>{{ page.title }}</h1>
 
-    <p>{{ page.contents.content|modify:"youtube"|safe }}</p>
+    <p>{{ page.contents.content|modify:"upper"|safe }}</p>
 
     <hr />
 

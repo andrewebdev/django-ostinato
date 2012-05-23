@@ -49,7 +49,88 @@
             
   <div class="section" id="ostinato-contentfilters">
 <h1>ostinato.contentfilters<a class="headerlink" href="#ostinato-contentfilters" title="Permalink to this headline">¶</a></h1>
-<p>tbc...</p>
+<p>The <tt class="docutils literal"><span class="pre">ostinato.contentfilters</span></tt> app provides you with a easy way to apply a
+list of filters to content, which is rendered in your templates. The basic
+functionality is the same as standard django template filters, except that
+they are appllied as a group. This is handy if you want to apply a whole range
+of filters to a single piece of content.</p>
+<p>We also include a couple of filters for some common use cases.</p>
+<div class="section" id="writing-a-contentfilter">
+<h2>Writing a Contentfilter<a class="headerlink" href="#writing-a-contentfilter" title="Permalink to this headline">¶</a></h2>
+<p>Start by creating a standard django template tag library. In our case we will
+call this <tt class="docutils literal"><span class="pre">custom_filters.py</span></tt>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">template</span>
+<span class="n">register</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">Library</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Now we need to create our filter. For this example we will create a simple
+filter that will convert the content to uppercase.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">template</span>
+<span class="kn">from</span> <span class="nn">ostinato.contentfilters</span> <span class="kn">import</span> <span class="n">ContentMod</span>
+
+<span class="n">register</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">Library</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">to_upper</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">content</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+<span class="n">ContentMod</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s">&#39;upper&#39;</span><span class="p">,</span> <span class="n">to_upper</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As you can see you just create a basic function, which takes a single argument,
+<tt class="docutils literal"><span class="pre">content</span></tt>. You then do some processing on your content, and return the result.</p>
+<p>The last thing you need to do is register your modifier with
+<tt class="docutils literal"><span class="pre">ostinato.contentfilters.ContentMod</span></tt>. The first argument here is the unique
+name for the filter. The second argument is the function to use.</p>
+</div>
+<div class="section" id="using-the-filters-in-your-templates">
+<h2>Using the filters in your templates<a class="headerlink" href="#using-the-filters-in-your-templates" title="Permalink to this headline">¶</a></h2>
+<p>Now that you have your content filters registered, you can use them in your
+templates.</p>
+<div class="highlight-html"><div class="highlight"><pre>{% load content_filters custom_filters %}
+{{ &#39;some lowercase content&#39;|modify }}
+</pre></div>
+</div>
+<p>Firstly note that we need to load both template tag libraries for
+<tt class="docutils literal"><span class="pre">content_filters</span></tt> and <tt class="docutils literal"><span class="pre">custom_filters</span></tt>.</p>
+<p>Secondly you will see we just applied a single <tt class="docutils literal"><span class="pre">modify</span></tt> filter to our content.
+Calling <tt class="docutils literal"><span class="pre">modify</span></tt> without any arguments will run through <em>all</em> registered
+filters.</p>
+<p>You can apply specific filters by passing it as arguments to <tt class="docutils literal"><span class="pre">modify</span></tt>:</p>
+<div class="highlight-html"><div class="highlight"><pre>{% load content_filters custom_filters %}
+{{ &#39;some lowercase content&#39;|modify:&quot;upper,another_filter&quot; }}
+</pre></div>
+</div>
+<p>You can also tell it to exclude filters. The following will use <em>all</em>
+registered filters, except for <tt class="docutils literal"><span class="pre">upper</span></tt> and <tt class="docutils literal"><span class="pre">youtube</span></tt>. Note the exclamation
+mark at the start of the filter list.</p>
+<div class="highlight-html"><div class="highlight"><pre>{% load content_filters custom_filters %}
+{{ &#39;some lowercase content&#39;|modify:&quot;!upper,another_filter&quot; }}
+</pre></div>
+</div>
+</div>
+<div class="section" id="default-content-filters-included-with-ostinato-contentfilters">
+<h2>Default content filters included with ostinato.contentfilters<a class="headerlink" href="#default-content-filters-included-with-ostinato-contentfilters" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">youtube</span></tt> - Searches for a youtube url in the content, and replaces it with</dt>
+<dd><p class="first last">the html embed code.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">snip</span></tt> - Searches for a string, <tt class="docutils literal"><span class="pre">{{{snip}}}</span></tt> in the content, and if found</dt>
+<dd><p class="first last">it truncates the content at that point.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">hide_snip</span></tt> - Searches for a string, <tt class="docutils literal"><span class="pre">{{{snip}}}</span></tt> in the content, and if</dt>
+<dd><p class="first last">found, removes it from the content.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
 </div>
 
 
@@ -58,6 +139,16 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ostinato.contentfilters</a><ul>
+<li><a class="reference internal" href="#writing-a-contentfilter">Writing a Contentfilter</a></li>
+<li><a class="reference internal" href="#using-the-filters-in-your-templates">Using the filters in your templates</a></li>
+<li><a class="reference internal" href="#default-content-filters-included-with-ostinato-contentfilters">Default content filters included with ostinato.contentfilters</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="ostinato.pages.html"
                         title="previous chapter">ostinato.pages</a></p>
