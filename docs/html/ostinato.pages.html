@@ -86,19 +86,14 @@ more control over content in your pages.</p>
     <span class="s">&#39;mptt&#39;</span><span class="p">,</span>
     <span class="s">&#39;ostinato&#39;</span><span class="p">,</span>
     <span class="s">&#39;ostinato.pages&#39;</span><span class="p">,</span>
-    <span class="s">&#39;ostinato.statemachine&#39;</span><span class="p">,</span>
 
     <span class="o">...</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>Note</strong> that we also added <tt class="docutils literal"><span class="pre">ostinato.statemachine</span></tt>. Dont worry about the
-specifics, just as long as you know that <tt class="docutils literal"><span class="pre">ostinato.pages</span></tt> depends on that app,
-and you need to have both in your <tt class="docutils literal"><span class="pre">INSTALLED_APPS</span></tt>.</p>
-<p>Now add the <tt class="docutils literal"><span class="pre">ostinato.pages.urls</span></tt> to your <em>end</em> of your urlpatterns. If you
-are adding the pages urls to the root of your site, it&#8217;s very important to add
-this snippet right at the end of the <tt class="docutils literal"><span class="pre">urls.py</span></tt> so that pages doesn&#8217;t take
-priority over your other urlpatterns.</p>
+<p>Now add the <tt class="docutils literal"><span class="pre">ostinato.pages.urls</span></tt> to the <em>end</em> of your urlpatterns. It is
+important to add this snippet right at the end of the <tt class="docutils literal"><span class="pre">urls.py</span></tt> so that pages doesn&#8217;t take priority over your other urlpatterns. That is of course unless
+you want it to, in which case you can add it where-ever you wish.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">urlpatterns</span> <span class="o">+=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
     <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="s">&#39;ostinato.pages.urls&#39;</span><span class="p">)),</span>
 <span class="p">)</span>

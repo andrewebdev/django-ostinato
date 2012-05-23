@@ -17,6 +17,7 @@ from ostinato.pages.managers import PageManager
 
 
 TEMPLATE_CHOICES = getattr(settings, 'OSTINATO_PAGE_TEMPLATES')
+DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 5)
 
 
 ## Models
@@ -45,7 +46,7 @@ class Page(MPTTModel):
     show_in_nav = models.BooleanField(default=True)
     show_in_sitemap = models.BooleanField(default=True)
 
-    state = models.IntegerField(choices=STATE_CHOICES, default=PUBLISHED)
+    state = models.IntegerField(choices=STATE_CHOICES, default=DEFAULT_STATE)
 
     created_date = models.DateTimeField(null=True, blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)

@@ -46,19 +46,13 @@ Start by adding the app to your ``INSTALLED_APPS``
         'mptt',
         'ostinato',
         'ostinato.pages',
-        'ostinato.statemachine',
 
         ...
     )
 
-**Note** that we also added ``ostinato.statemachine``. Dont worry about the
-specifics, just as long as you know that ``ostinato.pages`` depends on that app,
-and you need to have both in your ``INSTALLED_APPS``.
-
-Now add the ``ostinato.pages.urls`` to your *end* of your urlpatterns. If you
-are adding the pages urls to the root of your site, it's very important to add
-this snippet right at the end of the ``urls.py`` so that pages doesn't take
-priority over your other urlpatterns.
+Now add the ``ostinato.pages.urls`` to the *end* of your urlpatterns. It is
+important to add this snippet right at the end of the ``urls.py`` so that pages doesn't take priority over your other urlpatterns. That is of course unless
+you want it to, in which case you can add it where-ever you wish.
 
 .. code-block:: python
 
