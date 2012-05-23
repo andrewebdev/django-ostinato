@@ -14,7 +14,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
 
 from ostinato.pages.managers import PageManager
-from ostinato.statemachine.models import StateMachineField, DefaultStateMachine
 
 
 TEMPLATE_CHOICES = getattr(settings, 'OSTINATO_PAGE_TEMPLATES')
@@ -23,6 +22,15 @@ TEMPLATE_CHOICES = getattr(settings, 'OSTINATO_PAGE_TEMPLATES')
 ## Models
 class Page(MPTTModel):
     """ A basic page model """
+    PRIVATE = 0
+    PUBLISHED = 5
+    ARCHIVED = 10
+    STATE_CHOICES = (
+        (PRIVATE, 'Private'),
+        (PUBLISHED, 'Published'),
+        (ARCHIVED, 'Archived'),
+    )
+
     title = models.CharField(max_length=150)
     slug = models.SlugField(unique=True, help_text='A url friendly slug.')
     short_title = models.CharField(max_length=15, null=True, blank=True,
@@ -36,6 +44,8 @@ class Page(MPTTModel):
 
     show_in_nav = models.BooleanField(default=True)
     show_in_sitemap = models.BooleanField(default=True)
+
+    state = models.IntegerField(choices=STATE_CHOICES, default=PUBLISHED)
 
     created_date = models.DateTimeField(null=True, blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)
@@ -51,10 +61,6 @@ class Page(MPTTModel):
     objects = PageManager()
     tree = TreeManager()
 
-    sm = StateMachineField(DefaultStateMachine)
-    ## GenericRelation gives us extra api methods
-    _sm = generic.GenericRelation(DefaultStateMachine)
-
     ## required for caching contents
     _contents = None
 
@@ -64,9 +70,16 @@ class Page(MPTTModel):
 
     def save(self, *args, **kwargs):
         ## Publishing
+        now = timezone.now()
+
         if not self.id or not self.created_date:
-            self.created_date = timezone.now()
-        self.modified_date = timezone.now()
+            self.created_date = now
+
+        if self.state == Page.PUBLISHED and not self.publish_date:
+            self.publish_date = now
+
+        self.modified_date = now
+
         super(Page, self).save(*args, **kwargs)
 
 
@@ -121,14 +134,6 @@ class Page(MPTTModel):
 
     def get_template(self):
         return self.get_content_model().get_template()
-
-
-@receiver(pre_save, sender=Page)
-def update_publish_date(sender, **kwargs):
-    if kwargs['instance'].sm:
-        if not kwargs['instance'].publish_date and \
-                kwargs['instance'].sm.state == 'published':
-            kwargs['instance'].publish_date = timezone.now()
 
 
 ## Page Templates

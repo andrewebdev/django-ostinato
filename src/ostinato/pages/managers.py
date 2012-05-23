@@ -6,7 +6,7 @@ class PageManager(models.Manager):
 
     def published(self):
         return self.get_query_set().filter(
-            publish_date__lte=timezone.now(), _sm__state='published').distinct()
+            publish_date__lte=timezone.now(), state=5)
 
     def get_navbar(self, for_page=None):
         """

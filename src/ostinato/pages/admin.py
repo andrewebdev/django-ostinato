@@ -5,9 +5,7 @@ from django.contrib.admin.util import unquote
 from django.conf import settings
 
 from mptt.admin import MPTTModelAdmin
-
-from ostinato.statemachine.forms import StateMachineModelForm
-from ostinato.pages.models import Page, DefaultStateMachine
+from ostinato.pages.models import Page
 
 
 GRAPPELLI = 'grappelli' in settings.INSTALLED_APPS
@@ -34,15 +32,8 @@ def content_inline_factory(page):
     return PageContentInline
 
 
-class PageAdminForm(StateMachineModelForm):
-
-    class Meta:
-        model = Page
-
-
 ## Admin Models
 class PageAdmin(MPTTModelAdmin):
-    form = PageAdminForm
     save_on_top = True
 
     list_display = ('title', 'reorder', 'slug', 'template',
@@ -50,9 +41,9 @@ class PageAdmin(MPTTModelAdmin):
         'publish_date')
 
     list_filter = ('template', 'author', 'show_in_nav', 'show_in_sitemap',
-        '_sm__state')
+        'state')
 
-    list_editable = ('show_in_nav', 'show_in_sitemap')
+    list_editable = ('state', 'show_in_nav', 'show_in_sitemap')
 
     search_fields = ('title', 'short_title', 'slug', 'author')
     date_hierarchy = 'publish_date'
@@ -68,7 +59,7 @@ class PageAdmin(MPTTModelAdmin):
         }),
 
         ('Publication', {
-            'fields': ('author', 'publish_date', '_sm_action'),
+            'fields': ('state', 'author', 'publish_date'),
         }),
 
     )
@@ -92,10 +83,6 @@ class PageAdmin(MPTTModelAdmin):
             static_prefix('ostinato/js/jquery-ui-1.8.18.custom.min.js'),
             static_prefix('pages/js/page_admin.js'),
         )
-
-    def state(self, obj):
-        """ Just a helper for the admin """
-        return obj.sm.state
 
     def reorder(self, obj):
         """ A List view item that shows the movement actions """

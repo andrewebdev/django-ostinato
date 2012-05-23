@@ -139,7 +139,6 @@ INSTALLED_APPS = (
 
     'ostinato',
     'ostinato.pages',
-    'ostinato.statemachine',
     'ostinato.contentfilters',
     'ckeditor',
 
@@ -192,4 +191,9 @@ LOGGING = {
             'propagate': True,
         },
     }
+}
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
 }

@@ -138,48 +138,6 @@ class PageModelTestCase(TestCase):
         self.assertEqual(c, p.contents)
 
 
-class PagesStateMachineTestCase(TestCase):
-
-    def setUp(self):
-        create_pages()
-
-        self.p = Page.objects.get(slug='page-1')
-        self.p2 = Page.objects.get(slug='page-2')
-
-    def test_has_statemachine(self):
-        self.p.sm
-
-    def test_initial_state(self):
-        self.assertEqual('private', self.p.sm.state)
-        self.assertEqual('private', self.p2.sm.state)
-
-    def test_publish_action(self):
-        self.p.sm.take_action('publish')
-        self.assertEqual('published', self.p.sm.state)
-
-    def test_publish_action_updates_publish_date(self):
-        self.assertEqual(None, self.p.publish_date)
-
-        now = timezone.now()
-        self.p.sm.take_action('publish')
-        self.p.save()
-
-        ## We need to refresh our page instance, since the publish date
-        ## will have updated, but our current instance does not reflect this
-        ## change
-        self.p = Page.objects.get(id=self.p.id)
-        self.assertEqual(now.strftime('%d %m %Y'),
-            self.p.publish_date.strftime('%d %m %Y'))
-
-    def test_manager_published(self):
-        self.assertFalse(Page.objects.published())
-        self.p.sm.take_action('publish')
-        self.p.save()
-
-        self.assertEqual(1, Page.objects.published().count())
-        self.assertEqual(self.p, Page.objects.published()[0])
-
-
 class PageManagerTestCase(TestCase):
 
     urls = 'ostinato.pages.urls'
@@ -187,16 +145,16 @@ class PageManagerTestCase(TestCase):
     def setUp(self):
         create_pages()
 
+    def test_published(self):
+        self.assertEqual([1, 2, 3],
+            list(Page.objects.published().values_list('id', flat=True)))
+
     def test_get_empty_navbar(self):
+        Page.objects.published().update(state=Page.PRIVATE)
         empty_nav = Page.objects.get_navbar()
         self.assertEqual([], empty_nav)
 
     def test_get_navbar(self):
-        ## Need to publish the items first
-        for p in Page.objects.all():
-            p.sm.take_action('publish')
-            p.save()
-
         expected_nav = [{
             'slug': u'page-1',
             'title': u'Page 1',
@@ -219,10 +177,6 @@ class PageManagerTestCase(TestCase):
         self.assertEqual(expected_nav, Page.objects.get_navbar())
 
     def test_get_breadcrumbs(self):
-        for p in Page.objects.all():
-            p.sm.take_action('publish')
-            p.save()
-
         expected_crumbs = [{
             'slug': u'page-1',
             'title': u'Page 1',
@@ -236,10 +190,6 @@ class PageManagerTestCase(TestCase):
         self.assertEqual(expected_crumbs, Page.objects.get_breadcrumbs(p))
 
     def test_get_page_from_path(self):
-        for p in Page.objects.all():
-            p.sm.take_action('publish')
-            p.save()
-
         rf = RequestFactory()
         request = rf.get('/page-1/page-3/')
 
@@ -276,9 +226,6 @@ class PageViewTestCase(TestCase):
     def setUp(self):
         create_pages()
 
-        for p in Page.objects.all():
-            p.sm.take_action('publish')
-
     def test_view_exists(self):
         PageView
 
@@ -309,9 +256,6 @@ class ViewDispatcherTestCase(TestCase):
 
     def setUp(self):
         create_pages()
-
-        for p in Page.objects.all():
-            p.sm.take_action('publish')
 
     def test_dispatcher_exists(self):
         page_dispatch
@@ -345,10 +289,6 @@ class NavBarTemplateTagTestCase(TestCase):
 
     def setUp(self):
         create_pages()
-
-        for p in Page.objects.all():
-            p.sm.take_action('publish')
-            p.save()
 
         t = Template('{% load pages_tags %}{% navbar %}')
         self.response = SimpleTemplateResponse(t)

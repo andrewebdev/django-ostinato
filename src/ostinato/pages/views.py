@@ -35,7 +35,7 @@ def page_dispatch(request, *args, **kwargs):
         except IndexError:
             raise http.Http404
 
-    if page.sm.state == 'private':
+    if page.state == Page.PRIVATE:
         if page.author != request.user or not request.user.is_superuser:
             return http.HttpResponseForbidden()
 
