@@ -4,6 +4,7 @@ from django.conf import settings
 
 OSTINATO_PAGE_TEMPLATES = getattr(settings, 'OSTINATO_PAGE_TEMPLATES')
 
+
 for t in OSTINATO_PAGE_TEMPLATES:
     label, model = t[0].split('.')
 

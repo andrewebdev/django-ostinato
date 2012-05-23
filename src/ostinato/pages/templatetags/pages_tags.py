@@ -9,9 +9,16 @@ register = template.Library()
 @register.inclusion_tag('pages/navbar.html', takes_context=True)
 def navbar(context, for_page=None, path=''):
     """
-    Renders the standard navigation bar.
-    ``parent`` specifies the start level for the navbar,
-        defaults to root level pages
+    Renders a basic navigation bar.
+
+    ``for_page`` is used to specify a navbar for a specific
+        page (it's children); defaults to root level pages
+
+    ``path`` can be used in special cases where a page might not exist on
+    the current path, but you would like the page to be "discovered" from the
+    url. This will basically mark the active page in the navbar; if it can
+    be found in the path of course.
+
     """
     if 'page' not in context:
         page = Page.objects.get_from_path(path)
