@@ -9,8 +9,8 @@ register = template.Library()
 class ContentMod(object):
     """
     Special class to register render functions that will manipulate
-    blog content in some way. These functions are accessed by the
-    ``embed()`` filter below.
+    text content in some way. These functions are accessed by the
+    ``modify`` filter below.
     """
     _modifiers = []
 
