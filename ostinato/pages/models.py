@@ -135,6 +135,15 @@ class Page(MPTTModel):
             except content_type.model_class().DoesNotExist:
                 pass
 
+            # Now add extra fields specified in the page_inline attr.
+            if self._contents and \
+                    hasattr(self._contents.ContentOptions, 'page_inlines'):
+
+                for inline in self._contents.ContentOptions.page_inlines:
+                    k = '%s_set' % inline.model.__name__.lower()
+                    self._contents.add_content(
+                        **{k: inline.model.objects.filter(page=self)})
+
         return self._contents
 
     contents = property(get_content)
@@ -168,6 +177,17 @@ class PageContent(models.Model):
         view = 'ostinato.pages.views.PageView'
         form = None
         page_inlines = []
+
+
+    def add_content(self, **kwargs):
+        for k in kwargs:
+
+            if hasattr(self, k):
+                raise Exception('Cannot add "%s" to %s since that attribute'
+                    'already exists.' % (k, self))
+
+            self.__dict__[k] = kwargs[k]
+
 
     @classmethod
     def get_template(cls):

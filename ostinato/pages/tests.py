@@ -2,6 +2,7 @@ from django.test import TestCase, TransactionTestCase
 from django.test.client import Client, RequestFactory
 from django.test.utils import override_settings
 from django.db import models
+from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
@@ -24,7 +25,16 @@ SETTING_ARGS = {
         ('pages.OTHERPAGE', 'Other Page'),
     ),
 }
+
 ## Create some Page Content
+class Contributor(models.Model):
+    page = models.ForeignKey(Page, related_name='testing')
+    name = models.CharField(max_length=50)
+
+class ContributorInline(admin.StackedInline):
+    model = Contributor
+
+
 class ContentMixin(models.Model):
     """
     An example of how you would do mixins. A mixin must be an abstract
@@ -48,13 +58,14 @@ class BasicPage(ContentMixin, PageContent):
     class ContentOptions:
         template = 'pages/tests/basic_page.html'
         view = 'ostinato.pages.views.CustomView'
+        page_inlines = [ContributorInline]
 
 
 class OtherPage(ContentMixin, PageContent):
     """ Test content that doesn't have a template specified """
     pass
 
-
+ 
 def create_pages():
     user = User.objects.create(username='user1', password='secret',
         email='user1@example.com')
@@ -256,6 +267,21 @@ class PageContentModelTestCase(TestCase):
         p = Page.objects.create(title='Test Page', slug='test-page',
             template='pages.otherpage')
         self.assertEqual('pages/other_page.html', p.get_template())
+
+    def test_add_content(self):
+        create_pages()
+        p = Page.objects.get(slug='page-1')
+        p.contents.add_content(something='Some Content')
+        self.assertEqual('Some Content', p.contents.something)
+
+    def test_inline_content_for_page(self):
+        create_pages()
+        p = Page.objects.get(slug='page-3')
+        content = BasicPage.objects.create(page=p, content='Page 3 Content')
+        Contributor.objects.create(page=p, name='Contributor 1')
+
+        qs = Contributor.objects.filter(page=p)
+        self.assertEqual(qs[0], p.contents.contributor_set[0])
 
 
 class PageViewTestCase(TestCase):

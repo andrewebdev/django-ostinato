@@ -6,4 +6,11 @@
 
 <p>{{ page.contents.content }}</p>
 
+<h4>Contributors</h4>
+<ul>
+    {% for contrib in page.contents.contributor_set %}
+    <li>{{ contrib.name }}</li>
+    {% endfor %}
+</ul>
+
 {% endblock %}

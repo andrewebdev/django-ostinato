@@ -26,12 +26,12 @@ class CKContentMixin(PageContent):
 ### Some inline extra fields for a landing page
 from django.contrib import admin
 
-class LandingPageContributors(models.Model):
-    landing_page = models.ForeignKey(Page)
+class Contributor(models.Model):
+    page = models.ForeignKey(Page)
     name = models.CharField(max_length=100)
 
-class LandingPageContributorsInline(admin.StackedInline):
-    model = LandingPageContributors
+class ContributorInline(admin.StackedInline):
+    model = Contributor
 
 
 # Actual Page Content
@@ -40,7 +40,7 @@ class LandingPage(ContentMixin, PageContent):
 
     class ContentOptions:
         template = 'pages/tests/landing_page.html'
-        page_inlines = [LandingPageContributorsInline]  # specify page inlines
+        page_inlines = [ContributorInline]  # specify page inlines
 
 
 class BasicPage(ContentMixin, PageContent):
