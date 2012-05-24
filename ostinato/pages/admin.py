@@ -117,6 +117,11 @@ class PageAdmin(MPTTModelAdmin):
             if page.template:
                 self.inlines = (content_inline_factory(page),)
 
+            content_model = page.get_content_model()
+            if hasattr(content_model.ContentOptions, 'page_inlines'):
+                for inline in content_model.ContentOptions.page_inlines:
+                    self.inlines += (inline,)
+
         return super(PageAdmin, self).change_view(
             request, object_id, form_url, extra_context)
 

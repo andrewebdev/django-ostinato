@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.utils import DatabaseError
 from django.conf import settings
 
 
@@ -31,6 +32,8 @@ class TemplateProcessor(object):
             raise InvalidTemplate('OSTINATO_PAGE_TEMPLATES contains an invalid '
                 'template id, "%s". Template id must be in the format '
                 '"<app_label>.<model>"' % template[0])
+        except DatabaseError:
+            pass
 
         return (('.'.join([label, model]), template[1]),)
 

@@ -23,11 +23,24 @@ class CKContentMixin(PageContent):
         abstract = True
 
 
+### Some inline extra fields for a landing page
+from django.contrib import admin
+
+class LandingPageContributors(models.Model):
+    landing_page = models.ForeignKey(Page)
+    name = models.CharField(max_length=100)
+
+class LandingPageContributorsInline(admin.StackedInline):
+    model = LandingPageContributors
+
+
+# Actual Page Content
 class LandingPage(ContentMixin, PageContent):
     intro = models.TextField()
 
     class ContentOptions:
         template = 'pages/tests/landing_page.html'
+        page_inlines = [LandingPageContributorsInline]  # specify page inlines
 
 
 class BasicPage(ContentMixin, PageContent):
@@ -53,4 +66,5 @@ class ListPage(ContentMixin, PageContent):
     class ContentOptions:
         template = 'page_templates/list_page.html'
         form = 'odemo.forms.CustomForm'
+
 

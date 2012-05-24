@@ -128,7 +128,12 @@ class Page(MPTTModel):
         if not self._contents:
             label, model = self.template.split('.')
             content_type = ContentType.objects.get(app_label=label, model=model)
-            self._contents = content_type.get_object_for_this_type(page=self.id)
+
+            try:
+                self._contents = content_type.get_object_for_this_type(
+                    page=self.id)
+            except content_type.model_class().DoesNotExist:
+                pass
 
         return self._contents
 
@@ -162,6 +167,7 @@ class PageContent(models.Model):
         template = None
         view = 'ostinato.pages.views.PageView'
         form = None
+        page_inlines = []
 
     @classmethod
     def get_template(cls):
