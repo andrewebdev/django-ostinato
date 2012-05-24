@@ -339,6 +339,80 @@ models manually, not to mention that it introduces a larger margin for errors.</
 <li>The mixin <em>must</em> be abstract</li>
 </ol>
 </div>
+<div class="section" id="extra-inline-fields-for-a-page-in-the-admin">
+<h2>Extra Inline Fields for a Page in the Admin<a class="headerlink" href="#extra-inline-fields-for-a-page-in-the-admin" title="Permalink to this headline">¶</a></h2>
+<p>There are cases where you want a specific page to have extra inline fields,
+based on the chosen template. We have provided you with this capability through
+the PageContent model.</p>
+<p>First you need to create the model that should be related to your page.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">ostinato.pages.models</span> <span class="kn">import</span> <span class="n">Page</span>
+
+<span class="k">class</span> <span class="nc">Contributor</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Page</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_lenght</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>Next, you need to create your inline class (usually done in admin.py).</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">admin</span>
+
+<span class="k">class</span> <span class="nc">ContributorInline</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">StackedInline</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Contributor</span>
+</pre></div>
+</td></tr></table></div>
+<p>Right, after a quick syncdb, we are ready to add this to our page content.
+Lets say that we want to add contributors to our <tt class="docutils literal"><span class="pre">LandingPage</span></tt> from earlier:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="highlight"><pre><span class="o">...</span>
+
+<span class="k">class</span> <span class="nc">LandingPage</span><span class="p">(</span><span class="n">SEOContentMixin</span><span class="p">,</span> <span class="n">PageContent</span><span class="p">):</span>
+    <span class="n">intro</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">ContentOptions</span><span class="p">:</span>
+<span class="hll">        <span class="n">page_inlines</span> <span class="o">=</span> <span class="p">[</span><span class="n">ContributorInline</span><span class="p">]</span>
+</span><span class="o">...</span>
+</pre></div>
+</td></tr></table></div>
+<p>If you load up the django admin now, and edit a Landing Page, you should see
+the extra inline model fields below your PageContent.</p>
+<p>To access the related set in your template, you can use the queryset that we
+provide on the page contents:</p>
+<div class="highlight-html"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre>{% for contrib in page.contents.contributor_set %}
+<span class="hll">{{ contrib.name }}
+</span>{% endfor %}
+</pre></div>
+</td></tr></table></div>
+<p>Note that the variable <tt class="docutils literal"><span class="pre">contributor_set</span></tt> is a queryset, and <em>not</em> a
+ManyRelatedManager, so you dont need to add <tt class="docutils literal"><span class="pre">.all</span></tt> to it.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>You can still access this content the usual method by doing a reverse
+lookup on the page instance.</p>
+<div class="last highlight-html"><div class="highlight"><pre>{% for contrib in page.contributor_set.all %}
+{{ contrib.name }}
+{% endfor %}
+</pre></div>
+</div>
+</div>
+</div>
 <div class="section" id="template-tags-and-filters">
 <h2>Template tags and filters<a class="headerlink" href="#template-tags-and-filters" title="Permalink to this headline">¶</a></h2>
 <p><tt class="docutils literal"><span class="pre">ostinato.pages</span></tt> comes with a couple of tempalate tags and filters to
@@ -400,6 +474,7 @@ context-processor.</p>
 <li><a class="reference internal" href="#creating-a-custom-view-for-your-content">Creating a custom view for your content</a></li>
 <li><a class="reference internal" href="#custom-forms-for-page-content">Custom forms for Page Content</a></li>
 <li><a class="reference internal" href="#creating-complex-page-content-with-mixins">Creating complex page content with mixins</a></li>
+<li><a class="reference internal" href="#extra-inline-fields-for-a-page-in-the-admin">Extra Inline Fields for a Page in the Admin</a></li>
 <li><a class="reference internal" href="#template-tags-and-filters">Template tags and filters</a></li>
 </ul>
 </li>

@@ -323,6 +323,87 @@ The two points you have to be aware of here:
 #. The mixin *must* be abstract
 
 
+Extra Inline Fields for a Page in the Admin
+-------------------------------------------
+
+There are cases where you want a specific page to have extra inline fields,
+based on the chosen template. We have provided you with this capability through
+the PageContent model.
+
+First you need to create the model that should be related to your page.
+
+
+.. code-block:: python
+    :linenos:
+
+    from django.db import models
+    from ostinato.pages.models import Page
+
+    class Contributor(models.Model):
+        page = models.ForeignKey(Page)
+        name = models.CharField(max_lenght=50)
+
+
+Next, you need to create your inline class (usually done in admin.py).
+
+
+.. code-block:: python
+    :linenos:
+
+    from django.contrib import admin
+
+    class ContributorInline(admin.StackedInline):
+        model = Contributor
+
+
+Right, after a quick syncdb, we are ready to add this to our page content.
+Lets say that we want to add contributors to our ``LandingPage`` from earlier:
+
+
+.. code-block:: python
+    :linenos:
+    :emphasize-lines: 8
+
+    ...
+
+    class LandingPage(SEOContentMixin, PageContent):
+        intro = models.TextField()
+        content = models.TextField()
+
+        class ContentOptions:
+            page_inlines = [ContributorInline]
+    ...
+
+If you load up the django admin now, and edit a Landing Page, you should see
+the extra inline model fields below your PageContent.
+
+To access the related set in your template, you can use the queryset that we
+provide on the page contents:
+
+.. code-block:: html
+    :linenos:
+    :emphasize-lines: 2
+
+    {% for contrib in page.contents.contributor_set %}
+    {{ contrib.name }}
+    {% endfor %}
+
+Note that the variable ``contributor_set`` is a queryset, and *not* a
+ManyRelatedManager, so you dont need to add ``.all`` to it.
+
+
+.. note::
+
+    You can still access this content the usual method by doing a reverse
+    lookup on the page instance.
+    
+    .. code-block:: html
+        
+        {% for contrib in page.contributor_set.all %}
+        {{ contrib.name }}
+        {% endfor %}
+
+
 Template tags and filters
 -------------------------
 
