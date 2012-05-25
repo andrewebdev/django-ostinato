@@ -1,6 +1,7 @@
 from django.db import models
 
 from ostinato.pages.models import Page, PageContent
+from ostinato.pages.registry import page_content
 from ckeditor.fields import RichTextField
 
 
@@ -35,6 +36,7 @@ class ContributorInline(admin.StackedInline):
 
 
 # Actual Page Content
+@page_content.register('Landing Page')
 class LandingPage(ContentMixin, PageContent):
     intro = models.TextField()
 
@@ -43,6 +45,7 @@ class LandingPage(ContentMixin, PageContent):
         page_inlines = [ContributorInline]  # specify page inlines
 
 
+@page_content.register('Basic Page')
 class BasicPage(ContentMixin, PageContent):
 
     class ContentOptions:
@@ -50,6 +53,7 @@ class BasicPage(ContentMixin, PageContent):
         view = 'ostinato.pages.views.CustomView'
 
 
+@page_content.register('Contact Page')
 class ContactPage(CKContentMixin):
 
     class ContentOptions:
@@ -57,6 +61,7 @@ class ContactPage(CKContentMixin):
         view = 'odemo.views.ContactView'
 
 
+@page_content.register('List Page')
 class ListPage(ContentMixin, PageContent):
     """ Example of a page that uses a custom form """
 

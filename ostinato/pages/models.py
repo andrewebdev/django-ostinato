@@ -13,13 +13,10 @@ from django.conf import settings
 from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
 
-from ostinato.pages.utils import TemplateProcessor
 from ostinato.pages.managers import PageManager
 
 
 DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 5)
-tp = TemplateProcessor()
-TEMPLATE_CHOICES = tp.get_templates()
 
 
 ## Models
@@ -40,7 +37,7 @@ class Page(MPTTModel):
         help_text='A shorter title which can be used in menus etc. If this \
                    is not supplied then the normal title field will be used.')
 
-    template = models.CharField(max_length=100, choices=TEMPLATE_CHOICES)
+    template = models.CharField(max_length=100, choices=(('', '--------'),))
 
     redirect = models.CharField(max_length=200, blank=True, null=True,
         help_text='Use this to point to redirect to another page or website.')

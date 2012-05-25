@@ -3,10 +3,12 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import DetailView
 
+from ostinato.pages.registry import page_content
 from odemo.news.models import NewsItem
 from odemo.news.views import NewsPageView
 
 admin.autodiscover()
+page_content.autodiscover()
 
 
 urlpatterns = patterns('',

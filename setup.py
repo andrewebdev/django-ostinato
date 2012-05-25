@@ -13,6 +13,7 @@ setup(
     install_requires=[
         'setuptools',
         'django-mptt == 0.5.2',
+        'django-appregister == 0.2',
     ],
 )
 

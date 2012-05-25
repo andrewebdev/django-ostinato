@@ -1,6 +1,5 @@
 from django.test import TestCase, TransactionTestCase
 from django.test.client import Client, RequestFactory
-from django.test.utils import override_settings
 from django.db import models
 from django.contrib import admin
 from django.contrib.auth.models import User
@@ -12,19 +11,13 @@ from django.utils import simplejson as json
 from django.utils import timezone
 from django.conf import settings
 
-from ostinato.pages.utils import TemplateProcessor, InvalidTemplate
+from ostinato.pages.registry import page_content
 from ostinato.pages.models import Page, PageContent
 from ostinato.pages.views import PageView, PageReorderView, page_dispatch
 
 
-## Custom Settings
-SETTING_ARGS = {
-    'OSTINATO_PAGE_TEMPLATES': (
-        ('pages.landingpage', 'Landing Page'),
-        ('pages.basicpage', 'Basic Page'),
-        ('pages.OTHERPAGE', 'Other Page'),
-    ),
-}
+page_content.setup()  # Clear the registry before we start the tests
+
 
 ## Create some Page Content
 class Contributor(models.Model):
@@ -46,6 +39,7 @@ class ContentMixin(models.Model):
         abstract = True  # Required for mixins
 
 
+@page_content.register('Test Landing Page')
 class LandingPage(ContentMixin, PageContent):
     intro = models.TextField()
 
@@ -53,6 +47,7 @@ class LandingPage(ContentMixin, PageContent):
         template = 'pages/tests/landing_page.html'
 
 
+@page_content.register('Test Basic Page')
 class BasicPage(ContentMixin, PageContent):
 
     class ContentOptions:
@@ -61,6 +56,7 @@ class BasicPage(ContentMixin, PageContent):
         page_inlines = [ContributorInline]
 
 
+@page_content.register('Test Other Page')
 class OtherPage(ContentMixin, PageContent):
     """ Test content that doesn't have a template specified """
     pass
@@ -99,35 +95,21 @@ def create_pages():
 
 
 ## Actual Tests
-class TemplateProcessorTestCase(TestCase):  # utils.py
+class ContentRegistryTestCase(TestCase):
 
-    def test_class_exists(self):
-        TemplateProcessor
+    def test_content_registered(self):
+        self.assertEqual(3, len(page_content.all()))
 
-    def test_init_caches_and_lowercase(self):
-        with self.settings(**SETTING_ARGS):
-            tp = TemplateProcessor()
-            templates = (
-                ('pages.landingpage', 'Landing Page'),
-                ('pages.basicpage', 'Basic Page'),
-                ('pages.otherpage', 'Other Page'),
-            )
-            self.assertEqual(templates, tp._templates)
+    def test_content_class_in_registry(self):
+        self.assertEqual(BasicPage, page_content['Test Basic Page'])
 
-    def test_validate_template(self):
-        with self.settings(OSTINATO_PAGE_TEMPLATES=(('faulty.page', 'Fault'),)):
-            with self.assertRaises(InvalidTemplate):
-                tp = TemplateProcessor()
-
-    def test_get_templates(self):
-        with self.settings(**SETTING_ARGS):
-            tp = TemplateProcessor()
-            templates = (
-                ('pages.landingpage', 'Landing Page'),
-                ('pages.basicpage', 'Basic Page'),
-                ('pages.otherpage', 'Other Page'),
-            )
-            self.assertEqual(templates, tp.get_templates())
+    def test_get_template_choices(self):
+        self.assertEqual((
+            ('', '--------'),
+            ('pages.landingpage', 'Test Landing Page'),
+            ('pages.basicpage', 'Test Basic Page'),
+            ('pages.otherpage', 'Test Other Page'),
+        ), page_content.get_template_choices())
 
 
 class PageModelTestCase(TestCase):

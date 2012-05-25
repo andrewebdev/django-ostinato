@@ -147,16 +147,6 @@ INSTALLED_APPS = (
 )
 
 
-## OSTINATO SETTINGS_
-OSTINATO_PAGE_TEMPLATES = (
-    ('odemo.landingpage', 'Landing Page'),
-    ('odemo.basicpage', 'Basic Page'),
-    ('odemo.listpage', 'List Page'),
-    ('news.newslistpagecontent', 'News List'),
-    ('news.pagewithnews', 'Page with News'),
-    ('odemo.contactpage', 'Page with Contact Form'),
-)
-
 CKEDITOR_UPLOAD_PATH = projectdir("media/uploads")
 
 

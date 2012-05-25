@@ -2,10 +2,12 @@ import os
 
 from django.contrib import admin
 from django.contrib.admin.util import unquote
+from django import forms
 from django.conf import settings
 
 from mptt.admin import MPTTModelAdmin
 from ostinato.pages.models import Page
+from ostinato.pages.registry import page_content
 
 
 GRAPPELLI = 'grappelli' in settings.INSTALLED_APPS
@@ -33,8 +35,21 @@ def content_inline_factory(page):
 
 
 ## Admin Models
+class PageAdminForm(forms.ModelForm):
+
+    template = forms.ChoiceField()
+    
+    def __init__(self, *args, **kwargs):
+        super(PageAdminForm, self).__init__(*args, **kwargs)
+        self.fields['template'].choices = page_content.get_template_choices()
+
+    class Meta:
+        model = Page
+
+
 class PageAdmin(MPTTModelAdmin):
     save_on_top = True
+    form = PageAdminForm
 
     list_display = ('title', 'reorder', 'slug', 'template',
         'author', 'state', 'show_in_nav', 'show_in_sitemap',
