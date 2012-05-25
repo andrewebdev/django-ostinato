@@ -31,6 +31,7 @@ Requirements
 ------------
 
 * django-mptt
+* django-appregister
 
 
 Add ``ostinato.pages`` to your project
@@ -75,8 +76,8 @@ in the next section.
     you specified in your settings.py.
 
 
-Creating page content
----------------------
+Creating and registering page content
+-------------------------------------
 
 Ok, so lets say the client wants a landing page that contains a small ``intro``
 and ``content``, and a general page that contains only ``content``. It was
@@ -91,11 +92,14 @@ Lets create these now. You need to place these in your app/project
 
     from django.db import models
     from ostinato.pages.models import PageContent
+    from ostinato.pages.regitry import page_content
 
+    @page_content.register('Landing Page')
     class LandingPage(PageContent):  # Note the class inheritance
         intro = models.TextField()
         content = models.TextField()
 
+    @page_content.register('General Page')
     class GeneralPage(PageContent):
         content = models.TextField()
 
@@ -103,36 +107,15 @@ Lets create these now. You need to place these in your app/project
 As you can see, these are standard django models, except that we inherit from
 ``ostinato.pages.models.PageContent``.
 
+You also need to register your model with the ``page_content`` registry, as
+you can see on lines 5 and 10.
+
 .. note::
     Since the content you just created are django models, you need to
     remember to run syncdb.
 
-Ok, so your page content is now registered, but ``ostinato.pages`` still does
-not know that they exist. The next section will explain how we register them.
-
-
-Registering page content and templates
---------------------------------------
-
-Now that we have page content, we register them by adding it to our
-``OSTINATO_PAGE_TEMPLATES`` in the project ``settings.py``.
-
-.. code-block:: python
-
-    OSTINATO_PAGE_TEMPLATES = (
-        ('myapp.landingpage', 'Landing Page'),
-        ('myapp.generalpage', 'General Page'),
-    )
-
-1. The first part of each "template", is the ``<app_label>.<model>`` codename
-for the PageContent model. Remember that django contenttypes expects this to be
-all lowercase.
-
-2. The second part of the tuple contains a nice human friendly name for the
-template, which will be used in the dropdown list when choosing your template.
-
-After doing this you should see the templates in the dropdown when
-adding/editing pages.
+If you load up the admin now, you will be able to choose a template for the
+page.
 
 
 Displaying page content in the templates
