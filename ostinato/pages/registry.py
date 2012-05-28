@@ -13,9 +13,9 @@ class ContentRegister(NamedRegistry):
         template_choices = (('', '--------'),)
 
         for k, v in self.all().iteritems():
-            content_name = v.__name__
-            template_choices += (
-                ('%s.%s' % (v._meta.app_label.lower(), v.__name__.lower()), k),)
+            content_type = '%s.%s' % (v._meta.app_label.lower(),
+                                      v.__name__.lower())
+            template_choices += ((content_type, v._meta.verbose_name),)
 
         return template_choices
 

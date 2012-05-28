@@ -94,12 +94,12 @@ Lets create these now. You need to place these in your app/project
     from ostinato.pages.models import PageContent
     from ostinato.pages.regitry import page_content
 
-    @page_content.register('Landing Page')
+    @page_content.register('landingpage')
     class LandingPage(PageContent):  # Note the class inheritance
         intro = models.TextField()
         content = models.TextField()
 
-    @page_content.register('General Page')
+    @page_content.register('generalpage')
     class GeneralPage(PageContent):
         content = models.TextField()
 
@@ -108,7 +108,8 @@ As you can see, these are standard django models, except that we inherit from
 ``ostinato.pages.models.PageContent``.
 
 You also need to register your model with the ``page_content`` registry, as
-you can see on lines 5 and 10.
+you can see on lines 5 and 10. This is a named registry, and the names of the
+templates should be unique.
 
 .. note::
     Since the content you just created are django models, you need to

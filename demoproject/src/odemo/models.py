@@ -36,7 +36,7 @@ class ContributorInline(admin.StackedInline):
 
 
 # Actual Page Content
-@page_content.register('Landing Page')
+@page_content.register('landingpage')
 class LandingPage(ContentMixin, PageContent):
     intro = models.TextField()
 
@@ -45,7 +45,7 @@ class LandingPage(ContentMixin, PageContent):
         page_inlines = [ContributorInline]  # specify page inlines
 
 
-@page_content.register('Basic Page')
+@page_content.register('basicpage')
 class BasicPage(ContentMixin, PageContent):
 
     class ContentOptions:
@@ -53,7 +53,7 @@ class BasicPage(ContentMixin, PageContent):
         view = 'ostinato.pages.views.CustomView'
 
 
-@page_content.register('Contact Page')
+@page_content.register('contactpage')
 class ContactPage(CKContentMixin):
 
     class ContentOptions:
@@ -61,7 +61,7 @@ class ContactPage(CKContentMixin):
         view = 'odemo.views.ContactView'
 
 
-@page_content.register('List Page')
+@page_content.register('listpage')
 class ListPage(ContentMixin, PageContent):
     """ Example of a page that uses a custom form """
 
