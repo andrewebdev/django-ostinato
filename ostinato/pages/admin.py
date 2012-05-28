@@ -24,9 +24,9 @@ def content_inline_factory(page):
         fk_name = 'page'
 
         ## Check for a custom form and try to load it
-        if hasattr(content_model.ContentOptions, 'form'):
-            module_path, form_class = content_model.\
-                ContentOptions.form.rsplit('.', 1)
+        content_form = getattr(content_model.ContentOptions, 'form', None)
+        if content_form:
+            module_path, form_class = content_form.rsplit('.', 1)
 
             form = __import__(module_path, locals(), globals(),
                 [form_class], -1).__dict__[form_class]
