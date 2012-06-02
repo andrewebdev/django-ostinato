@@ -1,34 +1,41 @@
 from django import forms
 
 
-class StateMachineModelForm(forms.ModelForm):
+def sm_form_factory(sm_class, state_field='state'):
+    """
+    A factory function to create our StateMachineModelForm and return it
+    """
+    class StateMachineModelForm(forms.ModelForm):
 
-    _sm_action = forms.ChoiceField(
-        choices=[], label="Take Action", required=False)
+        def __init__(self, *args, **kwargs):
+            super(StateMachineModelForm, self).__init__(*args, **kwargs)
 
+            sm = sm_class(instance=self.instance, state_field=state_field)
+            self.old_state = sm._state
+            actions = ((sm._state, '-- %s --' % sm.state),)
 
-    def __init__(self, *args, **kwargs):
-        super(StateMachineModelForm, self).__init__(*args, **kwargs)
+            for action in sm.actions:
+                actions += ((action, action),)
 
-        if self.instance.id:
-            actions = (('', '-- %s --' % self.instance.sm.state),)
-            for action in self.instance.sm.get_actions():
-                actions += ((action, self.instance.sm.get_action_display(action)),)
-
-            self.fields['_sm_action'] = forms.ChoiceField(
+            self.fields[state_field] = forms.ChoiceField(
                 choices=actions, label="State/Actions", required=False)
 
+        def save(self, *args, **kwargs):
+            """
+            Override the save method so that we can perform statemachine
+            actions.
+            """
+            # We need a new statemachine with the stored_sate
+            sm = sm_class(instance=self.instance, state_field=state_field,
+                state=self.old_state)
 
-    def save(self, *args, **kwargs):
-        """
-        Override the save method so that we can take any required actions
-        and move to the next state.
-        """
-        instance =  super(StateMachineModelForm, self).save(*args, **kwargs)
-        
-        action = self.cleaned_data['_sm_action']
-        if action:
-            self.instance.sm.take_action(action)
+            # Try to get a valid action from the current state_field
+            action = getattr(self.instance, state_field)
+            if action in sm.actions:
+                sm.take_action(action)
 
-        return instance
+            # Ok, we can now save our form as normal
+            return super(StateMachineModelForm, self).save(*args, **kwargs)
+
+    return StateMachineModelForm
 

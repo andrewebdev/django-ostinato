@@ -77,6 +77,12 @@ class StateMachine(object):
     state = property(get_state)
 
 
+    def get_actions(self):
+        return [i for i in self.get_state_instance().transitions]
+
+    actions = property(get_actions)
+
+
     def process_state(self):
         """
         Our default state processor. This method can be overridden
@@ -88,9 +94,15 @@ class StateMachine(object):
         """
         self.state_field = self.extra_args.get('state_field', 'state')
 
-        state = getattr(self.instance, self.state_field, None) or self.initial_state
-        if state in self.state_map:
-            self.set_state(state)
+        state = self.extra_args.get('state', None)
+        if not state:
+            state = getattr(self.instance, self.state_field, None)\
+                    or self.initial_state
+
+            if state not in self.state_map:
+                state = self.initial_state
+
+        self.set_state(state)
 
 
     def get_state_instance(self):

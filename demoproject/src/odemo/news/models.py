@@ -1,14 +1,47 @@
 from django.db import models
+from django.utils import timezone
 
 from ostinato.pages.models import PageContent
+from ostinato.statemachine.core import State, StateMachine
+
 from odemo.models import CKContentMixin
 
 
+## A custom statemachine for news items
+class Private(State):
+    verbose_name = 'Private'
+    transitions = {'publish': 'public'}
+
+    def publish(self, **kwargs):
+        if self.instance:
+            self.instance.publish_date = timezone.now()
+
+
+class Public(State):
+    verbose_name = 'Public'
+    transitions = {'retract': 'private', 'archive': 'archived'}
+
+    def retract(self, **kwargs):
+        if self.instance:
+            self.instance.publish_date = None
+
+
+class Archived(State):
+    verbose_name = 'Archived'
+    transitions = {}
+
+class NewsWorkflow(StateMachine):
+    state_map = {'private': Private, 'public': Public, 'archived': Archived}
+    initial_state = 'private'
+
+
+## Our News Item model
 class NewsItem(models.Model):
 
     title = models.CharField(max_length=150)
     content = models.TextField()
-    publish_date = models.DateTimeField()
+    publish_date = models.DateTimeField(null=True, blank=True)
+    state = models.CharField(max_length=50, default='private')
 
     def __unicode__(self):
         return '%s' % self.title

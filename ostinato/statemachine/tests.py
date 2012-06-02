@@ -367,3 +367,15 @@ class StateMachineTestCase(TestCase):
         self.assertEqual('private', temp.state)
         self.assertEqual('public', temp.other_state)
 
+    def test_get_available_actions(self):
+        temp = TestModel.objects.create(name='Test Model 1', state='private')
+        sm = TestStateMachine(instance=temp, state_field='other_state')
+
+        self.assertEqual(['publish'], sm.actions)
+
+
+    def test_override_state(self):
+        temp = TestModel.objects.create(name='Test Model 1', state='private')
+        sm = TestStateMachine(instance=temp, state='Test State Override')
+
+        self.assertEqual('Test State Override', sm._state)
