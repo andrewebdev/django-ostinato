@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ostinato.statemachine &mdash; django-ostinato 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="django-ostinato 0.5 documentation" href="index.html" />
+    <link rel="next" title="ostinato.contentfilters" href="ostinato.contentfilters.html" />
+    <link rel="prev" title="ostinato.pages" href="ostinato.pages.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ostinato.contentfilters.html" title="ostinato.contentfilters"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ostinato.pages.html" title="ostinato.pages"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">django-ostinato 0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ostinato-statemachine">
+<h1>ostinato.statemachine<a class="headerlink" href="#ostinato-statemachine" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Ostinato includes a statemachine that will allow you to create complex
+workflows for your models. A common workflow, for example, is a publishing
+workflow where an item can be either <tt class="docutils literal"><span class="pre">private</span></tt> or <tt class="docutils literal"><span class="pre">public</span></tt>. The change from
+the one state to the next is called a transition.</p>
+<p>In ostinato our main aim was to have the ability to &#8220;attach&#8221; a statemachine
+to a model, without having to change any fields on that model. So you can
+create your States and StateMachines completely independent of your models,
+and just <em>attach</em> it when needed.</p>
+<p>Ok, lets build an actual statemachine so you can see how it works. For this
+example we will create the following statemachine:</p>
+<p>[insert uml state diagram here]</p>
+<p>For our example we will assume you are creating a statemachine for the
+following model:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">NewsItem</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+    <span class="n">publish_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&#39;private&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We start by creating our States...</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">ostinato.statemachine</span> <span class="kn">import</span> <span class="n">State</span><span class="p">,</span> <span class="n">StateMachine</span>
+
+<span class="k">class</span> <span class="nc">Private</span><span class="p">(</span><span class="n">State</span><span class="p">):</span>
+    <span class="n">verbose_name</span> <span class="o">=</span> <span class="s">&#39;Private&#39;</span>
+    <span class="n">transitions</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;publish&#39;</span><span class="p">:</span> <span class="s">&#39;public&#39;</span><span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">Public</span><span class="p">(</span><span class="n">State</span><span class="p">):</span>
+    <span class="n">verbose_name</span> <span class="o">=</span> <span class="s">&#39;Public&#39;</span>
+    <span class="n">transitions</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;retract&#39;</span><span class="p">:</span> <span class="s">&#39;private&#39;</span><span class="p">,</span> <span class="s">&#39;archive&#39;</span><span class="p">:</span> <span class="s">&#39;archived&#39;</span><span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">Archived</span><span class="p">(</span><span class="n">State</span><span class="p">):</span>
+    <span class="n">verbose_name</span> <span class="o">=</span> <span class="s">&#39;Archived&#39;</span>
+    <span class="n">transitions</span> <span class="o">=</span> <span class="p">{}</span>
+</pre></div>
+</td></tr></table></div>
+<p>This is simple enough. Every state is a subclass of
+<tt class="docutils literal"><span class="pre">ostinato.statemachine.core.State</span></tt> and each of these states specifies two
+attributes.</p>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">verbose_name</span></tt> is just a nice human readable name.</p>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">transitions</span></tt> is a dict where the <em>keys</em> are transition/action names, and</dt>
+<dd><p class="first last">the <em>values</em> is the target state for the transition.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Now we have to glue these states together into a statemachine.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">class</span> <span class="nc">NewsWorkflow</span><span class="p">(</span><span class="n">StateMachine</span><span class="p">):</span>
+    <span class="n">state_map</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;private&#39;</span><span class="p">:</span> <span class="n">Private</span><span class="p">,</span> <span class="s">&#39;public&#39;</span><span class="p">:</span> <span class="n">Public</span><span class="p">,</span> <span class="s">&#39;archived&#39;</span><span class="p">:</span> <span class="n">Archived</span><span class="p">}</span>
+    <span class="n">initial_state</span> <span class="o">=</span> <span class="s">&#39;private&#39;</span>
+</pre></div>
+</td></tr></table></div>
+<ul>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">state_map</span></tt> is a dict where <em>keys</em> are unique id&#8217;s/names for the states;</dt>
+<dd><p class="first last"><em>values</em> are the actual <tt class="docutils literal"><span class="pre">State</span></tt> subclass</p>
+</dd>
+</dl>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">initial_state</span></tt> is the starting state <em>key</em></p>
+</li>
+</ul>
+<p>Thats all you need to set up a fully functioning statemachine.</p>
+<p>Lets have a quick look at what this allows you to do:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">odemo.news.models</span> <span class="kn">import</span> <span class="n">NewsItem</span><span class="p">,</span> <span class="n">NewsWorkflow</span>
+
+<span class="go"># We need an instance to work with. We just get one from the db in this case</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">NewsItem</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">state</span>
+<span class="go">u&#39;public&#39;</span>
+
+<span class="go"># Create a statemachine for our instance</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sm</span> <span class="o">=</span> <span class="n">NewsWorkflow</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">item</span><span class="p">)</span>
+
+<span class="go"># We can see that the statemachine automatically takes on the state of the</span>
+<span class="go"># newsitem instance.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sm</span><span class="o">.</span><span class="n">state</span>
+<span class="go">&#39;Public&#39;</span>
+
+<span class="go"># We can view available actions based on the current state</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sm</span><span class="o">.</span><span class="n">actions</span>
+<span class="go">[&#39;retract&#39;, &#39;archive&#39;]</span>
+
+<span class="go"># We can tell the statemachine to take action</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sm</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="s">&#39;retract&#39;</span><span class="p">)</span>
+
+<span class="go"># State is now changed in the statemachine ...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sm</span><span class="o">.</span><span class="n">state</span>
+<span class="go">&#39;Private&#39;</span>
+
+<span class="go"># ... and we can see that our original instance was also updated.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">state</span>
+<span class="go">&#39;private&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>  <span class="c"># Now we save our news item</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="action-methods">
+<h2>Action methods<a class="headerlink" href="#action-methods" title="Permalink to this headline">¶</a></h2>
+<p>You can create custom <em>action methods</em> for states, which allows you to do
+extra stuff, like updating the publish_date.</p>
+<p>Our example <tt class="docutils literal"><span class="pre">NewsItem</span></tt> already has a empty <tt class="docutils literal"><span class="pre">publish_date</span></tt> field, so lets
+create a method that will update the publish date when the <tt class="docutils literal"><span class="pre">publish</span></tt> action
+is performed.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.utils</span> <span class="kn">import</span> <span class="n">timezone</span>
+
+<span class="k">class</span> <span class="nc">Private</span><span class="p">(</span><span class="n">State</span><span class="p">):</span>
+    <span class="n">verbose_name</span> <span class="o">=</span> <span class="s">&#39;Private&#39;</span>
+    <span class="n">transitions</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;publish&#39;</span><span class="p">:</span> <span class="s">&#39;public&#39;</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">publish_date</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+<p>Now, whenever the <tt class="docutils literal"><span class="pre">publish</span></tt> action is called on our statemachine, it will
+update the <tt class="docutils literal"><span class="pre">publish_date</span></tt> for the instance that was passed to the
+<tt class="docutils literal"><span class="pre">StateMachine</span></tt> when it was created.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The name of the method is important. The <tt class="docutils literal"><span class="pre">State</span></tt> class tries to look
+for a method with the same name as the <tt class="docutils literal"><span class="pre">transition</span></tt> <em>key</em>.</p>
+<p>You can use the <tt class="docutils literal"><span class="pre">kwargs</span></tt> to pass extra arguments to your custom methods.
+These arguments are passed through from the <tt class="docutils literal"><span class="pre">StateMachine.take_action()</span></tt>
+method eg.</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="n">sm</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="s">&#39;publish&#39;</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ostinato.statemachine</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#action-methods">Action methods</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ostinato.pages.html"
+                        title="previous chapter">ostinato.pages</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ostinato.contentfilters.html"
+                        title="next chapter">ostinato.contentfilters</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ostinato.statemachine.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ostinato.contentfilters.html" title="ostinato.contentfilters"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ostinato.pages.html" title="ostinato.pages"
+             >previous</a> |</li>
+        <li><a href="index.html">django-ostinato 0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Andre Engelbrecht.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
