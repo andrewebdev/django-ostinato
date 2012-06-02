@@ -6,7 +6,8 @@ from django import forms
 from django.conf import settings
 
 from mptt.admin import MPTTModelAdmin
-from ostinato.pages.models import Page
+from ostinato.statemachine.forms import sm_form_factory
+from ostinato.pages.models import Page, PageWorkflow
 from ostinato.pages.registry import page_content
 
 
@@ -35,7 +36,7 @@ def content_inline_factory(page):
 
 
 ## Admin Models
-class PageAdminForm(forms.ModelForm):
+class PageAdminForm(sm_form_factory(sm_class=PageWorkflow)):  # <3 python
 
     template = forms.ChoiceField()
     
@@ -51,14 +52,13 @@ class PageAdmin(MPTTModelAdmin):
     save_on_top = True
     form = PageAdminForm
 
-    list_display = ('title', 'reorder', 'slug', 'template',
-        'author', 'state', 'show_in_nav', 'show_in_sitemap',
-        'publish_date')
+    list_display = ('title', 'reorder', 'slug', 'template', 'author',
+        'page_state', 'show_in_nav', 'show_in_sitemap', 'publish_date')
 
     list_filter = ('template', 'author', 'show_in_nav', 'show_in_sitemap',
         'state')
 
-    list_editable = ('state', 'show_in_nav', 'show_in_sitemap')
+    list_editable = ('show_in_nav', 'show_in_sitemap')
 
     search_fields = ('title', 'short_title', 'slug', 'author')
     date_hierarchy = 'publish_date'
@@ -98,6 +98,11 @@ class PageAdmin(MPTTModelAdmin):
             static_prefix('ostinato/js/jquery-ui-1.8.18.custom.min.js'),
             static_prefix('pages/js/page_admin.js'),
         )
+
+    def page_state(self, obj):
+        sm = PageWorkflow(instance=obj)
+        return sm.state
+    page_state.short_description = 'State'
 
     def reorder(self, obj):
         """ A List view item that shows the movement actions """

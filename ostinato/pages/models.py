@@ -13,24 +13,37 @@ from django.conf import settings
 from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
 
+from ostinato.statemachine import State, IntegerStateMachine
 from ostinato.pages.managers import PageManager
 
 
 DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 5)
 
 
+class Private(State):
+    verbose_name = 'Private'
+    transitions = {'publish': 5}
+
+    def publish(self, **kwargs):
+        if self.instance and not self.instance.publish_date:
+            self.instance.publish_date = timezone.now()
+
+class Published(State):
+    verbose_name = 'Published'
+    transitions = {'retract': 1, 'archive': 10}
+
+class Archived(State):
+    verbose_name = 'Archived'
+    transitions = {'retract': 1}
+
+class PageWorkflow(IntegerStateMachine):
+    state_map = {1: Private, 5: Published, 10: Archived}
+    initial_state = DEFAULT_STATE
+
+
 ## Models
 class Page(MPTTModel):
     """ A basic page model """
-    PRIVATE = 0
-    PUBLISHED = 5
-    ARCHIVED = 10
-    STATE_CHOICES = (
-        (PRIVATE, 'Private'),
-        (PUBLISHED, 'Published'),
-        (ARCHIVED, 'Archived'),
-    )
-
     title = models.CharField(max_length=150)
     slug = models.SlugField(unique=True, help_text='A url friendly slug.')
     short_title = models.CharField(max_length=15, null=True, blank=True,
@@ -45,7 +58,7 @@ class Page(MPTTModel):
     show_in_nav = models.BooleanField(default=True)
     show_in_sitemap = models.BooleanField(default=True)
 
-    state = models.IntegerField(choices=STATE_CHOICES, default=DEFAULT_STATE)
+    state = models.IntegerField(default=DEFAULT_STATE)
 
     created_date = models.DateTimeField(null=True, blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)
@@ -69,17 +82,17 @@ class Page(MPTTModel):
 
 
     def save(self, *args, **kwargs):
-        ## Publishing
         now = timezone.now()
 
         if not self.id or not self.created_date:
             self.created_date = now
 
-        if self.state == Page.PUBLISHED and not self.publish_date:
-            self.publish_date = now
+            # since it's created the first time, and we want it
+            # published by default, we need to set the date now.
+            if self.state == 5:
+                self.publish_date = now
 
         self.modified_date = now
-
         super(Page, self).save(*args, **kwargs)
 
 

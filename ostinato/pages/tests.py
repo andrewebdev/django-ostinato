@@ -103,7 +103,7 @@ class ContentRegistryTestCase(TestCase):
         self.assertEqual(3, len(page_content.all()))
 
     def test_content_class_in_registry(self):
-        self.assertEqual(BasicPage, page_content['BasicPage'])
+        self.assertEqual(BasicPage, page_content['basicpage'])
 
     def test_get_template_choices(self):
         self.assertEqual((
@@ -184,7 +184,7 @@ class PageManagerTestCase(TestCase):
             list(Page.objects.published().values_list('id', flat=True)))
 
     def test_get_empty_navbar(self):
-        Page.objects.published().update(state=Page.PRIVATE)
+        Page.objects.published().update(state=1)
         empty_nav = Page.objects.get_navbar()
         self.assertEqual([], empty_nav)
 

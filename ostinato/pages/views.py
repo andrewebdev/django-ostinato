@@ -6,7 +6,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django import http
 
-from ostinato.pages.models import Page
+from ostinato.pages.models import Page, PageWorkflow
 from ostinato.pages.forms import MovePageForm
 
 
@@ -35,7 +35,8 @@ def page_dispatch(request, *args, **kwargs):
         except IndexError:
             raise http.Http404
 
-    if page.state == Page.PRIVATE:
+    sm = PageWorkflow(instance=page)
+    if sm.state == 'Private':
         if page.author != request.user or not request.user.is_superuser:
             return http.HttpResponseForbidden()
 
