@@ -119,8 +119,8 @@ Lets have a quick look at what this allows you to do:
     >>> item.save()  # Now we save our news item
 
 
-Action methods
---------------
+Custom Action methods
+---------------------
 You can create custom *action methods* for states, which allows you to do
 extra stuff, like updating the publish_date.
 
@@ -159,4 +159,46 @@ update the ``publish_date`` for the instance that was passed to the
     .. code-block:: python
 
         sm.take_action('publish', author=request.user)
+
+
+Admin Integration
+-----------------
+
+Integrating your statemachine into the admin is quite simple. You just need to
+use the statemachine form factory function that generates the form for your
+model, and then use that form in your ModelAdmin.
+
+
+.. code-block:: python
+    :linenos:
+
+    from odemo.news.models import NewsItem, NewsWorkflow
+    from ostinato.statemachine.forms import sm_form_factory
+
+
+    class NewsItemAdmin(admin.ModelAdmin):
+        form = sm_form_factory(NewsWorkflow)
+
+        list_display = ('title', 'state', 'publish_date')
+        list_filter = ('state',)
+        date_hierarchy = 'publish_date'
+
+
+    admin.site.register(NewsItem, NewsItemAdmin)
+
+
+Lines 2 and 6 are all that you need. ``sm_form_factory`` takes as it's first
+argument your Statemachine Class.
+
+
+Custom ``state_field``
+----------------------
+
+The statemachine assumes by default that the model field that stores the state
+is called, ``state``, but you can easilly tell the statemachine (and the
+statemachine form factory function) what the field name for the state will be.
+
+* Statemachine - ``sm = NewsWorkflow(instance=obj, state_field='field_name')``
+
+* Form Factory - ``sm_form_factory(NewsWorkflow, state_field='field_name')``
 

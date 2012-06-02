@@ -169,8 +169,8 @@ attributes.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="action-methods">
-<h2>Action methods<a class="headerlink" href="#action-methods" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="custom-action-methods">
+<h2>Custom Action methods<a class="headerlink" href="#custom-action-methods" title="Permalink to this headline">¶</a></h2>
 <p>You can create custom <em>action methods</em> for states, which allows you to do
 extra stuff, like updating the publish_date.</p>
 <p>Our example <tt class="docutils literal"><span class="pre">NewsItem</span></tt> already has a empty <tt class="docutils literal"><span class="pre">publish_date</span></tt> field, so lets
@@ -210,6 +210,51 @@ method eg.</p>
 </div>
 </div>
 </div>
+<div class="section" id="admin-integration">
+<h2>Admin Integration<a class="headerlink" href="#admin-integration" title="Permalink to this headline">¶</a></h2>
+<p>Integrating your statemachine into the admin is quite simple. You just need to
+use the statemachine form factory function that generates the form for your
+model, and then use that form in your ModelAdmin.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">odemo.news.models</span> <span class="kn">import</span> <span class="n">NewsItem</span><span class="p">,</span> <span class="n">NewsWorkflow</span>
+<span class="kn">from</span> <span class="nn">ostinato.statemachine.forms</span> <span class="kn">import</span> <span class="n">sm_form_factory</span>
+
+
+<span class="k">class</span> <span class="nc">NewsItemAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">sm_form_factory</span><span class="p">(</span><span class="n">NewsWorkflow</span><span class="p">)</span>
+
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;title&#39;</span><span class="p">,</span> <span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;publish_date&#39;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;state&#39;</span><span class="p">,)</span>
+    <span class="n">date_hierarchy</span> <span class="o">=</span> <span class="s">&#39;publish_date&#39;</span>
+
+
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">NewsItem</span><span class="p">,</span> <span class="n">NewsItemAdmin</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>Lines 2 and 6 are all that you need. <tt class="docutils literal"><span class="pre">sm_form_factory</span></tt> takes as it&#8217;s first
+argument your Statemachine Class.</p>
+</div>
+<div class="section" id="custom-state-field">
+<h2>Custom <tt class="docutils literal"><span class="pre">state_field</span></tt><a class="headerlink" href="#custom-state-field" title="Permalink to this headline">¶</a></h2>
+<p>The statemachine assumes by default that the model field that stores the state
+is called, <tt class="docutils literal"><span class="pre">state</span></tt>, but you can easilly tell the statemachine (and the
+statemachine form factory function) what the field name for the state will be.</p>
+<ul class="simple">
+<li>Statemachine - <tt class="docutils literal"><span class="pre">sm</span> <span class="pre">=</span> <span class="pre">NewsWorkflow(instance=obj,</span> <span class="pre">state_field='field_name')</span></tt></li>
+<li>Form Factory - <tt class="docutils literal"><span class="pre">sm_form_factory(NewsWorkflow,</span> <span class="pre">state_field='field_name')</span></tt></li>
+</ul>
+</div>
 </div>
 
 
@@ -222,7 +267,9 @@ method eg.</p>
   <ul>
 <li><a class="reference internal" href="#">ostinato.statemachine</a><ul>
 <li><a class="reference internal" href="#overview">Overview</a></li>
-<li><a class="reference internal" href="#action-methods">Action methods</a></li>
+<li><a class="reference internal" href="#custom-action-methods">Custom Action methods</a></li>
+<li><a class="reference internal" href="#admin-integration">Admin Integration</a></li>
+<li><a class="reference internal" href="#custom-state-field">Custom <tt class="docutils literal"><span class="pre">state_field</span></tt></a></li>
 </ul>
 </li>
 </ul>
