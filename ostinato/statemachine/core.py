@@ -114,3 +114,20 @@ class StateMachine(object):
     def take_action(self, action, **kwargs):
         self._state = self.get_state_instance().transition(action, **kwargs)
 
+
+    def action_result(self, action):
+        """
+        Determines what the resulting state for would be if ``action`` is
+        transitioned.
+        """
+        try:
+            return self.get_state_instance().transitions[action]
+        except KeyError:
+            raise InvalidTransition('%s, is not a valid action.' % action)
+
+
+class IntegerStateMachine(StateMachine):
+
+    def set_state(self, state):
+        super(IntegerStateMachine, self).set_state(int(state))
+

@@ -1,1 +1,2 @@
-from ostinato.statemachine.core import State, StateMachine, InvalidTransition
+from ostinato.statemachine.core import (State, StateMachine,
+    IntegerStateMachine, InvalidTransition)

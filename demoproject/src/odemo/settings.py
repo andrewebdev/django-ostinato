@@ -150,6 +150,7 @@ INSTALLED_APPS = (
 
 CKEDITOR_UPLOAD_PATH = projectdir("media/uploads")
 
+OSTINATO_PAGES_DEFAULT_STATE = 1
 
 ## debugging tools
 INTERNAL_IPS = ('127.0.0.1',)
