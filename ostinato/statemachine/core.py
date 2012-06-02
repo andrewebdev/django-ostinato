@@ -114,4 +114,3 @@ class StateMachine(object):
     def take_action(self, action, **kwargs):
         self._state = self.get_state_instance().transition(action, **kwargs)
 
-
