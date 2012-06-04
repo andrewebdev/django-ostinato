@@ -18,8 +18,7 @@ and just *attach* it when needed.
 Ok, lets build an actual statemachine so you can see how it works. For this
 example we will create the following statemachine:
 
-[insert uml state diagram here]
-
+.. image:: images/demo_statemachine.png
 
 For our example we will assume you are creating a statemachine for the
 following model:
