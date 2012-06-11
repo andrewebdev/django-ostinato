@@ -77,6 +77,10 @@ class Page(MPTTModel):
     ## required for caching contents
     _contents = None
 
+
+    class Meta:
+        permissions = PageWorkflow.get_permissions()
+
     def __unicode__(self):
         return '%s' % self.title
 

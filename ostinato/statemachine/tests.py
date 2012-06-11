@@ -138,6 +138,25 @@ class StateMachineTestCase(TestCase):
         self.assertEqual('public', sm.action_result('publish'))
 
 
+    def test_get_permissions(self):
+        perms = TestStateMachine.get_permissions()
+        expected_perms = (
+            ('private_view', '[Private] Can View'),
+            ('private_edit', '[Private] Can Edit'),
+            ('private_delete', '[Private] Can Delete'),
+
+            ('public_view', '[Public] Can View'),
+            ('public_edit', '[Public] Can Edit'),
+            ('public_delete', '[Public] Can Delete'),
+
+            ('can_publish', 'Can Publish'),
+            ('can_retract', 'Can Retract'),
+        )
+        
+        for p in expected_perms:
+            self.assertIn(p, perms)
+
+
 # Create some states and a StateMachine
 class IntPrivate(State):
     verbose_name = 'Private'

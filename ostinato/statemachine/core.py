@@ -11,6 +11,11 @@ class InvalidTransition(Exception):
 class State(object):
     verbose_name = None
     transitions = {}
+    permissions = (
+        ('view', 'Can View'),
+        ('edit', 'Can Edit'),
+        ('delete', 'Can Delete'),
+    )
 
 
     def __init__(self, instance=None, **kwargs):
@@ -124,6 +129,27 @@ class StateMachine(object):
             return self.get_state_instance().transitions[action]
         except KeyError:
             raise InvalidTransition('%s, is not a valid action.' % action)
+
+    @classmethod
+    def get_permissions(cls):
+        """
+        Returns the permissions for the different states and transitions
+        as tuples, the same as what django's permission system expects.
+        """
+        perms = ()
+
+        for k, v in cls.state_map.iteritems():
+            for perm in v.permissions:
+                perms += ((
+                    '%s_%s' % (v.__name__.lower(), perm[0]),
+                    '[%s] %s' % (v.__name__, perm[1])
+                ),)
+
+            # Now add the transition permissions
+            for t in v.transitions:
+                perms += (('can_%s' % t, 'Can %s' % t.capitalize()),)
+
+        return perms
 
 
 class IntegerStateMachine(StateMachine):
