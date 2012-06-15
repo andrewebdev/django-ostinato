@@ -26,7 +26,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="django-ostinato 0.5 documentation" href="index.html" />
-    <link rel="next" title="ostinato.contentfilters" href="ostinato.contentfilters.html" />
+    <link rel="next" title="ostinato.statemachine" href="ostinato.statemachine.html" />
     <link rel="prev" title="The Demo Project" href="demoproject.html" /> 
   </head>
   <body>
@@ -37,7 +37,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="ostinato.contentfilters.html" title="ostinato.contentfilters"
+          <a href="ostinato.statemachine.html" title="ostinato.statemachine"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="demoproject.html" title="The Demo Project"
@@ -134,12 +134,12 @@ decided by you that these would all be TextFields.</p>
 <span class="kn">from</span> <span class="nn">ostinato.pages.models</span> <span class="kn">import</span> <span class="n">PageContent</span>
 <span class="kn">from</span> <span class="nn">ostinato.pages.regitry</span> <span class="kn">import</span> <span class="n">page_content</span>
 
-<span class="nd">@page_content.register</span><span class="p">(</span><span class="s">&#39;landingpage&#39;</span><span class="p">)</span>
+<span class="nd">@page_content.register</span>
 <span class="k">class</span> <span class="nc">LandingPage</span><span class="p">(</span><span class="n">PageContent</span><span class="p">):</span>  <span class="c"># Note the class inheritance</span>
     <span class="n">intro</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
 
-<span class="nd">@page_content.register</span><span class="p">(</span><span class="s">&#39;generalpage&#39;</span><span class="p">)</span>
+<span class="nd">@page_content.register</span>
 <span class="k">class</span> <span class="nc">GeneralPage</span><span class="p">(</span><span class="n">PageContent</span><span class="p">):</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
 </pre></div>
@@ -147,8 +147,7 @@ decided by you that these would all be TextFields.</p>
 <p>As you can see, these are standard django models, except that we inherit from
 <tt class="docutils literal"><span class="pre">ostinato.pages.models.PageContent</span></tt>.</p>
 <p>You also need to register your model with the <tt class="docutils literal"><span class="pre">page_content</span></tt> registry, as
-you can see on lines 5 and 10. This is a named registry, and the names of the
-templates should be unique.</p>
+you can see on lines 5 and 10.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Since the content you just created are django models, you need to
@@ -475,8 +474,8 @@ context-processor.</p>
   <p class="topless"><a href="demoproject.html"
                         title="previous chapter">The Demo Project</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="ostinato.contentfilters.html"
-                        title="next chapter">ostinato.contentfilters</a></p>
+  <p class="topless"><a href="ostinato.statemachine.html"
+                        title="next chapter">ostinato.statemachine</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/ostinato.pages.txt"
@@ -506,7 +505,7 @@ context-processor.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="ostinato.contentfilters.html" title="ostinato.contentfilters"
+          <a href="ostinato.statemachine.html" title="ostinato.statemachine"
              >next</a> |</li>
         <li class="right" >
           <a href="demoproject.html" title="The Demo Project"
