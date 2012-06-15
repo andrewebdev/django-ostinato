@@ -36,7 +36,7 @@ def page_dispatch(request, *args, **kwargs):
             raise http.Http404
 
     sm = PageWorkflow(instance=page)
-    if sm.state == 'Private':
+    if sm.state == 'Private' and not request.user.has_perm('pages.private_view'):
         if page.author != request.user or not request.user.is_superuser:
             return http.HttpResponseForbidden()
 
