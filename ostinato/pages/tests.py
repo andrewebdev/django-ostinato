@@ -39,7 +39,7 @@ class ContentMixin(models.Model):
         abstract = True  # Required for mixins
 
 
-@page_content.register('landingpage')
+@page_content.register
 class LandingPage(ContentMixin, PageContent):
     intro = models.TextField()
 
@@ -47,7 +47,7 @@ class LandingPage(ContentMixin, PageContent):
         template = 'pages/tests/landing_page.html'
 
 
-@page_content.register('basicpage')
+@page_content.register
 class BasicPage(ContentMixin, PageContent):
 
     class ContentOptions:
@@ -56,7 +56,7 @@ class BasicPage(ContentMixin, PageContent):
         page_inlines = [ContributorInline]
 
 
-@page_content.register('otherpage')
+@page_content.register
 class OtherPage(ContentMixin, PageContent):
     """ Test content that doesn't have a template specified """
 
@@ -103,14 +103,14 @@ class ContentRegistryTestCase(TestCase):
         self.assertEqual(3, len(page_content.all()))
 
     def test_content_class_in_registry(self):
-        self.assertEqual(BasicPage, page_content['basicpage'])
+        self.assertIn(BasicPage, page_content.all())
 
     def test_get_template_choices(self):
         self.assertEqual((
             ('', '--------'),
-            ('pages.landingpage', 'landing page'),
-            ('pages.basicpage', 'basic page'),
-            ('pages.otherpage', 'Some Other Page'),
+            ('pages.landingpage', 'Pages | Landing Page'),
+            ('pages.basicpage', 'Pages | Basic Page'),
+            ('pages.otherpage', 'Pages | Some Other Page'),
         ), page_content.get_template_choices())
 
 
