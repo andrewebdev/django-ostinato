@@ -5,23 +5,15 @@ from ostinato.pages.registry import page_content
 from ckeditor.fields import RichTextField
 
 
-class ContentMixin(models.Model):
+class Content(PageContent):
     """
     An example of how you would do mixins. A mixin must be an abstract
     model.
     """
-    content = models.TextField()
-
-    class Meta:
-        abstract = True  # Required for mixins
-
-
-class CKContentMixin(PageContent):
-    """ An Example of using a custom field directly on the model """
     content = RichTextField()
 
     class Meta:
-        abstract = True
+        abstract = True  # Required for mixins
 
 
 ### Some inline extra fields for a landing page
@@ -37,8 +29,12 @@ class ContributorInline(admin.StackedInline):
 
 # Actual Page Content
 @page_content.register
-class LandingPage(ContentMixin, PageContent):
+class LandingPage(PageContent):
     intro = models.TextField()
+
+    # We are overriding this, since we just want to change the order.
+    # This could probably also be done by overriding the form.
+    content = RichTextField()
 
     class ContentOptions:
         template = 'pages/tests/landing_page.html'
@@ -46,7 +42,7 @@ class LandingPage(ContentMixin, PageContent):
 
 
 @page_content.register
-class BasicPage(ContentMixin, PageContent):
+class BasicPage(Content):
 
     class ContentOptions:
         template = 'pages/tests/basic_page.html'
@@ -54,7 +50,7 @@ class BasicPage(ContentMixin, PageContent):
 
 
 @page_content.register
-class ContactPage(CKContentMixin):
+class ContactPage(Content):
 
     class ContentOptions:
         template = 'page_templates/contact_page.html'
@@ -62,7 +58,7 @@ class ContactPage(CKContentMixin):
 
 
 @page_content.register
-class ListPage(ContentMixin, PageContent):
+class ListPage(Content):
     """ Example of a page that uses a custom form """
 
     related_page_group = models.ForeignKey(Page,

@@ -4,7 +4,7 @@ from django.utils import timezone
 from ostinato.pages.models import PageContent
 from ostinato.statemachine.core import State, StateMachine
 
-from odemo.models import CKContentMixin
+from odemo.models import Content
 
 
 ## A custom statemachine for news items
@@ -52,7 +52,7 @@ class NewsItem(models.Model):
 
 
 ## Create a News List page
-class NewsListPageContent(CKContentMixin):
+class NewsListPageContent(Content):
     ## We could store some information here, like how many items we want
     ## to show on the page.
 
@@ -61,7 +61,7 @@ class NewsListPageContent(CKContentMixin):
         view = 'odemo.news.views.NewsPageView'
 
 
-class PageWithNews(CKContentMixin):
+class PageWithNews(Content):
     """
     A normal page with some content, but also contains a link to a specific
     news item.
