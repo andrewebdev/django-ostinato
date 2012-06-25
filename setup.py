@@ -23,7 +23,7 @@ setup(
         'Development Status :: 4 - Beta',
         'Framework :: Django',
         'Intended Audience :: Developers',
-        'Licence :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: MIT License',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
     ],
     long_description="""\
