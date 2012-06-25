@@ -10,4 +10,4 @@ If you want to track actual progress, as well as a list of features/bugs we
 are currently working on, you can do so on our `Pivotal Tracker <https://www.pivotaltracker.com/projects/417365>`_ page.
 
 
-You will find the full documentation in the `docs/html` folder.
+For more detailed information `read the documentation <http://django-ostinato.readthedocs.org/en/latest/index.html>`_.
