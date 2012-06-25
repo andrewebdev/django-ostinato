@@ -10,7 +10,12 @@ setup(
     author='Andre Engelbrecht',
     author_email='andre@teh-node.co.za',
     download_url='https://github.com/andrewebdev/django-ostinato/tarball/master',
-    packages=['ostinato'],
+    packages=[
+        'ostinato',
+        'ostinato.pages',
+        'ostinato.statemachine',
+        'ostinato.contentfilters',
+    ],
     keywords=['django', 'cms', 'ostinato'],
     install_requires=[
         'setuptools',
