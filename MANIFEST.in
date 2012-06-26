@@ -1,2 +1,4 @@
 include LICENCE.txt
 recursive-include docs *.html *.css *.png *.gif
+recursive-include ostinato *
+recursive-exclude ostinato *.pyc
