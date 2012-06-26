@@ -5,3 +5,4 @@ recursive-include ostinato/fixtures *
 recursive-include ostinato/static *
 recursive-include ostinato/pages/static *
 recursive-include ostinato/pages/templates *
+global-exclude *.pyc
