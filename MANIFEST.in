@@ -1,4 +1,7 @@
 include LICENCE.txt
+include README.rst
 recursive-include docs *.html *.css *.png *.gif
-recursive-include ostinato *
-recursive-exclude ostinato *.pyc
+recursive-include ostinato/fixtures *
+recursive-include ostinato/static *
+recursive-include ostinato/pages/static *
+recursive-include ostinato/pages/templates *
