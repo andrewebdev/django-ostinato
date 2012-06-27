@@ -1,11 +1,13 @@
 import os
 from distutils.core import setup
+from distutils.command.install import INSTALL_SCHEMES
 
 
 version = '.'.join([str(i) for i in __import__('ostinato').VERSION])
 
 
-# Snippets borrowed from django setup.py ...
+### Snippets borrowed from django setup.py ...
+
 def fullsplit(path, result=None):
     """
     Split a pathname into components (the opposite of os.path.join) in a
@@ -21,7 +23,13 @@ def fullsplit(path, result=None):
     return fullsplit(head, [tail] + result)
 
 
-# Snippets borrowed from django setup.py ...
+# Tell distutils not to put the data_files in platform-specific installation
+# locations. See here for an explanation:
+# http://groups.google.com/group/comp.lang.python/browse_thread/thread/35ec7b2fed36eaec/2105ee4d9e8042cb
+for scheme in INSTALL_SCHEMES.values():
+    scheme['data'] = scheme['purelib']
+
+
 # Compile the list of packages available, because distutils doesn't have
 # an easy way to do this.
 packages, data_files = [], []
@@ -39,6 +47,8 @@ for dirpath, dirnames, filenames in os.walk(ostinato_dir):
     elif filenames:
         data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
+### End Snippets borrowed from django
+
 
 # Now our setup
 setup(
@@ -52,7 +62,11 @@ setup(
     download_url='https://github.com/andrewebdev/django-ostinato/tarball/master',
     packages=packages,
     data_files=data_files,
-    keywords=['django', 'cms', 'ostinato'],
+    # package_data={
+    #     'ostinato': ['fixtures/*', 'static/*'],
+    #     'ostinato.pages': ['static/*', 'templates/*'],
+    # },
+    keywords=['django', 'cms', 'ostinato', 'statemachine', 'pages'],
     install_requires=[
         'setuptools',
         'django-mptt == 0.5.2',
