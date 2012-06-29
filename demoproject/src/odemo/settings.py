@@ -141,10 +141,12 @@ INSTALLED_APPS = (
     'ostinato.pages',
     'ostinato.statemachine',
     'ostinato.contentfilters',
+    'ostinato.blog',
     'ckeditor',
 
     'odemo',
     'odemo.news',
+    'odemo.blog',
 )
 
 
