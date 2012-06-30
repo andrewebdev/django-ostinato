@@ -19,6 +19,7 @@ class Published(State):
     def archive(self, **kwargs):
         if self.instance:
             self.instance.allow_comments = False
+            self.archive_date = timezone.now()
 
     def retract(self, **kwargs):
         if self.instance and kwargs.get('reset_publish_date', False):

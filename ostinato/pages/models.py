@@ -13,32 +13,11 @@ from django.conf import settings
 from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
 
-from ostinato.statemachine import State, IntegerStateMachine
 from ostinato.pages.managers import PageManager
+from ostinato.pages.workflow import PageWorkflow
 
 
 DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 5)
-
-
-class Private(State):
-    verbose_name = 'Private'
-    transitions = {'publish': 5}
-
-    def publish(self, **kwargs):
-        if self.instance and not self.instance.publish_date:
-            self.instance.publish_date = timezone.now()
-
-class Published(State):
-    verbose_name = 'Published'
-    transitions = {'retract': 1, 'archive': 10}
-
-class Archived(State):
-    verbose_name = 'Archived'
-    transitions = {'retract': 1}
-
-class PageWorkflow(IntegerStateMachine):
-    state_map = {1: Private, 5: Published, 10: Archived}
-    initial_state = DEFAULT_STATE
 
 
 ## Models
@@ -58,7 +37,8 @@ class Page(MPTTModel):
     show_in_nav = models.BooleanField(default=True)
     show_in_sitemap = models.BooleanField(default=True)
 
-    state = models.IntegerField(default=DEFAULT_STATE)
+    state = models.IntegerField(default=DEFAULT_STATE,
+        choices=PageWorkflow.get_choices())
 
     created_date = models.DateTimeField(null=True, blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)

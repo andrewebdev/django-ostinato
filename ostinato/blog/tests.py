@@ -67,7 +67,7 @@ class BlogEntryBaseTestCase(TestCase):
 
     def test_unicode_name(self):
         create_objects()
-        self.assertEqual('Entry Title 3', str(Entry.objects.all()[0]))
+        self.assertEqual('Entry Title 1', str(Entry.objects.get(id=1)))
 
 
 class BlogEntryWorkflowTestCase(TestCase):
