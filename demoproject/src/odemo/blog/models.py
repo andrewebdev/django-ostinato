@@ -5,5 +5,5 @@ from ostinato.blog.models import BlogEntryBase
 
 class Entry(BlogEntryBase):
 
-    class Meta:
+    class Meta(BlogEntryBase.Meta):
         verbose_name_plural = 'Entries'
