@@ -139,7 +139,7 @@ is performed.
 
         def publish(self, **kwargs):
             if self.instance:
-            self.instance.publish_date = timezone.now()
+                self.instance.publish_date = timezone.now()
 
 
 Now, whenever the ``publish`` action is called on our statemachine, it will

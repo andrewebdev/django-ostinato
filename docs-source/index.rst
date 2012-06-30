@@ -31,6 +31,7 @@ provide
    demoproject
    ostinato.pages
    ostinato.statemachine
+   ostinato.blog
    ostinato.contentfilters
 
 
