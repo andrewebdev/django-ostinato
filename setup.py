@@ -66,7 +66,7 @@ setup(
     #     'ostinato': ['fixtures/*', 'static/*'],
     #     'ostinato.pages': ['static/*', 'templates/*'],
     # },
-    keywords=['django', 'cms', 'ostinato', 'statemachine', 'pages'],
+    keywords=['django', 'cms', 'ostinato', 'statemachine', 'pages', 'blog'],
     install_requires=[
         'setuptools',
         'django-mptt == 0.5.2',

@@ -11,3 +11,5 @@ bin
 develop-eggs
 eggs
 parts
+MANIFEST
+dist/
