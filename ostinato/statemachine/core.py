@@ -88,6 +88,21 @@ class StateMachine(object):
     actions = property(get_actions)
 
 
+    @classmethod
+    def get_choices(cls):
+        """
+        Returns a standard django tuple containing a list of States, in
+        the format, ``(<state_value>, '<verbose_name>')``.
+
+        This is a handy helper for using in django choices fields etc.
+        """
+        choices = ()
+        for k in cls.state_map:
+            choices += ((k, cls.state_map[k].verbose_name or v.__name__),)
+
+        return choices
+
+
     def process_state(self):
         """
         Our default state processor. This method can be overridden

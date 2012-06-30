@@ -85,6 +85,10 @@ class StateMachineTestCase(TestCase):
         sm = TestStateMachine()
         self.assertEqual('private', sm._state)
 
+    def test_get_choices(self):
+        self.assertIn(('private', 'Private'), TestStateMachine.get_choices())
+        self.assertIn(('public', 'Public'), TestStateMachine.get_choices())
+
     def test_perform_action(self):
         sm = TestStateMachine()
         sm.take_action('publish')
