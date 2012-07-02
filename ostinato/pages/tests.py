@@ -409,7 +409,27 @@ class PageReorderViewTestCase(TransactionTestCase):
         response = self.client.get('/page_reorder/')
         self.assertEqual(405, response.status_code)
 
+    def test_staff_only(self):
+        data = {
+            'node': 2,              # Move node id 2 ...
+            'position': 'left',     # ... to the Left of ...
+            'target': 1,            # ... node id 1
+        }
+        response = self.client.post('/page_reorder/', data)
+        self.assertEqual(200, response.status_code)
+        self.assertIn('<input type="submit" value="Log in" />', response.content)
+
     def test_post_response(self):
+
+        # We need a logged in user
+        u = User.objects.create(username='tester', password='',
+            email='test@example.com')
+        u.is_staff = True
+        u.set_password('secret')
+        u.save()
+
+        login = self.client.login(username='tester', password='secret')
+        self.assertTrue(login)
 
         p = Page.objects.get(slug='page-1')
         p2 = Page.objects.get(slug='page-2')

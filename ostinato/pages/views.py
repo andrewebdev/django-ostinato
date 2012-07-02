@@ -2,8 +2,10 @@ from django.views.generic import View, TemplateView
 from django.views.generic.edit import FormMixin
 from django.shortcuts import get_object_or_404
 from django.utils import simplejson as json
+from django.utils.decorators import method_decorator
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
+from django.contrib.admin.views.decorators import staff_member_required
 from django import http
 
 from ostinato.pages.models import Page, PageWorkflow
@@ -69,6 +71,7 @@ class PageView(TemplateView):
 
 class PageReorderView(View):
 
+    @method_decorator(staff_member_required)
     def post(self, *args, **kwargs):
         form = MovePageForm(self.request.POST)
 
