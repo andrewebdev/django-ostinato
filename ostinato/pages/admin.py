@@ -81,7 +81,9 @@ class PageAdmin(MPTTModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
 
     if GRAPPELLI:
-        change_list_template = 'admin/mptt_grappelli_change_list.html'
+        change_list_template = 'admin/ostinato_change_list_grappelli.html'
+    else:
+        change_list_template = 'admin/ostinato_change_list.html'
 
     class Media:
         static_prefix = lambda p: os.path.join(settings.STATIC_URL, '%s' % p)
