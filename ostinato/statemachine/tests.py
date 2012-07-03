@@ -199,6 +199,12 @@ class NumberedStateMachineTestCase(TestCase):
         self.assertEqual(2, sm._state)
         self.assertEqual('Public', sm.state)
 
+    def test_get_choices(self):
+        self.assertEqual(
+            ((1, 'Private'), (2, 'Public')),
+            TestIntegerStateMachine.get_choices()
+        )
+
     def test_get_available_actions(self):
         temp = TestModel.objects.create(name='Test Model 1', state_num=1)
         sm = TestIntegerStateMachine(instance=temp, state_field='state_num')

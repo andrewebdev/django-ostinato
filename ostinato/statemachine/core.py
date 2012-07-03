@@ -98,7 +98,8 @@ class StateMachine(object):
         """
         choices = ()
         for k in cls.state_map:
-            choices += ((k, cls.state_map[k].verbose_name or v.__name__),)
+            choices += ((k,
+                cls.state_map[k].verbose_name or cls.state_map[k].__name__),)
 
         return choices
 
