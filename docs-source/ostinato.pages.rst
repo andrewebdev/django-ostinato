@@ -44,9 +44,9 @@ Start by adding the app to your ``INSTALLED_APPS``
     INSTALLED_APPS = (
         ...
 
-        'mptt',
         'ostinato',
         'ostinato.pages',
+        'mptt',  # Make sure that mptt is after ostinato.pages
 
         ...
     )
