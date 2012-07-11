@@ -113,6 +113,10 @@ class ContentRegistryTestCase(TestCase):
             ('pages.otherpage', 'Pages | Some Other Page'),
         ), page_content.get_template_choices())
 
+    def test_get_template_name(self):
+        self.assertEqual('Pages | Basic Page',
+            page_content.get_template_name('pages.basicpage'))
+
 
 class PageModelTestCase(TestCase):
 

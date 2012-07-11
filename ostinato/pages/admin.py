@@ -49,10 +49,10 @@ class PageAdmin(MPTTModelAdmin):
     save_on_top = True
     form = PageAdminForm
 
-    list_display = ('title', 'reorder', 'slug', 'template', 'author',
+    list_display = ('title', 'reorder', 'slug', 'template_name', 'author',
         'page_state', 'show_in_nav', 'show_in_sitemap', 'publish_date')
 
-    list_filter = ('template', 'author', 'show_in_nav', 'show_in_sitemap',
+    list_filter = ('author', 'show_in_nav', 'show_in_sitemap',
         'state')
 
     list_editable = ('show_in_nav', 'show_in_sitemap')
@@ -98,10 +98,17 @@ class PageAdmin(MPTTModelAdmin):
             static_prefix('pages/js/page_admin.js'),
         )
 
+
     def page_state(self, obj):
         sm = PageWorkflow(instance=obj)
         return sm.state
     page_state.short_description = 'State'
+
+
+    def template_name(self, obj):
+        return page_content.get_template_name(obj.template)
+    template_name.short_description = 'Template'
+
 
     def reorder(self, obj):
         """ A List view item that shows the movement actions """

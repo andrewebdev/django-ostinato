@@ -16,6 +16,15 @@ class ContentRegister(SortedRegistry):
 
         return template_choices
 
+    def get_template_name(self, template_id):
+        choices = self.get_template_choices()
+        
+        for c in choices:
+            if c[0] == template_id:
+                return c[1]
+
+        return template_id
+
 
 page_content = ContentRegister()
 
