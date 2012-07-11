@@ -421,7 +421,7 @@ class PageReorderViewTestCase(TransactionTestCase):
         }
         response = self.client.post('/page_reorder/', data)
         self.assertEqual(200, response.status_code)
-        self.assertIn('<input type="submit" value="Log in" />', response.content)
+        self.assertIn('value="Log in"', response.content)
 
     def test_post_response(self):
 
