@@ -11,9 +11,6 @@ from ostinato.pages.models import Page, PageWorkflow
 from ostinato.pages.registry import page_content
 
 
-GRAPPELLI = 'grappelli' in settings.INSTALLED_APPS
-
-
 def content_inline_factory(page):
     content_model = page.get_content_model()
 
@@ -80,7 +77,7 @@ class PageAdmin(MPTTModelAdmin):
     )
     prepopulated_fields = {'slug': ('title',)}
 
-    if GRAPPELLI:
+    if 'grappelli' in settings.INSTALLED_APPS:
         change_list_template = 'admin/ostinato_change_list_grappelli.html'
     else:
         change_list_template = 'admin/ostinato_change_list.html'

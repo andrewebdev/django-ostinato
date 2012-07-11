@@ -130,15 +130,15 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # 'grappelli',
+    'grappelli',
     'django.contrib.admin',
     'debug_toolbar',
 
-    'mptt',
     'tagging',
 
     'ostinato',
     'ostinato.pages',
+    'mptt',
     'ostinato.statemachine',
     'ostinato.contentfilters',
     'ostinato.blog',

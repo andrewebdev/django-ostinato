@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     (r'^ckeditor/', include('ckeditor.urls')),
     
     url(r'^admin/', include(admin.site.urls)),
-    # (r'^grappelli/', include('grappelli.urls')),
+    (r'^grappelli/', include('grappelli.urls')),
 
 )
 
