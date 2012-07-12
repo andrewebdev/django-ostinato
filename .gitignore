@@ -13,3 +13,5 @@ eggs
 parts
 MANIFEST
 dist/
+demoproject/src/*
+!demoproject/src/odemo
