@@ -58,8 +58,14 @@ class Page(MPTTModel):
     _contents = None
 
 
-    class Meta:
-        permissions = PageWorkflow.get_permissions()
+    ### FIXME:
+    # The statemachine get_permissions() method seems to be creating
+    # state permissions in certain databases. This wasn't a problem with
+    # sqlite3, but does happen in mysql (and possibly others).
+    # Re-enable this once a fix is in place
+    #
+    # class Meta:
+    #     permissions = PageWorkflow.get_permissions()
 
     def __unicode__(self):
         return '%s' % self.title
