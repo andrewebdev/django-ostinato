@@ -205,6 +205,22 @@ class NumberedStateMachineTestCase(TestCase):
             TestIntegerStateMachine.get_choices()
         )
 
+    def test_get_permissions(self):
+        expected_perms = (
+            ('intprivate_view', '[IntPrivate] Can View'),
+            ('intprivate_edit', '[IntPrivate] Can Edit'),
+            ('intprivate_delete', '[IntPrivate] Can Delete'),
+            ('can_publish', 'Can Publish'),
+
+            ('intpublic_view', '[IntPublic] Can View'),
+            ('intpublic_edit', '[IntPublic] Can Edit'),
+            ('intpublic_delete', '[IntPublic] Can Delete'),
+            ('can_retract', 'Can Retract'),
+        )
+
+        for p in expected_perms:
+            self.assertIn(p, TestIntegerStateMachine.get_permissions())
+
     def test_get_available_actions(self):
         temp = TestModel.objects.create(name='Test Model 1', state_num=1)
         sm = TestIntegerStateMachine(instance=temp, state_field='state_num')

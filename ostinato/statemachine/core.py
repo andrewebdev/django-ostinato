@@ -163,7 +163,9 @@ class StateMachine(object):
 
             # Now add the transition permissions
             for t in v.transitions:
-                perms += (('can_%s' % t, 'Can %s' % t.capitalize()),)
+                perm = ('can_%s' % t, 'Can %s' % t.capitalize())
+                if perm not in perms:  # Dont add it if it already exists
+                    perms += (perm,)
 
         return perms
 
