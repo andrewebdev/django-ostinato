@@ -34,7 +34,8 @@ class BlogEntryBase(models.Model):
         abstract = True
         ordering = ('-publish_date', '-created_date')
         get_latest_by = 'publish_date'
-        permissions = BlogEntryWorkflow.get_permissions()
+        ## FIXME
+        # permissions = BlogEntryWorkflow.get_permissions()
 
     def __unicode__(self):
         return '%s' % self.title
