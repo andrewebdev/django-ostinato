@@ -33,7 +33,7 @@ Once the buildout has been created, and is finished. A new file will be in the
 ``bin`` folder called ``odemo``. This is basically a wrapper for ``manage.py``
 that ensures that the project is run within buildout, and not in the system.
 
-So lets sync the database: ``./bin/odemo syncdb
+So lets sync the database: ``./bin/odemo syncdb``
 
 After the sync we can run the dev server: ``./bin/odemo runserver``
 
