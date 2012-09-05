@@ -1,5 +1,3 @@
-import os
-
 from django.contrib import admin
 from django.contrib.admin.util import unquote
 from django import forms
@@ -83,19 +81,19 @@ class PageAdmin(MPTTModelAdmin):
         change_list_template = 'admin/ostinato_change_list.html'
 
     class Media:
-        static_prefix = lambda p: os.path.join(settings.STATIC_URL, '%s' % p)
+        static_url = lambda p: settings.STATIC_URL + p
 
         css = {
             'all': (
-                static_prefix('ostinato/css/smoothness/jquery-ui-1.8.18.custom.css'),
-                static_prefix('pages/css/pages_admin.css'),
+                static_url('ostinato/css/smoothness/jquery-ui-1.8.18.custom.css'),
+                static_url('pages/css/pages_admin.css'),
             ),
         }
 
         js = (
-            static_prefix('ostinato/js/jquery-1.7.1.min.js'),
-            static_prefix('ostinato/js/jquery-ui-1.8.18.custom.min.js'),
-            static_prefix('pages/js/page_admin.js'),
+            static_url('ostinato/js/jquery-1.7.1.min.js'),
+            static_url('ostinato/js/jquery-ui-1.8.18.custom.min.js'),
+            static_url('pages/js/page_admin.js'),
         )
 
 
