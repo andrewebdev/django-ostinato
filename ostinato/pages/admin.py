@@ -81,19 +81,18 @@ class PageAdmin(MPTTModelAdmin):
         change_list_template = 'admin/ostinato_change_list.html'
 
     class Media:
-        static_url = lambda p: settings.STATIC_URL + p
 
         css = {
             'all': (
-                static_url('ostinato/css/smoothness/jquery-ui-1.8.18.custom.css'),
-                static_url('pages/css/pages_admin.css'),
+                'ostinato/css/smoothness/jquery-ui-1.8.18.custom.css',
+                'pages/css/pages_admin.css',
             ),
         }
 
         js = (
-            static_url('ostinato/js/jquery-1.7.1.min.js'),
-            static_url('ostinato/js/jquery-ui-1.8.18.custom.min.js'),
-            static_url('pages/js/page_admin.js'),
+            'ostinato/js/jquery-1.7.1.min.js',
+            'ostinato/js/jquery-ui-1.8.18.custom.min.js',
+            'pages/js/page_admin.js',
         )
 
 
