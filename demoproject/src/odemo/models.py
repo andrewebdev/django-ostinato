@@ -16,15 +16,9 @@ class Content(PageContent):
         abstract = True  # Required for mixins
 
 
-### Some inline extra fields for a landing page
-from django.contrib import admin
-
 class Contributor(models.Model):
     page = models.ForeignKey(Page)
     name = models.CharField(max_length=100)
-
-class ContributorInline(admin.StackedInline):
-    model = Contributor
 
 
 # Actual Page Content
@@ -38,7 +32,7 @@ class LandingPage(PageContent):
 
     class ContentOptions:
         template = 'pages/tests/landing_page.html'
-        page_inlines = [ContributorInline]  # specify page inlines
+        page_inlines = ['odemo.admin.ContributorInline']  # specify page inlines
 
 
 @page_content.register

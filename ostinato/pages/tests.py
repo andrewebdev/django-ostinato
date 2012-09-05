@@ -53,7 +53,7 @@ class BasicPage(ContentMixin, PageContent):
     class ContentOptions:
         template = 'pages/tests/basic_page.html'
         view = 'ostinato.pages.views.CustomView'
-        page_inlines = [ContributorInline]
+        page_inlines = ['ostinato.pages.tests.ContributorInline']
 
 
 @page_content.register

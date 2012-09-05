@@ -134,7 +134,12 @@ class Page(MPTTModel):
             if self._contents and \
                     hasattr(self._contents.ContentOptions, 'page_inlines'):
 
-                for inline in self._contents.ContentOptions.page_inlines:
+                for inline_str in self._contents.ContentOptions.page_inlines:
+
+                    module_path, inline_class = inline_str.rsplit('.', 1)
+                    inline = __import__(module_path, locals(), globals(),
+                        [inline_class], -1).__dict__[inline_class]
+
                     k = '%s_set' % inline.model.__name__.lower()
                     self._contents.add_content(
                         **{k: inline.model.objects.filter(page=self)})

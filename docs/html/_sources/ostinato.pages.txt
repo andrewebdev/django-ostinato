@@ -354,7 +354,7 @@ Lets say that we want to add contributors to our ``LandingPage`` from earlier:
         content = models.TextField()
 
         class ContentOptions:
-            page_inlines = [ContributorInline]
+            page_inlines = ['myapp.admin.ContributorInline']
     ...
 
 If you load up the django admin now, and edit a Landing Page, you should see

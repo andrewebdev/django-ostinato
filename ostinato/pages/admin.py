@@ -142,7 +142,23 @@ class PageAdmin(MPTTModelAdmin):
 
             content_model = page.get_content_model()
             if hasattr(content_model.ContentOptions, 'page_inlines'):
-                for inline in content_model.ContentOptions.page_inlines:
+                for inline_str in content_model.ContentOptions.page_inlines:
+
+                    try:
+                        module_path, inline_class = inline_str.rsplit('.', 1)
+                        inline = __import__(module_path, locals(), globals(),
+                            [inline_class], -1).__dict__[inline_class]
+
+                    except KeyError:
+                        raise Exception('"%s" could not be imported from, '\
+                            '"%s". Please check the import path for the page '\
+                            'inlines' % (inline_class, module_path))
+
+                    except AttributeError:
+                        raise Exception('Incorrect import path for page '\
+                            'content inlines. Expected a string containing the'\
+                            ' full import path.')
+
                     self.inlines += (inline,)
 
         return super(PageAdmin, self).change_view(
