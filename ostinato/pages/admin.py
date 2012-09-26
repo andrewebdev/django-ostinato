@@ -18,6 +18,8 @@ def content_inline_factory(page):
         max_num = 1
         can_delete = False
         fk_name = 'page'
+        classes = ('grp-collapse grp-open',)
+        inline_classes = ('grp-collapse grp-open',)
 
         ## Check for a custom form and try to load it
         content_form = getattr(content_model.ContentOptions, 'form', None)
