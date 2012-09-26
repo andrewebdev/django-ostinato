@@ -38,7 +38,10 @@ def breadcrumbs(context, for_page=None):
     """ Renders the breadcrumbs for the current page in the context """
     if not for_page:
         # Attempt to get the page from the context
-        for_page = context['page']
+        try:
+            for_page = context['page']
+        except KeyError:
+            return {}
 
     breadcrumbs = Page.objects.get_breadcrumbs(for_page=for_page)
     return locals()
