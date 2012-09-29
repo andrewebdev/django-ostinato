@@ -49,8 +49,11 @@ class PageAdmin(MPTTModelAdmin):
     save_on_top = True
     form = PageAdminForm
 
-    list_display = ('title', 'reorder', 'slug', 'template_name', 'author',
-        'page_state', 'show_in_nav', 'show_in_sitemap', 'publish_date')
+    list_display = ('tree_node', 'title', 'reorder', 'slug',
+        'template_name', 'author', 'page_state', 'show_in_nav',
+        'show_in_sitemap', 'publish_date')
+
+    list_display_links = ('title',)
 
     list_filter = ('author', 'show_in_nav', 'show_in_sitemap',
         'state')
@@ -96,6 +99,24 @@ class PageAdmin(MPTTModelAdmin):
             'ostinato/js/jquery-ui-1.8.18.custom.min.js',
             'pages/js/page_admin.js',
         )
+
+
+    def tree_node(self, obj):
+        """
+        A custom title for the list display that will be indented based on
+        the level of the node, as well as display a expand/collapse icon
+        if the node has any children.
+
+        This node will also have some information for the row, like the
+        level etc.
+        """
+        content = '<span id="lvl_%s" class="tree_node closed">' % obj.level
+        if obj.get_descendant_count() > 0:
+            content += '<a class="toggle_children" href="#">+</a>'
+        content += '</span>'
+        return content
+    tree_node.short_description = ''
+    tree_node.allow_tags = True
 
 
     def page_state(self, obj):

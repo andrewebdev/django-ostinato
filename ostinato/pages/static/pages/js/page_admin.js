@@ -17,6 +17,11 @@ django.jQuery(document).ready(function() {
 
     var page_id, selected_template;
 
+    /*
+     *  Detail View Scripts
+     *
+     */
+
     // When changing the template, we should 'refresh' the Page
     django.jQuery('#id_template').focus(function() {
         selected_template = $(this).val();
@@ -29,6 +34,98 @@ django.jQuery(document).ready(function() {
         }
     });
 
+
+    /*
+     * List View Scripts
+     *
+     */
+
+    // Expand/Collapse Rows
+    function toggle_row($el, action) {
+        if (action == 'collapse') {
+            $el.hide();
+        } else if (action == 'expand') {
+            $el.show();
+        }
+    }
+
+
+    $('a.toggle_children').click(function() {
+        var $parent_node = $(this).parent();
+        var parent_level = parseInt($parent_node.attr('id').split('_')[1]);
+        var is_open = $parent_node.hasClass('open');
+
+        // reset node
+        $parent_node.removeClass('open');
+        $parent_node.removeClass('closed');
+
+        // Find all the rows below this one, that has a higher level
+        $(this).parents('tr').nextAll().each(function(i) {
+            var $node = $(this).find('span.tree_node');
+            var item_level = parseInt($node.attr('id').split('_')[1]);
+
+            // Expand/Collapse that row
+            if (item_level > parent_level) {
+                if (is_open) {
+                    toggle_row($(this), 'collapse');
+                    if ($node.hasClass('open')) {
+                        $node.removeClass('open');
+                        $node.addClass('closed');
+                    }
+                } else if (item_level === parent_level + 1) {
+                    // When expanding, expand only the immediate children
+                    toggle_row($(this), 'expand');
+                }
+            } else {
+                // Stop traversing
+                return;
+            }
+        });
+
+
+        // update the parent node
+        if (is_open) {
+            $parent_node.addClass('closed');
+            $parent_node.find('.toggle_children').button({
+                'icons': {'primary': 'ui-icon-triangle-1-e'},
+                'text': false
+            });
+        }
+        else {
+            $parent_node.addClass('open');
+            $parent_node.find('.toggle_children').button({
+                'icons': {'primary': 'ui-icon-triangle-1-s'},
+                'text': false
+            });
+        }
+
+        return false;
+    });
+    $('.tree_node.closed').each(function() {
+        var $parent_node = $(this);
+        var parent_level = $parent_node.attr('id').split('_')[1];
+
+        $(this).parents('tr').nextAll().each(function(i) {
+            var $node = $(this).find('span.tree_node');
+            var item_level = $node.attr('id').split('_')[1];
+
+            // Expand/Collapse that row
+            if (item_level > parent_level) {
+                toggle_row($(this), 'collapse');
+            } else {
+                // Stop traversing
+                return;
+            }
+        }); 
+
+       $parent_node.find('.toggle_children').button({
+            'icons': {'primary': 'ui-icon-triangle-1-e'},
+            'text': false
+        }); 
+    })
+
+
+    // Reordering of Pages
     $('.ostinato_page_move').button({
         'icons': {'primary': 'ui-icon-arrow-4'},
         'text': false
