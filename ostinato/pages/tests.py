@@ -63,6 +63,9 @@ class OtherPage(ContentMixin, PageContent):
     class Meta:
         verbose_name = 'Some Other Page'
 
+    class ContentOptions:
+        urls = 'ostinato.pages.test_sub_urls'
+
  
 def create_pages():
     user = User.objects.create(username='user1', password='secret',
@@ -89,6 +92,13 @@ def create_pages():
         modified_date = "2012-04-10 12:14:51.203925+00:00",
         template='pages.basicpage',
         parent=p,
+    )
+    p4 = Page.objects.create(
+        title="Application Page", slug="apppage", short_title='App Page',
+        author=user, show_in_nav=False,
+        created_date = "2012-04-10 12:14:51.203925+00:00",
+        modified_date = "2012-04-10 12:14:51.203925+00:00",
+        template='pages.otherpage'
     )
 
     ## Create some content
@@ -131,7 +141,7 @@ class PageModelTestCase(TestCase):
     def test_related_lookup(self):
         u = User.objects.get(username='user1')
         pages = u.pages_authored.all()
-        self.assertEqual(3, pages.count())
+        self.assertEqual(4, pages.count())
 
     def test_unicode(self):
         self.assertEqual('Page 1', Page.objects.get(id=1).__unicode__())
@@ -175,6 +185,11 @@ class PageModelTestCase(TestCase):
         c = LandingPage.objects.get(id=1)
         self.assertEqual(c, p.contents)
 
+    def get_sub_url_for(self):
+        p = Page.objects.get(slug='apppage')
+        self.assertEqual('/apppage/with/sub/path/',
+            page.get_sub_url())
+
 
 class PageManagerTestCase(TestCase):
 
@@ -184,7 +199,7 @@ class PageManagerTestCase(TestCase):
         create_pages()
 
     def test_published(self):
-        self.assertEqual([1, 2, 3],
+        self.assertEqual([1, 2, 3, 4],
             list(Page.objects.published().values_list('id', flat=True)))
 
     def test_get_empty_navbar(self):
@@ -231,8 +246,19 @@ class PageManagerTestCase(TestCase):
         rf = RequestFactory()
         request = rf.get('/page-1/page-3/')
 
-        self.assertEqual('page-3',
-            Page.objects.get_from_path(request.path).slug)
+        page, sub_path = Page.objects.get_from_path(request.path)
+
+        self.assertEqual('page-3', page.slug)
+        self.assertFalse(sub_path)
+
+    def test_get_page_from_path_with_sub_path(self):
+        rf = RequestFactory()
+        request = rf.get('/page-1/apppage/with/sub/path/')
+
+        page, sub_path = Page.objects.get_from_path(request.path)
+
+        self.assertEqual('apppage', page.slug)
+        self.assertEqual('/with/sub/path/', sub_path)
 
 
 class PageContentModelTestCase(TestCase):
@@ -334,6 +360,13 @@ class ViewDispatcherTestCase(TestCase):
         self.assertIn('page', response.context)
         self.assertIn('custom', response.context)
         self.assertEqual('Some Custom Context', response.context['custom'])
+
+    def test_page_with_sub_path(self):
+        response = self.client.get('/apppage/with/sub/path/')
+
+        self.assertEqual(200, response.status_code)
+        # Make sure that the page is in the new context
+        self.assertIn('page', response.context['params'])
 
 
 class NavBarTemplateTagTestCase(TestCase):

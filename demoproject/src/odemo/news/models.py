@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from ostinato.pages.models import PageContent
+from ostinato.pages.registry import page_content
 from ostinato.statemachine.core import State, StateMachine
 
 from odemo.models import Content
@@ -52,6 +53,7 @@ class NewsItem(models.Model):
 
 
 ## Create a News List page
+@page_content.register
 class NewsListPageContent(Content):
     ## We could store some information here, like how many items we want
     ## to show on the page.
@@ -59,6 +61,7 @@ class NewsListPageContent(Content):
     class ContentOptions:
         template = 'page_templates/news_list_page.html'
         view = 'odemo.news.views.NewsPageView'
+        urls = 'odemo.news.urls'
 
 
 class PageWithNews(Content):

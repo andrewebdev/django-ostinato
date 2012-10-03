@@ -177,6 +177,7 @@ class PageContent(models.Model):
         view = 'ostinato.pages.views.PageView'
         form = None
         page_inlines = []
+        urls = None
 
 
     def add_content(self, **kwargs):

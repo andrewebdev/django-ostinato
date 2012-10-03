@@ -6,7 +6,6 @@ from django.views.generic import DetailView
 from ostinato.pages.registry import page_content
 from ostinato.pages.sitemaps import PageSitemap
 from odemo.news.models import NewsItem
-from odemo.news.views import NewsPageView
 
 
 admin.autodiscover()
@@ -18,9 +17,6 @@ sitemaps = {
 }
 
 urlpatterns = patterns('',
-    url(r'^news/(?P<pk>\d+)/$', DetailView.as_view(model=NewsItem),
-        name='newsitem_detail'),
-
     (r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap',
         {'sitemaps': sitemaps}),
     
@@ -30,10 +26,6 @@ urlpatterns = patterns('',
     (r'^grappelli/', include('grappelli.urls')),
 )
 
-
 urlpatterns += staticfiles_urlpatterns()
 
-
-urlpatterns += patterns('',
-    url(r'^', include('ostinato.pages.urls')),
-)
+urlpatterns += patterns('', url(r'^', include('ostinato.pages.urls')), )

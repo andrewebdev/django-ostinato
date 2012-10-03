@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
 
@@ -58,19 +59,46 @@ class PageManager(models.Manager):
         return to_return
 
     def get_from_path(self, url_path):
-        """ Returns a page object, base on the url path. """
+        """
+        Cycle through every slug in the path to try and find the current
+        page.
 
+        Returns a tuple containing the Page and any sub-urlpath that might
+        precede the page slug.
+
+        TODO: More descriptive doctype pls
+
+        TODO: We should probably look for the page based on more than just
+        the slug, since a sub-url might exist with the same "slug" as a page.
+        A possible solution would be to match the page with the parent (if any)
+
+        This leads me to believe we should be caching/indexing page urls
+        somewhere for a quick lookup.
+        """
+
+        page = None
         path = url_path.split('/')
-        path.reverse()
+        sub_path = []
 
-        ## TODO: Maybe we should cache the page paths somewhere, so that
-        ## we dont have to do a query for each page.
-        for node in path:
+        while not page:
             try:
-                if node:
-                    page = self.get_query_set().get(slug=node)
-                    return page
-            except:
-                pass
+                page = self.get_query_set().get(slug=path[-1])
 
+            except ObjectDoesNotExist:
+                if path:
+                    # Save the failed slug so we can return it later
+                    sub_path.insert(0, path[-1])
+                    path = path[:-1]  # Remove the failed slug
+
+                if not path: break
+
+        if sub_path:
+            sub_path = '/' + '/'.join(sub_path)
+        else:
+            sub_path = None
+
+        if sub_path == '/':
+            sub_path = None
+
+        return page, sub_path
 

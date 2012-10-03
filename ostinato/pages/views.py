@@ -1,11 +1,13 @@
 from django.views.generic import View, TemplateView
 from django.views.generic.edit import FormMixin
 from django.shortcuts import get_object_or_404
+from django.template import RequestContext
 from django.utils import simplejson as json
 from django.utils.decorators import method_decorator
 from django.core.serializers.json import DjangoJSONEncoder
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, resolve, Resolver404
 from django.contrib.admin.views.decorators import staff_member_required
+from django.conf import settings
 from django import http
 
 from ostinato.pages.models import Page, PageWorkflow
@@ -23,12 +25,31 @@ def page_dispatch(request, *args, **kwargs):
 
     ## Some basic page checking and authorization
     if 'path' in kwargs:
-        path = kwargs['path'].split('/')
+        page, sub_path = Page.objects.get_from_path(kwargs['path'])
 
-        if not path[-1]:
-            path = path[:-1]
+        if not page:
+            raise http.Http404
 
-        page = get_object_or_404(Page, slug=path[-1])
+        # Here we check for sub_path and if the current page allows for that
+        if page and sub_path:
+            content = page.get_content_model()
+
+            if content.ContentOptions.urls:
+                if settings.APPEND_SLASH:
+                    sub_path += '/'
+                try:
+                    pattern = resolve(sub_path, content.ContentOptions.urls)
+                except Resolver404:
+                    raise http.Http404
+
+                if pattern:
+                    view, args, kwargs = pattern
+                    # Now return the view, but make sure to add our page
+                    # to the context first
+                    kwargs.update({'page': page})
+                    return view(request, *args, **kwargs)
+
+            raise http.Http404
 
     else:
         # If we are looking at the root object, show the first root page
