@@ -25,7 +25,7 @@ class Page(MPTTModel):
     """ A basic page model """
     title = models.CharField(max_length=150)
     slug = models.SlugField(unique=True, help_text='A url friendly slug.')
-    short_title = models.CharField(max_length=15, null=True, blank=True,
+    short_title = models.CharField(max_length=50, null=True, blank=True,
         help_text='A shorter title which can be used in menus etc. If this \
                    is not supplied then the normal title field will be used.')
 
