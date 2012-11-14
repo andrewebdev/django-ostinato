@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+from django.core.exceptions import FieldError
 from django.utils import timezone
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
@@ -141,8 +142,12 @@ class Page(MPTTModel):
                         [inline_class], -1).__dict__[inline_class]
 
                     k = '%s_set' % inline.model.__name__.lower()
-                    self._contents.add_content(
-                        **{k: inline.model.objects.filter(page=self)})
+
+                    try:
+                        self._contents.add_content(
+                            **{k: inline.model.objects.filter(page=self)})
+                    except FieldError:
+                        pass
 
         return self._contents
 
