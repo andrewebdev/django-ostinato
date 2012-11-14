@@ -165,7 +165,13 @@ class PageAdmin(MPTTModelAdmin):
 
             content_model = page.get_content_model()
             if hasattr(content_model.ContentOptions, 'page_inlines'):
-                for inline_str in content_model.ContentOptions.page_inlines:
+                for inline_def in content_model.ContentOptions.page_inlines:
+                    through = None
+
+                    if isinstance(inline_def, (str, unicode)):
+                        inline_str = inline_def
+                    else:
+                        inline_str, through = inline_def
 
                     try:
                         module_path, inline_class = inline_str.rsplit('.', 1)

@@ -20,12 +20,30 @@ page_content.setup()  # Clear the registry before we start the tests
 
 
 ## Create some Page Content
+class Photo(models.Model):
+    photo_path = models.CharField(max_length=250)
+
+
 class Contributor(models.Model):
     page = models.ForeignKey(Page, related_name='testing')
     name = models.CharField(max_length=50)
 
+    ## Required to test the inlines with through model
+    photos = models.ManyToManyField(Photo, through='ContributorPhotos',
+        null=True, blank=True)
+
+
+class ContributorPhotos(models.Model):
+    contributor = models.ForeignKey(Contributor)
+    photo = models.ForeignKey(Photo)
+    order = models.IntegerField(default=1)
+
+
 class ContributorInline(admin.StackedInline):
     model = Contributor
+
+class PhotoInline(admin.StackedInline):
+    model = Contributor.photos.through
 
 
 class ContentMixin(models.Model):
@@ -53,7 +71,13 @@ class BasicPage(ContentMixin, PageContent):
     class ContentOptions:
         template = 'pages/tests/basic_page.html'
         view = 'ostinato.pages.views.CustomView'
-        page_inlines = ['ostinato.pages.tests.ContributorInline']
+        page_inlines = [
+            # A Standard Inline ...
+            'ostinato.pages.tests.ContributorInline',
+
+            # ... and one with a "through" field
+            ('ostinato.pages.tests.PhotoInline', 'contributor'),
+        ]
 
 
 @page_content.register
