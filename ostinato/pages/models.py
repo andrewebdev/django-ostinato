@@ -55,8 +55,10 @@ class Page(MPTTModel):
     objects = PageManager()
     tree = TreeManager()
 
-    ## required for caching contents
+    ## Required for caching some objects
     _contents = None
+    _content_model = None
+    _abs_url = None
 
 
     class Meta:
@@ -101,17 +103,17 @@ class Page(MPTTModel):
         if self.redirect:
             return self.redirect
 
-        if self == Page.tree.root_nodes()[0]:
+        if self.is_root_node() and self._mpttfield('tree_id') == 1:
             return reverse('ostinato_page_home')
 
-        path = []
-        for parent in self.get_ancestors():
-            path.append(parent.slug)
+        if not self._abs_url:
+            path = list(self.get_ancestors().values_list('slug', flat=True))
+            path.append(self.slug)
+            self._abs_url = path
 
-        path.append(self.slug)
-
-        return self.perma_url(
-            ('ostinato_page_view', None, {'path': '/'.join(path)}) )
+        return self.perma_url(('ostinato_page_view', None, {
+            'path': '/'.join(self._abs_url)
+        }))
 
 
     def get_content_model(self):
