@@ -117,9 +117,11 @@ class Page(MPTTModel):
 
 
     def get_content_model(self):
-        label, model = self.template.split('.')
-        content_type = ContentType.objects.get(app_label=label, model=model)
-        return content_type.model_class()
+        if not self._content_model:
+            label, model = self.template.split('.')
+            content_type = ContentType.objects.get(app_label=label, model=model)
+            self._content_model = content_type.model_class()
+        return self._content_model
 
 
     def get_content(self):
