@@ -8,7 +8,7 @@
 
 <h4>Contributors</h4>
 <ul>
-    {% for contrib in page.contents.contributor_set %}
+    {% for contrib in page.contributor_set.all %}
     <li>{{ contrib.name }}</li>
     {% endfor %}
 </ul>

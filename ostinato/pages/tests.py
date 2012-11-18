@@ -72,11 +72,7 @@ class BasicPage(ContentMixin, PageContent):
         template = 'pages/tests/basic_page.html'
         view = 'ostinato.pages.views.CustomView'
         page_inlines = [
-            # A Standard Inline ...
             'ostinato.pages.tests.ContributorInline',
-
-            # ... and one with a "through" field
-            ('ostinato.pages.tests.PhotoInline', 'contributor'),
         ]
 
 
@@ -289,11 +285,9 @@ class PageContentModelTestCase(TestCase):
     def test_inline_content_for_page(self):
         create_pages()
         p = Page.objects.get(slug='page-3')
-        content = BasicPage.objects.create(page=p, content='Page 3 Content')
         Contributor.objects.create(page=p, name='Contributor 1')
-
         qs = Contributor.objects.filter(page=p)
-        self.assertEqual(qs[0], p.contents.contributor_set[0])
+        self.assertEqual(qs[0], p.testing.all()[0])
 
 
 class PageViewTestCase(TestCase):

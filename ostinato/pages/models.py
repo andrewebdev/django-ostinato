@@ -128,41 +128,11 @@ class Page(MPTTModel):
         if not self._contents:
             label, model = self.template.split('.')
             content_type = ContentType.objects.get(app_label=label, model=model)
-
             try:
                 self._contents = content_type.get_object_for_this_type(
                     page=self.id)
             except content_type.model_class().DoesNotExist:
                 pass
-
-            # Now add extra fields specified in the page_inline attr.
-            if self._contents and \
-                    hasattr(self._contents.ContentOptions, 'page_inlines'):
-
-                for inline_def in self._contents.ContentOptions.page_inlines:
-                    through = None
-
-                    if isinstance(inline_def, (str, unicode)):
-                        inline_str = inline_def
-                    else:
-                        inline_str, through = inline_def
- 
-                    module_path, inline_class = inline_str.rsplit('.', 1)
-                    inline = __import__(module_path, locals(), globals(),
-                        [inline_class], -1).__dict__[inline_class]
-
-                    k = '%s_set' % inline.model.__name__.lower()
-
-                    filter_args = {}
-                    if through:
-                        filter_args[k] = inline.model.objects.filter(**{
-                            '%s__page' % through: self})
-                    else:
-                        filter_args[k] = inline.model.objects.filter(page=self)
-
-                    self._contents.add_content(**filter_args)
-                        # **{k: inline.model.objects.filter(page=self)})
-
         return self._contents
 
     contents = property(get_content)
