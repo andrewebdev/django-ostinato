@@ -165,7 +165,7 @@ class PageContent(models.Model):
         template = None
         view = 'ostinato.pages.views.PageView'
         form = None
-        page_inlines = []
+        admin_inlines = []
 
 
     def add_content(self, **kwargs):
