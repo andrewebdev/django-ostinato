@@ -164,8 +164,8 @@ class PageAdmin(MPTTModelAdmin):
                 self.inlines = (content_inline_factory(page),)
 
             content_model = page.get_content_model()
-            if hasattr(content_model.ContentOptions, 'page_inlines'):
-                for inline_def in content_model.ContentOptions.page_inlines:
+            if hasattr(content_model.ContentOptions, 'admin_inlines'):
+                for inline_def in content_model.ContentOptions.admin_inlines:
                     through = None
 
                     if isinstance(inline_def, (str, unicode)):

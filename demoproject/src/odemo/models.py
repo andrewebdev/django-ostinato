@@ -32,7 +32,7 @@ class LandingPage(PageContent):
 
     class ContentOptions:
         template = 'pages/tests/landing_page.html'
-        page_inlines = ['odemo.admin.ContributorInline']  # specify page inlines
+        admin_inlines = ['odemo.admin.ContributorInline']
 
 
 @page_content.register

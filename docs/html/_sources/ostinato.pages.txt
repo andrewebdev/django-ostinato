@@ -354,90 +354,19 @@ Lets say that we want to add contributors to our ``LandingPage`` from earlier:
         content = models.TextField()
 
         class ContentOptions:
-            page_inlines = ['myapp.admin.ContributorInline']
+            admin_inlines = ['myapp.admin.ContributorInline']
     ...
 
 If you load up the django admin now, and edit a Landing Page, you should see
 the extra inline model fields below your PageContent.
 
-To access the related set in your template, you can use the queryset that we
-provide on the page contents:
+To access the related set in your template, just do it as normal.
 
 .. code-block:: html
-    :linenos:
-    :emphasize-lines: 2
-
-    {% for contrib in page.contents.contributor_set %}
-    {{ contrib.name }}
-    {% endfor %}
-
-Note that the variable ``contributor_set`` is a queryset, and *not* a
-ManyRelatedManager, so you dont need to add ``.all`` to it.
-
-
-.. note::
-
-    You can still access this content the usual method by doing a reverse
-    lookup on the page instance.
     
-    .. code-block:: html
-        
-        {% for contrib in page.contributor_set.all %}
-        {{ contrib.name }}
-        {% endfor %}
-
-
-Extra Inline Fields via a "through" model
------------------------------------------
-
-In rare cases you may have a complex model that requires extra information
-for the relationship. This is normally done in Django via a ManyToManyField()
-using the ``through`` argument.
-
-To do this you would specify the inline model, and the name of the field,
-as a tuple in the ``page_inlines`` option.
-
-.. code-block:: python
-    :linenos:
-    :emphasize-lines: 10, 20
-
-    from django.db import models
-    from ostinato.pages.models import Page
-
-    class Photo(models.Model):
-        image = models.ImageField(upload_to='photos/')
-
-    class Contributor(models.Model):
-        page = models.ForeignKey(Page)
-        name = models.CharField(max_lenght=50)
-        photos = models.ManyToManyField(Photo, through='ContributorPhotos')
-
-    class ContributorPhotos(models.Model):
-        photo = models.ForeignKey(Photo)
-        contributor = models.ForeignKey(Contributor)
-
-        # Just an arbitary field to justify the example
-        order = models.PositiveIntegerField(default=1)
-
-    class ContributorPhotoInline(admin.StackedInline):
-        model = Contributor.photos.through
-
-
-The content options for adding the photos as a inline would be:
-
-.. code-block:: python
-    :linenos:
-    :emphasize-lines: 8
-
-    ...
-
-    class LandingPage(SEOContentMixin, PageContent):
-        intro = models.TextField()
-        content = models.TextField()
-
-        class ContentOptions:
-            page_inlines = [('myapp.admin.ContributorPhotoInline', 'contributor')]
-    ...
+    {% for contributor in page.contributor_set.all %}
+    {{ contributor.name }}
+    {% endfor %}
 
 
 Template tags and filters
