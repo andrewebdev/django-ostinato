@@ -20,16 +20,21 @@ def navbar(context, for_page=None, path=''):
     be found in the path of course.
 
     """
-    if not for_page:
-        if 'page' in context:
-            for_page = context['page']
-        else:
-            for_page = Page.objects.get_from_path(path)
+    if 'page' not in context:
+        for_page = Page.objects.get_from_path(path)
+    else:
+        page = context['page']
+
+    # if not for_page:
+    #     if 'page' in context:
+    #         for_page = context['page']
+    #     else:
+    #         for_page = Page.objects.get_from_path(path)
 
     navbar = Page.objects.get_navbar(for_page=for_page)
 
     return {
-        'page': for_page,
+        'page': page,
         'navbar': navbar,
     }
 
