@@ -12,7 +12,6 @@ from django.db.models.signals import pre_save
 from django.conf import settings
 
 from mptt.models import MPTTModel, TreeForeignKey
-from mptt.managers import TreeManager
 
 from ostinato.pages.managers import PageManager
 from ostinato.pages.workflow import PageWorkflow
@@ -53,7 +52,6 @@ class Page(MPTTModel):
 
     ## Managers
     objects = PageManager()
-    tree = TreeManager()
 
     ## Required for caching some objects
     _contents = None
@@ -125,13 +123,14 @@ class Page(MPTTModel):
 
 
     def get_content(self):
+        """
+        Returns the content for this page or None if it doesn't exist.
+        """
         if not self._contents:
-            label, model = self.template.split('.')
-            content_type = ContentType.objects.get(app_label=label, model=model)
+            obj_model = self.get_content_model()
             try:
-                self._contents = content_type.get_object_for_this_type(
-                    page=self.id)
-            except content_type.model_class().DoesNotExist:
+                self._contents = obj_model.objects.get(page=self.id)
+            except obj_model.DoesNotExist:
                 pass
         return self._contents
 

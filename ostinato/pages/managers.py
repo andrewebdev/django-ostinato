@@ -1,8 +1,10 @@
 from django.db import models
 from django.utils import timezone
 
+from mptt.managers import TreeManager
 
-class PageManager(models.Manager):
+
+class PageManager(TreeManager):
 
     def published(self):
         return self.get_query_set().filter(
@@ -15,23 +17,19 @@ class PageManager(models.Manager):
         ``for_page`` is an instance of Page. If specified, will only
         return immediate child pages for that page.
         """
-        to_return = []
+        navbar = []
 
-        if for_page == '':
-            for_page = None
-
-        nav_items = self.published().filter(parent=for_page, show_in_nav=True)\
-            .order_by('tree_id')
+        nav_items = self.published().filter(parent=for_page, show_in_nav=True)
 
         if nav_items:
             for page in nav_items:
-                to_return.append({
+                navbar.append({
                     'slug': page.slug,
                     'title': page.get_short_title(),
                     'url': page.get_absolute_url(),
                 })
 
-        return to_return
+        return navbar
 
     def get_breadcrumbs(self, for_page):
         """

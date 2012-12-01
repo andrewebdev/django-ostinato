@@ -204,7 +204,7 @@ class PageManagerTestCase(TestCase):
         create_pages()
 
     def test_published(self):
-        self.assertEqual([1, 2, 3],
+        self.assertEqual([1, 3, 2],
             list(Page.objects.published().values_list('id', flat=True)))
 
     def test_get_empty_navbar(self):
