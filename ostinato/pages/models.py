@@ -6,6 +6,7 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.core.exceptions import FieldError
+from django.core.cache import get_cache
 from django.utils import timezone
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
@@ -56,7 +57,6 @@ class Page(MPTTModel):
     ## Required for caching some objects
     _contents = None
     _content_model = None
-    _abs_url = None
 
 
     class Meta:
@@ -97,21 +97,31 @@ class Page(MPTTModel):
 
     def get_absolute_url(self):
         """ Cycle through the parents and generate the path """
+        cache = get_cache('default')
+        cache_key = 'ostinato:pages:page:%s:url' % self.id
 
-        if self.redirect:
-            return self.redirect
+        # Try to get the path from the cache
+        url = cache.get(cache_key)
 
-        if self.is_root_node() and self._mpttfield('tree_id') == 1:
-            return reverse('ostinato_page_home')
+        if not url:
+            # Generate the url and add it to the cache
+            if self.redirect:
+                return self.redirect
 
-        if not self._abs_url:
+            if self.is_root_node() and self._mpttfield('tree_id') == 1:
+                return reverse('ostinato_page_home')
+
             path = list(self.get_ancestors().values_list('slug', flat=True))
             path.append(self.slug)
-            self._abs_url = path
 
-        return self.perma_url(('ostinato_page_view', None, {
-            'path': '/'.join(self._abs_url)
-        }))
+            url = self.perma_url(('ostinato_page_view', None, {
+                'path': '/'.join(path)
+            }))
+
+            # Set the cache
+            cache.set(cache_key, url, 1 * 60 * 60)
+
+        return url
 
 
     def get_content_model(self):

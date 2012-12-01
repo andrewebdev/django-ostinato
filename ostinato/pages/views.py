@@ -33,7 +33,7 @@ def page_dispatch(request, *args, **kwargs):
     else:
         # If we are looking at the root object, show the first root page
         try:
-            page = Page.tree.root_nodes()[0]
+            page = Page.objects.root_nodes()[0]
         except IndexError:
             raise http.Http404
 

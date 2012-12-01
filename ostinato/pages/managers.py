@@ -17,17 +17,18 @@ class PageManager(TreeManager):
         ``for_page`` is an instance of Page. If specified, will only
         return immediate child pages for that page.
         """
+
+        ## TODO: cache navbars?
         navbar = []
 
         nav_items = self.published().filter(parent=for_page, show_in_nav=True)
 
-        if nav_items:
-            for page in nav_items:
-                navbar.append({
-                    'slug': page.slug,
-                    'title': page.get_short_title(),
-                    'url': page.get_absolute_url(),
-                })
+        for page in nav_items:
+            navbar.append({
+                'slug': page.slug,
+                'title': page.get_short_title(),
+                'url': page.get_absolute_url(),
+            })
 
         return navbar
 
@@ -36,24 +37,25 @@ class PageManager(TreeManager):
         Returns a list of all the parents, plus the current page. Each item
         in the list contains a short title and url.
         """
-        to_return = []
+
+        ## TODO: cache breadcrumbs
+        crumbs = []
         parents = for_page.get_ancestors()
 
-        if parents:
-            for page in parents:
-                to_return.append({
-                    'slug': page.slug,
-                    'title': page.get_short_title(),
-                    'url': page.get_absolute_url(),
-                })
+        for page in parents:
+            crumbs.append({
+                'slug': page.slug,
+                'title': page.get_short_title(),
+                'url': page.get_absolute_url(),
+            })
 
-        to_return.append({
+        crumbs.append({
             'slug': for_page.slug,
             'title': for_page.get_short_title(),
             'url': for_page.get_absolute_url()
         })
 
-        return to_return
+        return crumbs
 
     def get_from_path(self, url_path):
         """ Returns a page object, base on the url path. """
@@ -70,5 +72,4 @@ class PageManager(TreeManager):
                     return page
             except:
                 pass
-
 

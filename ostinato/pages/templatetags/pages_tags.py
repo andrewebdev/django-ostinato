@@ -7,7 +7,7 @@ register = template.Library()
 
 
 @register.inclusion_tag('pages/navbar.html', takes_context=True)
-def navbar(context, page=None, path='', **kwargs):
+def navbar(context, for_page=None, path=''):
     """
     Renders a basic navigation bar.
 
@@ -20,35 +20,18 @@ def navbar(context, page=None, path='', **kwargs):
     be found in the path of course.
 
     """
-    if not page:
+    if not for_page:
         if 'page' in context:
-            page = context['page']
+            for_page = context['page']
         else:
-            page = Page.objects.get_from_path(path)
+            for_page = Page.objects.get_from_path(path)
 
-    navbar = Page.objects.get_navbar(for_page=page)
+    navbar = Page.objects.get_navbar(for_page=for_page)
 
     return {
-        'page': page,
+        'page': for_page,
         'navbar': navbar,
     }
-
-
-# @register.assignment_tag(takes_context=True)
-# def get_navbar(context, **kwargs):
-#     """
-#     Once found, we return the navbar for this page.
-#     """
-#     if not page:
-#         # Check and filter by kwargs, returning the first item
-#         if kwargs:
-#             page = Page.tree.filter(**kwargs)[0]
-
-#         if 'page' in context:
-#             # Page was found in context
-#             page = context['page']
-
-#     return page.get_children().filter()
 
 
 @register.inclusion_tag('pages/breadcrumbs.html', takes_context=True)
