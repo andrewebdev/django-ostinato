@@ -16,4 +16,6 @@ class MovePageForm(forms.Form):
 
         page = Page.objects.get(id=page_id)
         target= Page.objects.get(id=target_id)
+        # IMPORTANT: Clear the url cache!
+        Page.objects.clear_url_cache()
         page.move_to(target, position)

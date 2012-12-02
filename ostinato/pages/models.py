@@ -79,7 +79,13 @@ class Page(MPTTModel):
                 self.publish_date = now
 
         self.modified_date = now
-        super(Page, self).save(*args, **kwargs)
+
+        page = super(Page, self).save(*args, **kwargs)
+
+        # Now that the page is saved, we reset and cache the url
+        Page.objects.clear_url_cache()
+
+        return page
 
 
     def get_short_title(self):
@@ -95,10 +101,13 @@ class Page(MPTTModel):
         return data
 
 
-    def get_absolute_url(self):
+    def get_absolute_url(self, clear_cache=False):
         """ Cycle through the parents and generate the path """
         cache = get_cache('default')
         cache_key = 'ostinato:pages:page:%s:url' % self.id
+
+        if clear_cache:
+            cache.delete(cache_key)
 
         # Try to get the path from the cache
         url = cache.get(cache_key)
@@ -108,15 +117,14 @@ class Page(MPTTModel):
             if self.redirect:
                 return self.redirect
 
-            if self.is_root_node() and self._mpttfield('tree_id') == 1:
-                return reverse('ostinato_page_home')
-
-            path = list(self.get_ancestors().values_list('slug', flat=True))
-            path.append(self.slug)
-
-            url = self.perma_url(('ostinato_page_view', None, {
-                'path': '/'.join(path)
-            }))
+            if self.is_root_node() and self == Page.objects.root_nodes()[0]:
+                url = reverse('ostinato_page_home')
+            else:
+                path = list(self.get_ancestors().values_list('slug', flat=True))
+                path.append(self.slug)
+                url = self.perma_url(('ostinato_page_view', None, {
+                    'path': '/'.join(path)
+                }))
 
             # Set the cache
             cache.set(cache_key, url, 1 * 60 * 60)

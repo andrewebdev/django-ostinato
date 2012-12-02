@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+from django.core.cache import get_cache
 from django.template import Context, Template
 from django.template.response import SimpleTemplateResponse, TemplateResponse
 from django.utils import simplejson as json
@@ -14,6 +15,7 @@ from django.conf import settings
 from ostinato.pages.registry import page_content
 from ostinato.pages.models import Page, PageContent
 from ostinato.pages.views import PageView, PageReorderView, page_dispatch
+from ostinato.utils import benchmark
 
 
 page_content.setup()  # Clear the registry before we start the tests
@@ -172,6 +174,42 @@ class PageModelTestCase(TestCase):
         self.assertEqual('/page-2/', p2.get_absolute_url())
         self.assertEqual('/page-1/page-3/', p3.get_absolute_url())
 
+    def test_absolute_url_is_cached(self):
+        p3 = Page.objects.get(slug='page-3')
+        cache = get_cache('default')
+        cache_key = 'ostinato:pages:page:3:url'
+
+        # First the get_absolute_url should cache the url
+        # Lets make sure that this url wasn't previously cached
+        cache.set(cache_key, None)
+        self.assertEqual('/page-1/page-3/', p3.get_absolute_url())
+        self.assertEqual('/page-1/page-3/', cache.get(cache_key))
+
+    def test_urls_updated_after_move(self):
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+        p3 = Page.objects.get(slug='page-3')
+        p3.parent = p2
+        p3.save()
+
+        self.assertEqual('/page-2/page-3/', p3.get_absolute_url())
+
+        # We need to test a couple of other moves also, just to make sure
+        # changes are propagated up the tree
+        # p2.move_to(p, position='first-child')
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+        p3 = Page.objects.get(slug='page-3')
+        p2.parent = p
+        p2.save()
+
+        # Get fresh variables so that mptt does the right thing
+        p2 = Page.objects.get(slug='page-2')
+        self.assertEqual('/page-1/page-2/', p2.get_absolute_url())
+
+        p3 = Page.objects.get(slug='page-3')
+        self.assertEqual('/page-1/page-2/page-3/', p3.get_absolute_url())
+
     def test_absolute_url_based_on_location(self):
         p = Page.objects.get(slug='page-1')
         p4 = Page.objects.create(
@@ -253,6 +291,32 @@ class PageManagerTestCase(TestCase):
 
         self.assertEqual('page-3',
             Page.objects.get_from_path(request.path).slug)
+
+    def test_generate_url_cache(self):
+        cache = get_cache('default')
+        cache_url = lambda id: cache.get('ostinato:pages:page:%s:url' % id)
+
+        # Make sure the url cache is empty
+        for i in range(3):
+            cache.set('ostinato:pages:page:%s:url' % i, None)
+
+        Page.objects.generate_url_cache()
+
+        self.assertEqual('/', cache_url(1))
+        self.assertEqual('/page-2/', cache_url(2))
+        self.assertEqual('/page-1/page-3/', cache_url(3))
+
+
+    def test_clear_url_cache(self):
+        cache = get_cache('default')
+        cache_url = lambda id: cache.get('ostinato:pages:page:%s:url' % id)
+
+        Page.objects.generate_url_cache()  # Make sure there is a cache
+        Page.objects.clear_url_cache()
+
+        self.assertEqual(None, cache_url(1))
+        self.assertEqual(None, cache_url(2))
+        self.assertEqual(None, cache_url(3))
 
 
 class PageContentModelTestCase(TestCase):

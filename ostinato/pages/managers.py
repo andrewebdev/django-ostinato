@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.cache import get_cache
 from django.utils import timezone
 
 from mptt.managers import TreeManager
@@ -72,4 +73,14 @@ class PageManager(TreeManager):
                     return page
             except:
                 pass
+
+    def generate_url_cache(self):
+        cache = get_cache('default')
+        for page in self.get_query_set().all():
+            page.get_absolute_url()
+
+    def clear_url_cache(self):
+        cache = get_cache('default')
+        page_ids = list(self.get_query_set().values_list('id', flat=True))
+        cache.delete_many(['ostinato:pages:page:%s:url' % i for i in page_ids])
 
