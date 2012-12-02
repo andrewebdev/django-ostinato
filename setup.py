@@ -62,10 +62,6 @@ setup(
     download_url='https://github.com/andrewebdev/django-ostinato/tarball/master',
     packages=packages,
     data_files=data_files,
-    # package_data={
-    #     'ostinato': ['fixtures/*', 'static/*'],
-    #     'ostinato.pages': ['static/*', 'templates/*'],
-    # },
     keywords=['django', 'cms', 'ostinato', 'statemachine', 'pages', 'blog'],
     install_requires=[
         'setuptools',
