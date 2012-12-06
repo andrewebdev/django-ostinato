@@ -62,9 +62,11 @@ class PageView(TemplateView):
 
     page = None
 
+    def get_template_names(self, **kwargs):
+        return self.page.get_template()
+
     def get_context_data(self, **kwargs):
         c = super(PageView, self).get_context_data(**kwargs)
-        self.template_name = self.page.get_template()
         c['page'] = self.page
         return c
 
