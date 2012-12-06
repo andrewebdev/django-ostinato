@@ -149,7 +149,7 @@ class Page(MPTTModel):
             try:
                 self._contents = obj_model.objects.get(page=self.id)
             except obj_model.DoesNotExist:
-                pass
+                self._contents = 'empty'
         return self._contents
 
     contents = property(get_content)
