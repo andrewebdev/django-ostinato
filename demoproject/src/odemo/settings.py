@@ -145,6 +145,7 @@ INSTALLED_APPS = (
     'ostinato.contentfilters',
     'ostinato.blog',
     'ckeditor',
+    'django_coverage',
 
     'odemo',
     'odemo.news',
