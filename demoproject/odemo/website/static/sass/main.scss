@@ -162,6 +162,19 @@ body {
 }
 
 
+/** Website Styles **/
+header, #content {
+    margin: 1em auto 0 auto;
+    width: $cols10;
+}
+
+header {
+    nav {
+        li { margin-right: 1em; display: inline-block; }
+    }
+}
+
+
 /*
     Style overrides for IE6-8
     http://jonikorpi.com/leaving-old-IE-behind/
