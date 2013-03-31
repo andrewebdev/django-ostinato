@@ -1,6 +1,15 @@
-
-
 function get_id(id) { return id.split('_')[2]; }
+
+function getNodeID($node) {
+    /* A helper function that returns the tree_id and level for $node */
+    var nodeIDList = $node.attr('id').split('_');
+
+    return {
+        'treeID': parseInt(nodeIDList[1]),
+        'level': parseInt(nodeIDList[2])
+    }
+}
+
 
 function move_node(move_data) {
     var $form = $('#ostinato_page_move_form');
@@ -14,13 +23,9 @@ function move_node(move_data) {
 
 
 django.jQuery(document).ready(function() {
-
     var page_id, selected_template;
 
-    /*
-     *  Detail View Scripts
-     *
-     */
+    /*  Detail View Scripts */
 
     // When changing the template, we should 'refresh' the Page
     django.jQuery('#id_template').focus(function() {
@@ -35,13 +40,11 @@ django.jQuery(document).ready(function() {
     });
 
 
-    /*
-     * List View Scripts
-     *
-     */
+    /* List View Scripts */
 
     // Expand/Collapse Rows
-    function toggle_row($el, action) {
+    function toggleRow($node, action) {
+        var $el = $node.parent().parent();
         if (action == 'collapse') {
             $el.hide();
         } else if (action == 'expand') {
@@ -51,49 +54,48 @@ django.jQuery(document).ready(function() {
 
 
     $('a.toggle_children').click(function() {
-        var $parent_node = $(this).parent();
-        var parent_level = parseInt($parent_node.attr('id').split('_')[1]);
-        var is_open = $parent_node.hasClass('open');
+        var $parentNode = $(this).parent();
+        var parentNodeID = getNodeID($parentNode);
+        var is_open = $parentNode.hasClass('open');
 
         // reset node
-        $parent_node.removeClass('open');
-        $parent_node.removeClass('closed');
+        $parentNode.removeClass('open');
+        $parentNode.removeClass('closed');
 
-        // Find all the rows below this one, that has a higher level
-        $(this).parents('tr').nextAll().each(function(i) {
-            var $node = $(this).find('span.tree_node');
-            var item_level = parseInt($node.attr('id').split('_')[1]);
+        // Find all the rows of the same tree_id, with a higher level 
+        $('span.tree_node[id*="tid_' + parentNodeID.treeID + '_"]').each(function(i) {
+            var $node = $(this);
+            var nodeID = getNodeID($node);
 
             // Expand/Collapse that row
-            if (item_level > parent_level) {
+            if (nodeID.level > parentNodeID.level) {
                 if (is_open) {
-                    toggle_row($(this), 'collapse');
+                    toggleRow($node, 'collapse');
+
                     if ($node.hasClass('open')) {
                         $node.removeClass('open');
                         $node.addClass('closed');
                     }
-                } else if (item_level === parent_level + 1) {
-                    // When expanding, expand only the immediate children
-                    toggle_row($(this), 'expand');
+                } else {
+                    if (nodeID.level == parentNodeID.level + 1) {
+                        toggleRow($node, 'expand');
+                    }
                 }
-            } else {
-                // Stop traversing
-                return;
             }
         });
 
 
         // update the parent node
         if (is_open) {
-            $parent_node.addClass('closed');
-            $parent_node.find('.toggle_children').button({
+            $parentNode.addClass('closed');
+            $parentNode.find('.toggle_children').button({
                 'icons': {'primary': 'ui-icon-triangle-1-e'},
                 'text': false
             });
         }
         else {
-            $parent_node.addClass('open');
-            $parent_node.find('.toggle_children').button({
+            $parentNode.addClass('open');
+            $parentNode.find('.toggle_children').button({
                 'icons': {'primary': 'ui-icon-triangle-1-s'},
                 'text': false
             });
@@ -101,28 +103,27 @@ django.jQuery(document).ready(function() {
 
         return false;
     });
+
+
     $('.tree_node.closed').each(function() {
-        var $parent_node = $(this);
-        var parent_level = $parent_node.attr('id').split('_')[1];
+        var $parentNode = $(this);
+        var parentNodeID = getNodeID($parentNode);
 
-        $(this).parents('tr').nextAll().each(function(i) {
-            var $node = $(this).find('span.tree_node');
-            var item_level = $node.attr('id').split('_')[1];
+        $('.tree_node[id*="tid_' + parentNodeID.treeID + '_"]').each(function(i) {
+            var $node = $(this);
+            var nodeID = getNodeID($node);
 
-            // Expand/Collapse that row
-            if (item_level > parent_level) {
-                toggle_row($(this), 'collapse');
-            } else {
-                // Stop traversing
-                return;
+            // Expand/Collapse rows of a higher level
+            if (nodeID.level > parentNodeID.level) {
+                toggleRow($node , 'collapse');
             }
         }); 
 
-       $parent_node.find('.toggle_children').button({
+       $parentNode.find('.toggle_children').button({
             'icons': {'primary': 'ui-icon-triangle-1-e'},
             'text': false
         }); 
-    })
+    });
 
 
     // Reordering of Pages

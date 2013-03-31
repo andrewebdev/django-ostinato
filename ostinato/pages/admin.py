@@ -50,15 +50,12 @@ class PageAdmin(MPTTModelAdmin):
     form = PageAdminForm
 
     list_display = ('tree_node', 'title', 'reorder', 'slug',
-        'template_name', 'page_state', 'show_in_nav',
-        'show_in_sitemap',)
+        'template_name', 'page_state',)
 
     list_display_links = ('title',)
 
     list_filter = ('author', 'show_in_nav', 'show_in_sitemap',
         'state')
-
-    list_editable = ('show_in_nav', 'show_in_sitemap')
 
     search_fields = ('title', 'short_title', 'slug', 'author')
     date_hierarchy = 'publish_date'
@@ -110,7 +107,8 @@ class PageAdmin(MPTTModelAdmin):
         This node will also have some information for the row, like the
         level etc.
         """
-        content = '<span id="lvl_%s" class="tree_node closed">' % obj.level
+        content = '<span id="tid_%s_%s" class="tree_node closed">' % (
+            obj.tree_id, obj.level)
         if obj.get_descendant_count() > 0:
             content += '<a class="toggle_children" href="#">+</a>'
         content += '</span>'
