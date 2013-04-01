@@ -5,7 +5,6 @@
 {% block extrahead %}
     {# The following global variable will assist us in our javascript #}
     <script type="text/javascript">var STATIC_URL = "{{ STATIC_URL }}";</script>
-    <script type="text/javascript">console.log(STATIC_URL);</script>
     {{ block.super }}
 {% endblock %}
 

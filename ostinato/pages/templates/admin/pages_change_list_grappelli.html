@@ -12,6 +12,9 @@
 
 <!-- JAVASCRIPTS -->
 {% block javascripts %}
+    {# The following global variable will assist us in our javascript #}
+    <script type="text/javascript">var STATIC_URL = "{{ STATIC_URL }}";</script>
+    
     {{ block.super }}
     {{ media.js }}
     {% if cl.formset or action_form %}
