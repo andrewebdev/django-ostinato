@@ -78,6 +78,9 @@ django.jQuery(document).ready(function() {
                     if ($node.hasClass('open')) {
                         $node.removeClass('open');
                         $node.addClass('closed');
+                        $node.find('.toggle_children')
+                            .html('<img src="' + STATIC_URL +
+                                  '/pages/img/tree_closed.png" alt="expand" />');
                     }
                 } else {
                     if (nodeID.level == parentNodeID.level + 1) {
