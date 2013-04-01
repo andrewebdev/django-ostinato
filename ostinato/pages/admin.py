@@ -9,6 +9,19 @@ from ostinato.pages.models import Page, PageWorkflow
 from ostinato.pages.registry import page_content
 
 
+# Some helpers to get the icons
+def staticurl(p):
+    staticurl = settings.STATIC_URL
+    if staticurl[-1] == '/':
+        return '%s%s' % (staticurl, p)
+    else:
+        return '%s/%s' % (staticurl, p)
+
+
+def geticon(action):
+    return '<img src="%s" />' % staticurl('pages/img/%s.png' % action)
+
+
 def content_inline_factory(page):
     content_model = page.get_content_model()
 
@@ -49,7 +62,7 @@ class PageAdmin(MPTTModelAdmin):
     save_on_top = True
     form = PageAdminForm
 
-    list_display = ('tree_node', 'title', 'reorder', 'slug',
+    list_display = ('tree_node', 'title', 'page_actions', 'slug',
         'template_name', 'page_state',)
 
     list_display_links = ('title',)
@@ -78,22 +91,20 @@ class PageAdmin(MPTTModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
 
     if 'grappelli' in settings.INSTALLED_APPS:
-        change_list_template = 'admin/ostinato_change_list_grappelli.html'
+        change_list_template = 'admin/pages_change_list_grappelli.html'
     else:
-        change_list_template = 'admin/ostinato_change_list.html'
+        change_list_template = 'admin/pages_change_list.html'
 
     class Media:
 
         css = {
             'all': (
-                'ostinato/css/smoothness/jquery-ui-1.8.18.custom.css',
                 'pages/css/pages_admin.css',
             ),
         }
 
         js = (
             'ostinato/js/jquery-1.7.1.min.js',
-            'ostinato/js/jquery-ui-1.8.18.custom.min.js',
             'pages/js/page_admin.js',
         )
 
@@ -110,7 +121,7 @@ class PageAdmin(MPTTModelAdmin):
         content = '<span id="tid_%s_%s" class="tree_node closed">' % (
             obj.tree_id, obj.level)
         if obj.get_descendant_count() > 0:
-            content += '<a class="toggle_children" href="#">+</a>'
+            content += '<a class="toggle_children" href="#">%s</a>' % geticon('tree_closed')
         content += '</span>'
         return content
     tree_node.short_description = ''
@@ -128,18 +139,19 @@ class PageAdmin(MPTTModelAdmin):
     template_name.short_description = 'Template'
 
 
-    def reorder(self, obj):
+    def page_actions(self, obj):
         """ A List view item that shows the movement actions """
         return '''<span id="_page_%s">
-        <a class="ostinato_page_move" href="#">Move</a>
-        <a class="ostinato_move_action _left_of" href="#">Before</a>
-        <a class="ostinato_move_action _right_of" href="#">After</a>
-        <a class="ostinato_move_action _child_of" href="#">Inside</a>
-        <a class="ostinato_cancel_move" href="#">Cancel</a>
+        <a class="ostinato_page_move" href="#">%s</a>
+        <a class="ostinato_move_action _left_of" href="#">%s</a>
+        <a class="ostinato_move_action _right_of" href="#">%s</a>
+        <a class="ostinato_move_action _child_of" href="#">%s</a>
+        <a class="ostinato_cancel_move" href="#">%s</a>
         </span>
-        ''' % (obj.id)
-    reorder.short_description = 'Re-order'
-    reorder.allow_tags = True
+        ''' % (obj.id, geticon('move'), geticon('before'), geticon('after'),
+               geticon('as_child'), geticon('cancel'))
+    page_actions.short_description = 'Actions'
+    page_actions.allow_tags = True
 
 
     def add_view(self, request, form_url='', extra_context=None):

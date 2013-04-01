@@ -1,5 +1,6 @@
 {% load i18n admin_static %}
 
+
 {% if result_hidden_fields %}
 
     <div class="hiddenfields">  {# DIV for HTML validation #}
@@ -8,7 +9,9 @@
 
 {% endif %}
 
+
 {% if results %}
+
     {% if is_grappelli %}
 
         <div class="grp-module grp-changelist-results">
@@ -59,4 +62,5 @@
         </div>
 
     {% endif %}
+
 {% endif %}

@@ -43,6 +43,9 @@ django.jQuery(document).ready(function() {
     /* List View Scripts */
 
     // Expand/Collapse Rows
+
+    $('#result_list td:eq(1)').css('width', '20px');
+
     function toggleRow($node, action) {
         var $el = $node.parent().parent();
         if (action == 'collapse') {
@@ -87,18 +90,12 @@ django.jQuery(document).ready(function() {
 
         // update the parent node
         if (is_open) {
-            $parentNode.addClass('closed');
-            $parentNode.find('.toggle_children').button({
-                'icons': {'primary': 'ui-icon-triangle-1-e'},
-                'text': false
-            });
+            $parentNode.addClass('closed').find('.toggle_children')
+                .html('<img src="' + STATIC_URL + '/pages/img/tree_closed.png" alt="expand" />');
         }
         else {
-            $parentNode.addClass('open');
-            $parentNode.find('.toggle_children').button({
-                'icons': {'primary': 'ui-icon-triangle-1-s'},
-                'text': false
-            });
+            $parentNode.addClass('open').find('.toggle_children')
+                .html('<img src="' + STATIC_URL + '/pages/img/tree_open.png" alt="collapse" />');
         }
 
         return false;
@@ -118,20 +115,10 @@ django.jQuery(document).ready(function() {
                 toggleRow($node , 'collapse');
             }
         }); 
-
-       $parentNode.find('.toggle_children').button({
-            'icons': {'primary': 'ui-icon-triangle-1-e'},
-            'text': false
-        }); 
     });
 
 
-    // Reordering of Pages
-    $('.ostinato_page_move').button({
-        'icons': {'primary': 'ui-icon-arrow-4'},
-        'text': false
-
-    }).click(function() {
+    $('.ostinato_page_move').click(function() {
         /*
             Show the movement actions for the selected page
             make sure that the page being moved does not have it's actions
@@ -151,33 +138,22 @@ django.jQuery(document).ready(function() {
 
     $('.ostinato_move_action, .ostinato_cancel_move').css('display', 'none');
 
-    $('._left_of').button({
-        'icons': {'primary': 'ui-icon-arrowthickstop-1-n'},
-        'text': false
-    }).click(function() {
+    $('._left_of').click(function() {
         var target = get_id($(this).parent().attr('id'));
         move_node({'node': page_id, 'target': target, 'position': 'left'});
     });
 
-    $('._right_of').button({
-        'icons': {'primary': 'ui-icon-arrowthickstop-1-s'},
-        'text': false
-    }).click(function() {
+    $('._right_of').click(function() {
         var target = get_id($(this).parent().attr('id'));
         move_node({'node': page_id, 'target': target, 'position': 'right'});
     });
 
-    $('._child_of').button({
-        'icons': {'primary': 'ui-icon-arrowreturnthick-1-e'},
-        'text': false
-    }).click(function() {
+    $('._child_of').click(function() {
         var target = get_id($(this).parent().attr('id'));
         move_node({'node': page_id, 'target': target, 'position': 'last-child'});
     });
 
-    $('.ostinato_cancel_move').button({
-        'icons': {'primary': 'ui-icon-close'}
-    }).click(function() {
+    $('.ostinato_cancel_move').click(function() {
         $(this).hide();
         $('.ostinato_move_action').hide();
         $('.ostinato_page_move').show();

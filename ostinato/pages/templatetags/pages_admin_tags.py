@@ -18,3 +18,4 @@ def pages_result_list(cl):
             'result_headers': list(mptt.result_headers(cl)),
             'results': list(mptt.mptt_results(cl))}
 
+
