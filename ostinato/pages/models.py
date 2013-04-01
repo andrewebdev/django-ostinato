@@ -82,9 +82,10 @@ class Page(MPTTModel):
 
         page = super(Page, self).save(*args, **kwargs)
 
-        # Now that the page is saved, we reset and cache the url
+        # Make sure to clear the url, navbar and breadcrumbs cache
         Page.objects.clear_url_cache()
         Page.objects.clear_navbar_cache()
+        Page.objects.clear_breadcrumbs_cache()
 
         return page
 

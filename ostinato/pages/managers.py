@@ -40,33 +40,41 @@ class PageManager(TreeManager):
                     'url': page.get_absolute_url(),
                 })
 
-            # Set the cache to timeout after a week
-            cache.set(cache_key, navbar, 60 * 60 * 24 * 7)
+            # Set the cache to timeout after a month
+            cache.set(cache_key, navbar, 60 * 60 * 24 * 7 * 4)
 
         return navbar
 
-    def get_breadcrumbs(self, for_page):
+    def get_breadcrumbs(self, for_page, clear_cache=False):
         """
         Returns a list of all the parents, plus the current page. Each item
         in the list contains a short title and url.
         """
+        cache = get_cache('default')
+        cache_key = 'ostinato:pages:page:%s:crumbs' % for_page.id
 
-        ## TODO: cache breadcrumbs
-        crumbs = []
-        parents = for_page.get_ancestors()
+        if clear_cache:
+            cache.delete(cache_key)
 
-        for page in parents:
+        crumbs = cache.get(cache_key)
+
+        if not crumbs:
+            parents = for_page.get_ancestors()
+            crumbs = []
+            for page in parents:
+                crumbs.append({
+                    'slug': page.slug,
+                    'title': page.get_short_title(),
+                    'url': page.get_absolute_url(),
+                })
             crumbs.append({
-                'slug': page.slug,
-                'title': page.get_short_title(),
-                'url': page.get_absolute_url(),
+                'slug': for_page.slug,
+                'title': for_page.get_short_title(),
+                'url': for_page.get_absolute_url()
             })
 
-        crumbs.append({
-            'slug': for_page.slug,
-            'title': for_page.get_short_title(),
-            'url': for_page.get_absolute_url()
-        })
+            # Set the cache to timeout after a month
+            cache.set(cache_key, crumbs, 60 * 60 * 24 * 7 * 4)
 
         return crumbs
 
@@ -102,3 +110,9 @@ class PageManager(TreeManager):
         cache.delete('ostinato:pages:page:root:navbar')
         cache.delete_many(
             ['ostinato:pages:page:%s:navbar' % i for i in page_ids])
+
+    def clear_breadcrumbs_cache(self):
+        cache = get_cache('default')
+        page_ids = list(self.get_query_set().values_list('id', flat=True))
+        cache.delete_many(
+            ['ostinato:pages:page:%s:crumbs' % i for i in page_ids])
