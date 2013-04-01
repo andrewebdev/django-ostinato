@@ -11,25 +11,37 @@ class PageManager(TreeManager):
         return self.get_query_set().filter(
             publish_date__lte=timezone.now(), state=5)
 
-    def get_navbar(self, for_page=None):
+    def get_navbar(self, for_page=None, clear_cache=False):
         """
         Returns a dictionary of pages with their short titles and urls.
 
         ``for_page`` is an instance of Page. If specified, will only
         return immediate child pages for that page.
         """
+        cache = get_cache('default')
+        if for_page:
+            cache_key = 'ostinato:pages:page:%s:navbar' % for_page.id
+        else:
+            cache_key = 'ostinato:pages:page:root:navbar'
 
-        ## TODO: cache navbars?
-        navbar = []
+        if clear_cache:
+            cache.delete(cache_key)
 
-        nav_items = self.published().filter(parent=for_page, show_in_nav=True)
+        # Try to get the path from the cache
+        navbar = cache.get(cache_key)
 
-        for page in nav_items:
-            navbar.append({
-                'slug': page.slug,
-                'title': page.get_short_title(),
-                'url': page.get_absolute_url(),
-            })
+        if not navbar:
+            navbar = []
+            nav_items = self.published().filter(parent=for_page, show_in_nav=True)
+            for page in nav_items:
+                navbar.append({
+                    'slug': page.slug,
+                    'title': page.get_short_title(),
+                    'url': page.get_absolute_url(),
+                })
+
+            # Set the cache to timeout after a week
+            cache.set(cache_key, navbar, 60 * 60 * 24 * 7)
 
         return navbar
 
@@ -84,3 +96,9 @@ class PageManager(TreeManager):
         page_ids = list(self.get_query_set().values_list('id', flat=True))
         cache.delete_many(['ostinato:pages:page:%s:url' % i for i in page_ids])
 
+    def clear_navbar_cache(self):
+        cache = get_cache('default')
+        page_ids = list(self.get_query_set().values_list('id', flat=True))
+        cache.delete('ostinato:pages:page:root:navbar')
+        cache.delete_many(
+            ['ostinato:pages:page:%s:navbar' % i for i in page_ids])

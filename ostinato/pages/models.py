@@ -84,6 +84,7 @@ class Page(MPTTModel):
 
         # Now that the page is saved, we reset and cache the url
         Page.objects.clear_url_cache()
+        Page.objects.clear_navbar_cache()
 
         return page
 
@@ -126,8 +127,8 @@ class Page(MPTTModel):
                     'path': '/'.join(path)
                 }))
 
-            # Set the cache
-            cache.set(cache_key, url, 1 * 60 * 60)
+            # Set the cache to timeout after an hour
+            cache.set(cache_key, url, 60 * 60)
 
         return url
 
