@@ -104,7 +104,6 @@ class PageAdmin(MPTTModelAdmin):
         }
 
         js = (
-            'ostinato/js/jquery-1.7.1.min.js',
             'pages/js/page_admin.js',
         )
 

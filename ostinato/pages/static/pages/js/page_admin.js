@@ -12,7 +12,7 @@ function getNodeID($node) {
 
 
 function move_node(move_data) {
-    var $form = $('#ostinato_page_move_form');
+    var $form = django.jQuery('#ostinato_page_move_form');
 
     $form.find('input[name="node"]').val(move_data.node);
     $form.find('input[name="target"]').val(move_data['target']);
@@ -29,13 +29,13 @@ django.jQuery(document).ready(function() {
 
     // When changing the template, we should 'refresh' the Page
     django.jQuery('#id_template').focus(function() {
-        selected_template = $(this).val();
+        selected_template = django.jQuery(this).val();
     }).change(function() {
         var refresh = confirm('Changing the template will save and reload the page. Are you sure you want to do this now?');
         if (refresh) {
             django.jQuery('input[name="_continue"]').click();
         } else {
-            $(this).val(selected_template);
+            django.jQuery(this).val(selected_template);
         }
     });
 
@@ -44,7 +44,7 @@ django.jQuery(document).ready(function() {
 
     // Expand/Collapse Rows
 
-    $('#result_list td:eq(1)').css('width', '20px');
+    django.jQuery('#result_list td:eq(1)').css('width', '20px');
 
     function toggleRow($node, action) {
         var $el = $node.parent().parent();
@@ -56,8 +56,8 @@ django.jQuery(document).ready(function() {
     }
 
 
-    $('a.toggle_children').click(function() {
-        var $parentNode = $(this).parent();
+    django.jQuery('a.toggle_children').click(function() {
+        var $parentNode = django.jQuery(this).parent();
         var parentNodeID = getNodeID($parentNode);
         var is_open = $parentNode.hasClass('open');
 
@@ -66,8 +66,8 @@ django.jQuery(document).ready(function() {
         $parentNode.removeClass('closed');
 
         // Find all the rows of the same tree_id, with a higher level 
-        $('span.tree_node[id*="tid_' + parentNodeID.treeID + '_"]').each(function(i) {
-            var $node = $(this);
+        django.jQuery('span.tree_node[id*="tid_' + parentNodeID.treeID + '_"]').each(function(i) {
+            var $node = django.jQuery(this);
             var nodeID = getNodeID($node);
 
             // Expand/Collapse that row
@@ -105,12 +105,12 @@ django.jQuery(document).ready(function() {
     });
 
 
-    $('.tree_node.closed').each(function() {
-        var $parentNode = $(this);
+    django.jQuery('.tree_node.closed').each(function() {
+        var $parentNode = django.jQuery(this);
         var parentNodeID = getNodeID($parentNode);
 
-        $('.tree_node[id*="tid_' + parentNodeID.treeID + '_"]').each(function(i) {
-            var $node = $(this);
+        django.jQuery('.tree_node[id*="tid_' + parentNodeID.treeID + '_"]').each(function(i) {
+            var $node = django.jQuery(this);
             var nodeID = getNodeID($node);
 
             // Expand/Collapse rows of a higher level
@@ -121,45 +121,45 @@ django.jQuery(document).ready(function() {
     });
 
 
-    $('.ostinato_page_move').click(function() {
+    django.jQuery('.ostinato_page_move').click(function() {
         /*
             Show the movement actions for the selected page
             make sure that the page being moved does not have it's actions
             visible
         */
-        $('.ostinato_page_move').hide();
-        $('.ostinato_move_action').show();
-        $(this).siblings('.ostinato_move_action').hide();
-        $(this).siblings('.ostinato_cancel_move').show();
+        django.jQuery('.ostinato_page_move').hide();
+        django.jQuery('.ostinato_move_action').show();
+        django.jQuery(this).siblings('.ostinato_move_action').hide();
+        django.jQuery(this).siblings('.ostinato_cancel_move').show();
 
-        page_id = get_id($(this).parent().attr('id'));
+        page_id = get_id(django.jQuery(this).parent().attr('id'));
 
     }).each(function() {
-        $(this).parent().parent().css('text-align', 'center');
+        django.jQuery(this).parent().parent().css('text-align', 'center');
 
     });
 
-    $('.ostinato_move_action, .ostinato_cancel_move').css('display', 'none');
+    django.jQuery('.ostinato_move_action, .ostinato_cancel_move').css('display', 'none');
 
-    $('._left_of').click(function() {
-        var target = get_id($(this).parent().attr('id'));
+    django.jQuery('._left_of').click(function() {
+        var target = get_id(django.jQuery(this).parent().attr('id'));
         move_node({'node': page_id, 'target': target, 'position': 'left'});
     });
 
-    $('._right_of').click(function() {
-        var target = get_id($(this).parent().attr('id'));
+    django.jQuery('._right_of').click(function() {
+        var target = get_id(django.jQuery(this).parent().attr('id'));
         move_node({'node': page_id, 'target': target, 'position': 'right'});
     });
 
-    $('._child_of').click(function() {
-        var target = get_id($(this).parent().attr('id'));
+    django.jQuery('._child_of').click(function() {
+        var target = get_id(django.jQuery(this).parent().attr('id'));
         move_node({'node': page_id, 'target': target, 'position': 'last-child'});
     });
 
-    $('.ostinato_cancel_move').click(function() {
-        $(this).hide();
-        $('.ostinato_move_action').hide();
-        $('.ostinato_page_move').show();
+    django.jQuery('.ostinato_cancel_move').click(function() {
+        django.jQuery(this).hide();
+        django.jQuery('.ostinato_move_action').hide();
+        django.jQuery('.ostinato_page_move').show();
 
         page_id = null;
     });
