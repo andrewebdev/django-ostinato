@@ -474,7 +474,7 @@ class BreadCrumbsTempalteTagTestCase(TestCase):
 
     def test_breadcrumbs_in_context(self):
         self.response.render()
-        self.assertIn('<a href="/">Page 1</a> &gt;&gt; ', self.response.content)
+        self.assertIn('<a href="/">Page 1</a> &raquo;', self.response.content)
         self.assertIn('<strong>Page 3</strong>', self.response.content)
 
 

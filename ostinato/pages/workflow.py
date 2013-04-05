@@ -25,4 +25,3 @@ class Archived(State):
 class PageWorkflow(IntegerStateMachine):
     state_map = {1: Private, 5: Published, 10: Archived}
     initial_state = DEFAULT_STATE
-

@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import FieldError
 from django.core.cache import get_cache
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
 from django.conf import settings
@@ -24,32 +25,37 @@ DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 5)
 ## Models
 class Page(MPTTModel):
     """ A basic page model """
-    title = models.CharField(max_length=150)
-    slug = models.SlugField(unique=True, help_text='A url friendly slug.')
-    short_title = models.CharField(max_length=50, null=True, blank=True,
-        help_text='A shorter title which can be used in menus etc. If this \
-                   is not supplied then the normal title field will be used.')
+    title = models.CharField(_("Title"), max_length=150)
+    slug = models.SlugField(_("Slug"), unique=True,
+        help_text=_("A url friendly slug."))
+    short_title = models.CharField(_("Short title"),
+        max_length=50, null=True, blank=True,
+        help_text=_("A shorter title which can be used in menus etc. If "
+                    "this is not supplied then the normal title field will "
+                    "be used."))
 
-    template = models.CharField(max_length=250) 
+    template = models.CharField(_("Template"), max_length=250) 
 
-    redirect = models.CharField(max_length=200, blank=True, null=True,
-        help_text='Use this to point to redirect to another page or website.')
+    redirect = models.CharField(_("Redirect"),
+        max_length=200, blank=True, null=True,
+        help_text=_("Use this to point to redirect to another page or "
+                    "website."))
 
-    show_in_nav = models.BooleanField(default=True)
-    show_in_sitemap = models.BooleanField(default=True)
+    show_in_nav = models.BooleanField(_("Show in nav"), default=True)
+    show_in_sitemap = models.BooleanField(_("Show in sitemap"), default=True)
 
-    state = models.IntegerField(default=DEFAULT_STATE,
-        choices=PageWorkflow.get_choices())
+    state = models.IntegerField(_("State"),
+        default=DEFAULT_STATE, choices=PageWorkflow.get_choices())
 
-    created_date = models.DateTimeField(null=True, blank=True)
-    modified_date = models.DateTimeField(null=True, blank=True)
-    publish_date = models.DateTimeField(null=True, blank=True)
+    created_date = models.DateTimeField(_("Created date"), null=True, blank=True)
+    modified_date = models.DateTimeField(_("Modified date"), null=True, blank=True)
+    publish_date = models.DateTimeField(_("Published date"), null=True, blank=True)
 
-    author = models.ForeignKey(User, related_name='pages_authored',
-        null=True, blank=True)
+    author = models.ForeignKey(User, verbose_name=_("Author"),
+        related_name='pages_authored', null=True, blank=True)
 
-    parent = TreeForeignKey('self', null=True, blank=True,
-        related_name='page_children') 
+    parent = TreeForeignKey('self', verbose_name=_("Parent"),
+        null=True, blank=True, related_name='page_children')
 
     ## Managers
     objects = PageManager()
@@ -61,6 +67,8 @@ class Page(MPTTModel):
 
     class Meta:
         permissions = PageWorkflow.get_permissions()
+        verbose_name = _("Page")
+        verbose_name_plural = _("Pages")
 
 
     def __unicode__(self):
@@ -167,7 +175,6 @@ class PageContent(models.Model):
     Our base PageContent model. All other content models need to subclass
     this one.
     """
-
     page = models.OneToOneField(Page,
         related_name='%(app_label)s_%(class)s_content')
 
@@ -186,7 +193,6 @@ class PageContent(models.Model):
         form = None
         admin_inlines = []
 
-
     def add_content(self, **kwargs):
         for k in kwargs:
 
@@ -195,7 +201,6 @@ class PageContent(models.Model):
                     'already exists.' % (k, self))
 
             self.__dict__[k] = kwargs[k]
-
 
     @classmethod
     def get_template(cls):
@@ -206,4 +211,3 @@ class PageContent(models.Model):
             template = 'pages/%s.html' % '_'.join([i.lower() for i in cls_name])
 
         return template
-

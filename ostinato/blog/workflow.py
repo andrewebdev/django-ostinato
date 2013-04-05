@@ -5,11 +5,16 @@ from ostinato.statemachine import State, IntegerStateMachine
 
 class Private(State):
     verbose_name = 'Private'
-    transitions = {'publish': 5}
+    transitions = {'review': 3, 'publish': 5}
 
     def publish(self, **kwargs):
         if self.instance and self.instance.publish_date is None:
             self.instance.publish_date = timezone.now()
+
+
+class Review(State):
+    verbose_name = 'Review'
+    transitions = {'reject': 1, 'approve': 5}
 
 
 class Published(State):
@@ -36,6 +41,5 @@ class Archived(State):
 
 
 class BlogEntryWorkflow(IntegerStateMachine):
-    state_map = {1: Private, 5: Published, 10: Archived}
+    state_map = {1: Private, 3: Review, 5: Published, 10: Archived}
     initial_state = 1
-

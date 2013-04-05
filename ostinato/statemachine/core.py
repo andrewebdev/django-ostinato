@@ -1,4 +1,3 @@
-
 class InvalidTransition(Exception):
 
     def __init__(self, value):

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin.util import unquote
+from django.utils.translation import ugettext_lazy as _
 from django import forms
 from django.conf import settings
 
@@ -67,8 +68,7 @@ class PageAdmin(MPTTModelAdmin):
 
     list_display_links = ('title',)
 
-    list_filter = ('author', 'show_in_nav', 'show_in_sitemap',
-        'state')
+    list_filter = ('author', 'show_in_nav', 'show_in_sitemap', 'state')
 
     search_fields = ('title', 'short_title', 'slug', 'author')
     date_hierarchy = 'publish_date'
@@ -77,8 +77,8 @@ class PageAdmin(MPTTModelAdmin):
     fieldsets = (
         (None, {
             'fields': (
-                ('title', 'short_title'), 'slug',
-                'template', 'redirect', 'parent',
+                ('title', 'short_title'),
+                'slug', 'template', 'redirect', 'parent',
                 ('show_in_nav', 'show_in_sitemap'),
             ),
         }),
@@ -130,12 +130,12 @@ class PageAdmin(MPTTModelAdmin):
     def page_state(self, obj):
         sm = PageWorkflow(instance=obj)
         return sm.state
-    page_state.short_description = 'State'
+    page_state.short_description = _("State")
 
 
     def template_name(self, obj):
         return page_content.get_template_name(obj.template)
-    template_name.short_description = 'Template'
+    template_name.short_description = _("Template")
 
 
     def page_actions(self, obj):
@@ -149,7 +149,7 @@ class PageAdmin(MPTTModelAdmin):
         </span>
         ''' % (obj.id, geticon('move'), geticon('before'), geticon('after'),
                geticon('as_child'), geticon('cancel'))
-    page_actions.short_description = 'Actions'
+    page_actions.short_description = _("Actions")
     page_actions.allow_tags = True
 
 
@@ -204,4 +204,3 @@ class PageAdmin(MPTTModelAdmin):
 
 
 admin.site.register(Page, PageAdmin)
-
