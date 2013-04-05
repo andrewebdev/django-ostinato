@@ -53,7 +53,13 @@ def page_dispatch(request, *args, **kwargs):
         v = __import__(module_path, locals(), globals(), [view_class], -1)\
             .__dict__[view_class]
 
-        return v.as_view(page=page)(request, *args, **kwargs)
+        if hasattr(v, 'as_view'):
+            return v.as_view(page=page)(request, *args, **kwargs)
+        else:
+            # Doesn't look like this is a class based view. Treat it as a
+            # traditional function based view
+            kwargs.update({'page': page, 'template': page.get_template()})
+            return v(request, *args, **kwargs)
 
     else:
         return PageView.as_view(page=page)(request, *args, **kwargs)

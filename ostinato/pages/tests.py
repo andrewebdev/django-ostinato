@@ -10,6 +10,7 @@ from django.template import Context, Template
 from django.template.response import SimpleTemplateResponse, TemplateResponse
 from django.utils import simplejson as json
 from django.utils import timezone
+from django import http
 from django.conf import settings
 
 from ostinato.pages.registry import page_content
@@ -59,6 +60,10 @@ class ContentMixin(models.Model):
         abstract = True  # Required for mixins
 
 
+def functionview(request, *args, **kwargs):
+    return http.HttpResponse('ok')
+
+
 @page_content.register
 class LandingPage(ContentMixin, PageContent):
     intro = models.TextField()
@@ -76,6 +81,16 @@ class BasicPage(ContentMixin, PageContent):
         admin_inlines = [
             'ostinato.pages.tests.ContributorInline',
         ]
+
+
+@page_content.register
+class BasicPageFunc(ContentMixin, PageContent):
+    """
+    A page that makes use of the old school function based views.
+    """
+    class ContentOptions:
+        template = 'pages/test/basic_page.html'
+        view = 'ostinato.pages.tests.functionview'
 
 
 @page_content.register
@@ -112,6 +127,13 @@ def create_pages():
         template='pages.basicpage',
         parent=p,
     )
+    func_page = Page.objects.create(
+        title="Page 1", slug="func-page",
+        author=user, show_in_nav=False,
+        created_date = "2012-04-10 12:14:51.203925+00:00",
+        modified_date = "2012-04-10 12:14:51.203925+00:00",
+        template='pages.basicpagefunc',
+    )
 
     ## Create some content
     LandingPage.objects.create(
@@ -122,7 +144,7 @@ def create_pages():
 class ContentRegistryTestCase(TestCase):
 
     def test_content_registered(self):
-        self.assertEqual(3, len(page_content.all()))
+        self.assertEqual(4, len(page_content.all()))
 
     def test_content_class_in_registry(self):
         self.assertIn(BasicPage, page_content.all())
@@ -132,6 +154,7 @@ class ContentRegistryTestCase(TestCase):
             ('', '--------'),
             ('pages.landingpage', 'Pages | Landing Page'),
             ('pages.basicpage', 'Pages | Basic Page'),
+            ('pages.basicpagefunc', 'Pages | Basic Page Func'),
             ('pages.otherpage', 'Pages | Some Other Page'),
         ), page_content.get_template_choices())
 
@@ -153,7 +176,7 @@ class PageModelTestCase(TestCase):
     def test_related_lookup(self):
         u = User.objects.get(username='user1')
         pages = u.pages_authored.all()
-        self.assertEqual(3, pages.count())
+        self.assertEqual(4, pages.count())
 
     def test_unicode(self):
         self.assertEqual('Page 1', Page.objects.get(id=1).__unicode__())
@@ -242,7 +265,7 @@ class PageManagerTestCase(TestCase):
         create_pages()
 
     def test_published(self):
-        self.assertEqual([1, 3, 2],
+        self.assertEqual([1, 3, 2, 4],
             list(Page.objects.published().values_list('id', flat=True)))
 
     def test_get_empty_navbar(self):
@@ -389,6 +412,10 @@ class PageViewTestCase(TestCase):
     def test_view_content(self):
         response = self.client.get('/page-1/')
         self.assertIn('Page 1 Content', response.content)
+
+    def test_function_based_view(self):
+        response = self.client.get('/func-page/')
+        self.assertEqual(200, response.status_code)
 
 
 class ViewDispatcherTestCase(TestCase):
