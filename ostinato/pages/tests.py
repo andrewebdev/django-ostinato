@@ -255,17 +255,23 @@ class PageManagerTestCase(TestCase):
             'slug': u'page-1',
             'title': u'Page 1',
             'url': '/',
+            'level': 0,
+            'tree_id': 1,
         }, {
             'slug': u'page-2',
             'title': u'P2',
             'url': '/page-2/',
+            'level': 0,
+            'tree_id': 2,
         }]
-        self.assertEqual(expected_nav, Page.objects.get_navbar())
+        self.assertEqual(expected_nav, Page.objects.get_navbar(clear_cache=True))
 
         expected_nav = [{
             'slug': u'page-2',
             'title': u'P2',
             'url': '/page-2/',
+            'level': 0,
+            'tree_id': 2,
         }]
         p = Page.objects.get(slug='page-1')
         p.show_in_nav = False

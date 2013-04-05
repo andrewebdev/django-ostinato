@@ -38,6 +38,8 @@ class PageManager(TreeManager):
                     'slug': page.slug,
                     'title': page.get_short_title(),
                     'url': page.get_absolute_url(),
+                    'tree_id': page.tree_id,
+                    'level': page.level,
                 })
 
             # Set the cache to timeout after a month
