@@ -16,7 +16,7 @@ from django.conf import settings
 from mptt.models import MPTTModel, TreeForeignKey
 
 from ostinato.pages.managers import PageManager
-from ostinato.pages.workflow import PageWorkflow
+from ostinato.pages.workflow import get_workflow
 
 
 DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 5)
@@ -45,7 +45,7 @@ class Page(MPTTModel):
     show_in_sitemap = models.BooleanField(_("Show in sitemap"), default=True)
 
     state = models.IntegerField(_("State"),
-        default=DEFAULT_STATE, choices=PageWorkflow.get_choices())
+        default=DEFAULT_STATE, choices=get_workflow().get_choices())
 
     created_date = models.DateTimeField(_("Created date"), null=True, blank=True)
     modified_date = models.DateTimeField(_("Modified date"), null=True, blank=True)
@@ -66,7 +66,7 @@ class Page(MPTTModel):
 
 
     class Meta:
-        permissions = PageWorkflow.get_permissions()
+        permissions = get_workflow().get_permissions()
         verbose_name = _("Page")
         verbose_name_plural = _("Pages")
 

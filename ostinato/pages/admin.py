@@ -6,7 +6,8 @@ from django.conf import settings
 
 from mptt.admin import MPTTModelAdmin
 from ostinato.statemachine.forms import sm_form_factory
-from ostinato.pages.models import Page, PageWorkflow
+from ostinato.pages.models import Page
+from ostinato.pages.workflow import get_workflow
 from ostinato.pages.registry import page_content
 
 
@@ -47,7 +48,7 @@ def content_inline_factory(page):
 
 
 ## Admin Models
-class PageAdminForm(sm_form_factory(sm_class=PageWorkflow)):  # <3 python
+class PageAdminForm(sm_form_factory(sm_class=get_workflow())):  # <3 python
 
     template = forms.ChoiceField()
     
@@ -128,7 +129,7 @@ class PageAdmin(MPTTModelAdmin):
 
 
     def page_state(self, obj):
-        sm = PageWorkflow(instance=obj)
+        sm = get_workflow()(instance=obj)
         return sm.state
     page_state.short_description = _("State")
 

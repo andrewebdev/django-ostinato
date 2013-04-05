@@ -330,6 +330,19 @@ models manually, not to mention that it introduces a larger margin for errors.</
 <li>The mixin <em>must</em> be abstract</li>
 </ol>
 </div>
+<div class="section" id="custom-statemachine-for-pages">
+<h2>Custom Statemachine for Pages<a class="headerlink" href="#custom-statemachine-for-pages" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">ostinato.pages.workflow</span></tt> provides a default statemachine that is used by
+the page model. Sometimes, you may want to create a different workflow for
+the pages based on client requirements.</p>
+<p>To do this, you just create your custom statemachine as mentioned in the
+<tt class="docutils literal"><span class="pre">ostinato.statemachine</span></tt> documentation, and then tell <tt class="docutils literal"><span class="pre">ostinato.pages</span></tt>
+which class to use by adding the following in your settings.py:</p>
+<p><tt class="docutils literal"><span class="pre">OSTINATO_PAGES_WORKFLOW_CLASS</span> <span class="pre">=</span> <span class="pre">&quot;myapp.customworkflow.SomeWorkflow&quot;</span></tt></p>
+<p>When creating your custom workfow, do remember that the Page state is
+stored as an IntegerField, so make sure that you use the
+<tt class="docutils literal"><span class="pre">IntegerStatemachine</span></tt> so subclass your own statemachine class.</p>
+</div>
 <div class="section" id="extra-inline-fields-for-a-page-in-the-admin">
 <h2>Extra Inline Fields for a Page in the Admin<a class="headerlink" href="#extra-inline-fields-for-a-page-in-the-admin" title="Permalink to this headline">¶</a></h2>
 <p>There are cases where you want a specific page to have extra inline fields,
@@ -449,6 +462,7 @@ context-processor.</p>
 <li><a class="reference internal" href="#creating-a-custom-view-for-your-content">Creating a custom view for your content</a></li>
 <li><a class="reference internal" href="#custom-forms-for-page-content">Custom forms for Page Content</a></li>
 <li><a class="reference internal" href="#creating-complex-page-content-with-mixins">Creating complex page content with mixins</a></li>
+<li><a class="reference internal" href="#custom-statemachine-for-pages">Custom Statemachine for Pages</a></li>
 <li><a class="reference internal" href="#extra-inline-fields-for-a-page-in-the-admin">Extra Inline Fields for a Page in the Admin</a></li>
 <li><a class="reference internal" href="#template-tags-and-filters">Template tags and filters</a></li>
 </ul>

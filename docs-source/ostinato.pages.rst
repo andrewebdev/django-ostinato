@@ -306,6 +306,24 @@ The two points you have to be aware of here:
 #. The mixin *must* be abstract
 
 
+Custom Statemachine for Pages
+-----------------------------
+
+``ostinato.pages.workflow`` provides a default statemachine that is used by
+the page model. Sometimes, you may want to create a different workflow for
+the pages based on client requirements.
+
+To do this, you just create your custom statemachine as mentioned in the
+``ostinato.statemachine`` documentation, and then tell ``ostinato.pages``
+which class to use by adding the following in your settings.py:
+
+``OSTINATO_PAGES_WORKFLOW_CLASS = "myapp.customworkflow.SomeWorkflow"``
+
+When creating your custom workfow, do remember that the Page state is
+stored as an IntegerField, so make sure that you use the
+``IntegerStatemachine`` so subclass your own statemachine class.
+
+
 Extra Inline Fields for a Page in the Admin
 -------------------------------------------
 

@@ -8,7 +8,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.admin.views.decorators import staff_member_required
 from django import http
 
-from ostinato.pages.models import Page, PageWorkflow
+from ostinato.pages.models import Page
+from ostinato.pages.workflow import get_workflow
 from ostinato.pages.forms import MovePageForm
 
 
@@ -37,7 +38,7 @@ def page_dispatch(request, *args, **kwargs):
         except IndexError:
             raise http.Http404
 
-    sm = PageWorkflow(instance=page)
+    sm = get_workflow()(instance=page)
     if sm.state == 'Private' and not request.user.has_perm('pages.private_view'):
         if page.author != request.user or not request.user.is_superuser:
             return http.HttpResponseForbidden()
