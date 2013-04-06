@@ -1,10 +1,22 @@
-class InvalidTransition(Exception):
+class SMException(Exception):
 
     def __init__(self, value):
         self.value = value
 
     def __str__(self):
         return self.value
+
+
+class InvalidState(SMException):
+    pass
+
+
+class InvalidTransition(SMException):
+    pass
+
+
+class InvalidStateMachine(SMException):
+    pass
 
 
 class State(object):
@@ -21,7 +33,6 @@ class State(object):
         self.instance = instance
         self.extra_args = kwargs
 
-
     def set_state(self, new_state):
         """
         A method that can be overridden for custom state processing.
@@ -34,7 +45,6 @@ class State(object):
             setattr(self.instance, state_field, new_state)
 
         return new_state
-
 
     def transition(self, action, **kwargs):
         """
@@ -58,7 +68,6 @@ class StateMachine(object):
     state_map = {}
     initial_state = ''
 
-
     def __init__(self, instance=None, **kwargs):
         """
         The entry point for our statemachine.
@@ -70,7 +79,7 @@ class StateMachine(object):
         self.instance = instance
         self.extra_args = kwargs
         self.process_state()
-
+        self.verify_statemachine()
 
     def set_state(self, state):
         self._state = state
@@ -80,12 +89,10 @@ class StateMachine(object):
 
     state = property(get_state)
 
-
     def get_actions(self):
         return [i for i in self.get_state_instance().transitions]
 
     actions = property(get_actions)
-
 
     @classmethod
     def get_choices(cls):
@@ -101,7 +108,6 @@ class StateMachine(object):
                 cls.state_map[k].verbose_name or cls.state_map[k].__name__),)
 
         return choices
-
 
     def process_state(self):
         """
@@ -124,16 +130,13 @@ class StateMachine(object):
 
         self.set_state(state)
 
-
     def get_state_instance(self):
         """ Returns a single instance for the current state """
         return self.state_map[self._state](
             instance=self.instance, **self.extra_args)
 
-
     def take_action(self, action, **kwargs):
         self._state = self.get_state_instance().transition(action, **kwargs)
-
 
     def action_result(self, action):
         """
@@ -144,6 +147,39 @@ class StateMachine(object):
             return self.get_state_instance().transitions[action]
         except KeyError:
             raise InvalidTransition('%s, is not a valid action.' % action)
+
+    def verify_statemachine(self):
+        """
+        Verify that the ``initial_state`` and ``state_map`` does not
+        contain any invalid states.
+        """
+        # First verify if the initial state is a valid state
+        if self.initial_state not in self.state_map:
+            raise InvalidStateMachine(
+                '"%s" is not a valid state for %s. Valid states are %s' % (
+                    self._state, self.__class__.__name__,
+                    [i for i in self.state_map.keys()]
+                ))
+
+        # Now cycle through every state in the state_map and make sure that
+        # actions are valid and there are no "hanging states"
+        state_keys = self.state_map.keys()  # Hold on to these for testing
+        for key in self.state_map:
+            state_cl = self.state_map[key]
+            targets = state_cl.transitions.values()
+
+            if len(targets) == 0:
+                raise InvalidState(
+                    "%s does not have any actions, any object entering this "
+                    "state may never be to get out!" %
+                    state_cl.__name__)
+
+            for t in targets:
+                if t not in state_keys:
+                    raise InvalidState(
+                        "%s contains an invalid action target, %s." %
+                        (state_cl.__name__, t))
+
 
     @classmethod
     def get_permissions(cls):
@@ -170,7 +206,5 @@ class StateMachine(object):
 
 
 class IntegerStateMachine(StateMachine):
-
     def set_state(self, state):
         super(IntegerStateMachine, self).set_state(int(state))
-

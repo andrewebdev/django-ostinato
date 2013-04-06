@@ -1,7 +1,9 @@
 from django.test import TestCase
 from django.db import models
 
-from ostinato.statemachine import State, StateMachine, InvalidTransition
+from ostinato.statemachine import State, StateMachine
+from ostinato.statemachine import (InvalidState, InvalidTransition,
+    InvalidStateMachine)
 
 
 # Create a test model to test the StateMachine with
@@ -32,8 +34,32 @@ class Public(State):
             self.instance.message = 'Object made private'
 
 
+class ErrorState(State):
+    verbose_name = 'Error State'
+    transitions = {'invalid_action': 'invalid'}  # Target state does not exist
+
+
+class HangingState(State):
+    verbose_name = 'Hanging State'
+    transitions = {}
+
+
 class TestStateMachine(StateMachine):
     state_map = {'private': Private, 'public': Public}
+    initial_state = 'private'
+
+
+class InvalidSM(StateMachine):
+    state_map = {'private': Private, 'error': ErrorState, 'public': Public}
+    initial_state = 'invalid'
+
+
+class ErrorSM(InvalidSM):
+    initial_state = 'private'
+
+
+class HangingSM(InvalidSM):
+    state_map = {'private': Private, 'hanging': HangingState, 'public': Public}
     initial_state = 'private'
 
 
@@ -127,20 +153,17 @@ class StateMachineTestCase(TestCase):
 
         self.assertEqual(['publish'], sm.actions)
 
-
     def test_override_state(self):
         temp = TestModel.objects.create(name='Test Model 1', state='private')
         sm = TestStateMachine(instance=temp, state='Test State Override')
 
         self.assertEqual('Test State Override', sm._state)
 
-
     def test_get_action_target(self):
         temp = TestModel.objects.create(name='Test Model 1', state='private')
         sm = TestStateMachine(instance=temp, state='private')
 
         self.assertEqual('public', sm.action_result('publish'))
-
 
     def test_get_permissions(self):
         perms = TestStateMachine.get_permissions()
@@ -159,6 +182,21 @@ class StateMachineTestCase(TestCase):
         
         for p in expected_perms:
             self.assertIn(p, perms)
+
+    def test_verify_statemachine(self):
+        temp = TestModel.objects.create(name='Test Model 1', state='invalid')
+
+        re = """"invalid" is not a valid state for InvalidSM. Valid states are \\['public', 'private', 'error'\\]"""
+        with self.assertRaisesRegexp(InvalidStateMachine, re):
+            invalid_sm = InvalidSM(instance=temp)
+
+        re = "ErrorState contains an invalid action target, invalid."
+        with self.assertRaisesRegexp(InvalidState, re):
+            invalid_sm = ErrorSM(instance=temp)
+
+        re = "HangingState does not have any actions, any object entering this state may never be to get out!"
+        with self.assertRaisesRegexp(InvalidState, re):
+            invalid_sm = HangingSM(instance=temp)
 
 
 # Create some states and a StateMachine
