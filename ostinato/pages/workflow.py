@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils import timezone
 
 from ostinato.statemachine import State, IntegerStateMachine
 
