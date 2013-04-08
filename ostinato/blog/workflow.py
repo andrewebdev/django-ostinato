@@ -16,6 +16,10 @@ class Review(State):
     verbose_name = 'Review'
     transitions = {'reject': 1, 'approve': 5}
 
+    def approve(self, **kwargs):
+        if self.instance and self.instance.publish_date is None:
+            self.instance.publish_date = timezone.now()
+
 
 class Published(State):
     verbose_name = 'Published'
