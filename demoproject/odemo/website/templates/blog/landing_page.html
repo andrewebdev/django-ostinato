@@ -1,4 +1,5 @@
 {% extends 'pages/base.html' %}
+{% load taggit_extras %}
 
 
 {% block content %}
@@ -12,4 +13,13 @@
     </article>
     {% endfor %}
 
+    {% get_taglist as tags for 'blog.Entry' %}
+    <section class="tags">
+        <h3>Tags</h3>
+        <ul>
+            {% for tag in tags %}
+            <li><a href="#">{{ tag }} ({{ tag.num_times }})</a></li>
+            {% endfor %}
+        </ul>
+    </section>
 {% endblock %}
