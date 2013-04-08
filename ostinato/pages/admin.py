@@ -65,10 +65,8 @@ class PageAdmin(MPTTModelAdmin):
     form = PageAdminForm
 
     list_display = ('tree_node', 'title', 'page_actions', 'slug',
-        'template_name', 'page_state',)
-
+        'template_name', 'page_state', 'show_in_nav', 'show_in_sitemap')
     list_display_links = ('title',)
-
     list_filter = ('author', 'show_in_nav', 'show_in_sitemap', 'state')
 
     search_fields = ('title', 'short_title', 'slug', 'author')
