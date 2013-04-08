@@ -128,9 +128,46 @@ INSTALLED_APPS = (
     'ostinato.blog',
     'ostinato.statemachine',  # Only really need this here for the tests
     'mptt',
+    'tinymce',
 
     'website',
 )
+
+
+# Third party app config
+MPTT_ADMIN_LEVEL_INDENT = 20
+
+TINYMCE_DEFAULT_CONFIG = {
+    'theme': 'advanced',
+    'plugins': "paste",
+    'relative_urls': False,
+    # 'remove_script_host': False,
+    # 'document_base_url': '',
+
+    'theme_advanced_buttons1' : "bold,italic,|,justifyleft,justifycenter,justifyright,justifyfull,bullist,numlist,|,undo,redo,|,link,unlink,code,image,|,formatselect,|,pastetext,",
+    'theme_advanced_buttons2' : "",
+    'theme_advanced_buttons3' : "",
+    'theme_advanced_buttons4' : "",
+    'theme_advanced_toolbar_location' : "top",
+    'theme_advanced_toolbar_align' : "left",
+    'theme_advanced_statusbar_location' : "bottom",
+    'theme_advanced_resizing' : True,
+    'theme_advanced_blockformats' : "h1,h2,h3,p,blockquote",
+
+    'width': 760,
+    'height': 400,
+
+    'paste_strip_class_attributes': 'all',
+    'paste_auto_cleanup_on_paste' : True,
+    'paste_convert_middot_lists': False,
+    'paste_remove_styles' : True,
+    'paste_retain_style_properties': '',
+
+    'extended_valid_elements': "a[class|name|href|target|title|onclick|rel],"\
+        "script[type|src],"\
+        "iframe[src|style|width|height|scrolling|marginwidth|marginheight|frameborder],"\
+        "$elements",
+}
 
 
 # A sample logging configuration. The only tangible logging

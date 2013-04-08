@@ -11,6 +11,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     (r'^grappelli/', include('grappelli.urls')),
+    (r'^tinymce/', include('tinymce.urls')),
 )
 
 urlpatterns += staticfiles_urlpatterns()
