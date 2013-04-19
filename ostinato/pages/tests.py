@@ -100,7 +100,7 @@ class OtherPage(ContentMixin, PageContent):
     class Meta:
         verbose_name = 'Some Other Page'
 
- 
+
 def create_pages():
     user = User.objects.create(username='user1', password='secret',
         email='user1@example.com')
@@ -568,5 +568,3 @@ class PageReorderViewTestCase(TransactionTestCase):
         p2 = Page.objects.get(slug='page-2')
 
         self.assertGreater(p.tree_id, p2.tree_id)
-
-

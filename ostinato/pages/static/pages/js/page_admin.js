@@ -127,7 +127,7 @@ django.jQuery(document).ready(function() {
             make sure that the page being moved does not have it's actions
             visible
         */
-        django.jQuery('.ostinato_page_move').hide();
+        django.jQuery('.ostinato_page_move, .ostinato_new_child').hide();
         django.jQuery('.ostinato_move_action').show();
         django.jQuery(this).siblings('.ostinato_move_action').hide();
         django.jQuery(this).siblings('.ostinato_cancel_move').show();
@@ -159,7 +159,7 @@ django.jQuery(document).ready(function() {
     django.jQuery('.ostinato_cancel_move').click(function() {
         django.jQuery(this).hide();
         django.jQuery('.ostinato_move_action').hide();
-        django.jQuery('.ostinato_page_move').show();
+        django.jQuery('.ostinato_page_move, .ostinato_new_child').show();
 
         page_id = null;
     });

@@ -162,4 +162,3 @@ class BlogEntryManagerTestCase(TestCase):
 
         self.assertEqual([2, 3],
             list(Entry.objects.published().values_list('id', flat=True)))
-

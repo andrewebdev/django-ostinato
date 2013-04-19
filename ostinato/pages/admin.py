@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin.util import unquote
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
 from django import forms
 from django.conf import settings
 
@@ -139,15 +140,19 @@ class PageAdmin(MPTTModelAdmin):
 
     def page_actions(self, obj):
         """ A List view item that shows the movement actions """
+        new_child_url = "%s?parent=%s" % (
+            reverse('admin:pages_page_add'), obj.id)
         return '''<span id="_page_%s">
         <a class="ostinato_page_move" href="#">%s</a>
         <a class="ostinato_move_action _left_of" href="#">%s</a>
         <a class="ostinato_move_action _right_of" href="#">%s</a>
         <a class="ostinato_move_action _child_of" href="#">%s</a>
+        <a class="ostinato_new_child" href="%s">%s</a>
         <a class="ostinato_cancel_move" href="#">%s</a>
         </span>
         ''' % (obj.id, geticon('move'), geticon('before'), geticon('after'),
-               geticon('as_child'), geticon('cancel'))
+               geticon('as_child'), new_child_url, geticon('new_child'),
+               geticon('cancel'))
     page_actions.short_description = _("Actions")
     page_actions.allow_tags = True
 
