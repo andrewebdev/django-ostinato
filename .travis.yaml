@@ -1,0 +1,10 @@
+language: python
+python:
+    - 2.7
+
+install:
+    - python demoproject/bootstrap.py
+    - demoproject/bin/buildout
+
+script:
+    - demoproject/bin/test

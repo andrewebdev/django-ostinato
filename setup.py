@@ -7,7 +7,6 @@ version = '.'.join([str(i) for i in __import__('ostinato').VERSION])
 
 
 ### Snippets borrowed from django setup.py ...
-
 def fullsplit(path, result=None):
     """
     Split a pathname into components (the opposite of os.path.join) in a

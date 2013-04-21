@@ -127,6 +127,8 @@ INSTALLED_APPS = (
     'ostinato.pages',
     'ostinato.blog',
     'ostinato.statemachine',  # Only really need this here for the tests
+    'ostinato.contentfilters',
+
     'mptt',
     'tinymce',
     'taggit',
