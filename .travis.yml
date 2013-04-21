@@ -4,7 +4,7 @@ python:
 
 install:
     - python demoproject/bootstrap.py
-    - demoproject/bin/buildout
+    - demoproject/bin/buildout -c ./demoproject/buildout.cfg
 
 script:
     - demoproject/bin/test
