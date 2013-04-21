@@ -3,8 +3,8 @@ python:
     - 2.7
 
 install:
-    - python demoproject/bootstrap.py
-    - demoproject/bin/buildout -c ./demoproject/buildout.cfg
+    - python demoproject/bootstrap.py -c demoproject/buildout.cfg
+    - demoproject/bin/buildout -c demoproject/buildout.cfg
 
 script:
     - demoproject/bin/test
