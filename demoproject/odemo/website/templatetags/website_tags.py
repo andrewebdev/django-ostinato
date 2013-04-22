@@ -5,28 +5,6 @@ from ostinato.pages.models import Page
 register = template.Library()
 
 
-@register.assignment_tag
-def filter_page(**kwargs):
-    """
-    A handy helper that can search for a list of pages filtered by **kwargs.
-    """
-    try:
-        return Page.objects.filter(**kwargs)
-    except:
-        return None
-
-
-@register.assignment_tag
-def get_page(**kwargs):
-    """
-    A handy helper that returns the first page filtered by **kwargs
-    """
-    try:
-        return Page.objects.get(**kwargs)
-    except:
-        return None
-
-
 @register.inclusion_tag('pages/breadcrumbs.html')
 def crumbs(page, obj=None):
     """

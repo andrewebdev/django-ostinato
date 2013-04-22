@@ -43,8 +43,22 @@ def breadcrumbs(context, for_page=None):
 
 
 @register.assignment_tag  # Requires Django 1.4+
-def get_page(slug):
-    """ Finds the page with ``slug`` and adds that to the context """
-    return Page.objects.get(slug=slug)
+def get_page(*args, **kwargs):
+    """
+    A handy helper that returns the first page filtered by **kwargs
+    """
+    try:
+        return Page.objects.filter(**kwargs)[0]
+    except:
+        return None
 
 
+@register.assignment_tag
+def filter_pages(**kwargs):
+    """
+    A handy helper that can search for a list of pages filtered by **kwargs.
+    """
+    try:
+        return Page.objects.filter(**kwargs)
+    except:
+        return None

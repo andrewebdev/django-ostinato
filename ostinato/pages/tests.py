@@ -16,6 +16,7 @@ from django.conf import settings
 from ostinato.pages.registry import page_content
 from ostinato.pages.models import Page, PageContent
 from ostinato.pages.views import PageView, PageReorderView, page_dispatch
+from ostinato.pages.templatetags.pages_tags import get_page, filter_pages
 from ostinato.utils import benchmark
 
 
@@ -470,18 +471,32 @@ class GetPageTemplateTagTestCase(TestCase):
 
     urls = 'ostinato.pages.urls'
 
-    def setUp(self):
+    def test_tag_returns_page(self):
         create_pages()
-        t = Template('{% load pages_tags %}{% get_page "page-1" as somepage %}{{ somepage }}')
-        self.response = SimpleTemplateResponse(t)
+        p = get_page(slug="page-1")
+        self.assertEqual("Page 1", p.title)
 
     def test_tag_renders(self):
-        self.response.render()
-        self.assertTrue(self.response.is_rendered)
+        t = Template('{% load pages_tags %}{% get_page slug="page-1" as somepage %}{{ somepage.title }}')
+        response = SimpleTemplateResponse(t)
+        response.render()
+        self.assertTrue(response.is_rendered)
 
-    def test_page_in_content(self):
-        self.response.render()
-        self.assertIn('Page 1', self.response.content)
+
+class FilterPageTemplateTagTestCase(TestCase):
+
+    urls = 'ostinato.pages.urls'
+
+    def test_tag_returns_queryset(self):
+        create_pages()
+        pages = filter_pages(template='pages.basicpage')
+        self.assertEqual(2, len(pages))
+
+    def test_tag_renders(self):
+        t = Template('{% load pages_tags %}{% get_page template="pages.basicpage" as page_list %}')
+        response = SimpleTemplateResponse(t)
+        response.render()
+        self.assertTrue(response.is_rendered)
 
 
 class BreadCrumbsTempalteTagTestCase(TestCase):
