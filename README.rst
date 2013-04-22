@@ -1,13 +1,15 @@
-Introduction
-============
+Master Tests
 
-Master test status:
 .. image:: https://secure.travis-ci.org/andrewebdev/django-ostinato.png?branch=master
    :target: http://travis-ci.org/andrewebdev/django-ostinato/
 
-Development test status:
+Development Tests
+
 .. image:: https://secure.travis-ci.org/andrewebdev/django-ostinato.png?branch=dev
    :target: http://travis-ci.org/andrewebdev/django-ostinato/
+
+Introduction
+============
 
 Django-ostinato is a collection of applications that aims to bring together
 some of the most common features expected from a CMS.
