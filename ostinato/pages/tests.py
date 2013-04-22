@@ -16,7 +16,8 @@ from django.conf import settings
 from ostinato.pages.registry import page_content
 from ostinato.pages.models import Page, PageContent
 from ostinato.pages.views import PageView, PageReorderView, page_dispatch
-from ostinato.pages.templatetags.pages_tags import get_page, filter_pages
+from ostinato.pages.templatetags.pages_tags import (
+    get_page, filter_pages, breadcrumbs)
 from ostinato.utils import benchmark
 
 
@@ -503,14 +504,71 @@ class BreadCrumbsTempalteTagTestCase(TestCase):
 
     urls = 'ostinato.pages.urls'
 
-    def setUp(self):
+    def test_tag_returns_breadcrumbs_for_page_in_context(self):
         create_pages()
-        t = Template('{% load pages_tags %}{% get_page "page-3" as page %}{% breadcrumbs %}')
-        self.response = SimpleTemplateResponse(t)
+        c = Context({"page": Page.objects.get(slug="page-3")})
+        crumbs = breadcrumbs(c)
+
+        expected_crumbs = [{
+            'slug': u'page-1',
+            'title': u'Page 1',
+            'url': '/',
+        }, {
+            'slug': u'page-3',
+            'title': u'Page 3',
+            'url': '/page-1/page-3/',
+        }]
+
+        self.assertEqual(expected_crumbs, crumbs["breadcrumbs"])
+
+    def test_tag_returns_breadcrumbs_for_page_argument(self):
+        create_pages()
+        c = Context({})
+        crumbs = breadcrumbs(c, for_page=Page.objects.get(slug="page-3"))
+
+        expected_crumbs = [{
+            'slug': u'page-1',
+            'title': u'Page 1',
+            'url': '/',
+        }, {
+            'slug': u'page-3',
+            'title': u'Page 3',
+            'url': '/page-1/page-3/',
+        }]
+
+        self.assertEqual(expected_crumbs, crumbs['breadcrumbs'])
+
+    def test_crumbs_can_have_custom_object(self):
+        create_pages()
+        c = Context({"page": Page.objects.get(slug="page-3")})
+
+        # We will just use a page as the custom object. It doesn't really
+        # matter, as long as the final object has a ``title`` and
+        # ``get_absolute_url()``
+        obj_page = Page.objects.get(id=1)
+        crumbs = breadcrumbs(c, obj=obj_page)
+
+        expected_crumbs = [{
+            'slug': u'page-1',
+            'title': u'Page 1',
+            'url': '/',
+        }, {
+            'slug': u'page-3',
+            'title': u'Page 3',
+            'url': '/page-1/page-3/',
+        }, {
+            'title': u'Page 1',
+            'url': u'/'
+        }]
+
+        self.assertEqual(expected_crumbs, crumbs['breadcrumbs'])
 
     def test_tag_renders(self):
-        self.response.render()
-        self.assertTrue(self.response.is_rendered)
+        create_pages()
+        t = Template('{% load pages_tags %}{% get_page slug="page-3" as page %}{% breadcrumbs %}')
+        response = SimpleTemplateResponse(t)
+        response.render()
+        self.assertTrue(response.is_rendered)
 
 
 class PageReorderViewTestCase(TransactionTestCase):

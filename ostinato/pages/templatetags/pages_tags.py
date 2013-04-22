@@ -29,7 +29,7 @@ def navbar(context, for_page=None):
 
 
 @register.inclusion_tag('pages/breadcrumbs.html', takes_context=True)
-def breadcrumbs(context, for_page=None):
+def breadcrumbs(context, for_page=None, obj=None):
     """ Renders the breadcrumbs for the current page in the context """
     if not for_page:
         # Attempt to get the page from the context
@@ -39,7 +39,19 @@ def breadcrumbs(context, for_page=None):
             return {}
 
     breadcrumbs = Page.objects.get_breadcrumbs(for_page=for_page)
-    return locals()
+
+    if obj:
+        # Note that title and get_absolute_url() is required for the custom
+        # object.
+        breadcrumbs.append({
+            'title': obj.title,
+            'url': obj.get_absolute_url(),
+        })
+
+    return {
+        "breadcrumbs": breadcrumbs,
+        "for_page": for_page
+    }
 
 
 @register.assignment_tag  # Requires Django 1.4+
