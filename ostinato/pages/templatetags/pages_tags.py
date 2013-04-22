@@ -55,7 +55,7 @@ def breadcrumbs(context, for_page=None, obj=None):
 
 
 @register.assignment_tag  # Requires Django 1.4+
-def get_page(*args, **kwargs):
+def get_page(**kwargs):
     """
     A handy helper that returns the first page filtered by **kwargs
     """

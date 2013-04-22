@@ -402,7 +402,6 @@ all child pages for the node. This tag will only render pages that has
 .. code-block:: html
 
     {% load pages_tags %}
-
     {% navbar %}
 
 This inclusion tag uses ``pages/navbar.html`` to render the nav, just in case
@@ -414,7 +413,6 @@ specific page.
 .. code-block:: html
 
     {% load pages_tags %}
-
     {% navbar for_page=page %}
 
 
@@ -432,15 +430,62 @@ Note that in the example above, you will need to add the django request
 context-processor.
 
 
-**get_page(slug)**
+**breadcrumbs(for_page=None, obj=None)**
 
-A simple tag that will get a page by the slug, and add it to the context.
+This tag will by default look for ``page`` in the context. If found it will
+render the breadcrumbs for this page's ancestors.
 
 .. code-block:: html
     
     {% load pages_tags %}
+    {% breadcrumbs %}
 
-    {% get_page 'page-1' as mypage %}
+
+If you want to manually specify the page for which to render the breadcrumbs,
+you can do that using ``for_page``.
+
+.. code-block:: html
+
+    {% load pages_tags %}
+    {% breadcrumbs for_page=custom_page %}
+
+
+Sometimes you may have a object that does not belong to the standard page
+hierarchy. This could be a model like a BlogEntry, but when viewing the detail
+template for this entry, you may still want to relate this object to a page.
+For this you can use ``obj``.
+
+.. code-block:: html
+
+    {% load pages_tags %}
+    {% breadcrumbs for_page=blog_landingpage obj=entry %}
+
+
+One thing to note about the custom object is that the model must have a
+``title`` attribute, and a ``get_absolute_url()`` method.
+
+
+**filter_pages(**kwargs)**
+
+This tag will filter the pages by ``**kwargs`` and return the the queryset.
+
+.. code-block:: html
+    
+    {% load pages_tags %}
+    {% filter_pages state=5 as published_pages %}
+    {% for p in published_pages %}
+        <p>{{ p.title }}</p>
+    {% endfor %}
+
+**get_page(**kwargs)**
+
+Same as ``filter_pages``, except that this tag will return the first item
+found.
+
+.. code-block:: html
+    
+    {% load pages_tags %}
+    {% get_page slug='page-1' as mypage %}
     <h1>{{ mypage.title }}</h1>
 
 
