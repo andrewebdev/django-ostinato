@@ -465,14 +465,6 @@ class NavBarTemplateTagTestCase(TestCase):
         self.response.render()
         self.assertTrue(self.response.is_rendered)
 
-    def test_navbar_content(self):
-        self.response.render()
-
-        self.assertIn('<a href="/">Page 1</a>',
-            self.response.content)
-        self.assertIn('<a href="/page-2/">P2</a>', 
-            self.response.content)
-
 
 class GetPageTemplateTagTestCase(TestCase):
 
@@ -504,11 +496,6 @@ class BreadCrumbsTempalteTagTestCase(TestCase):
     def test_tag_renders(self):
         self.response.render()
         self.assertTrue(self.response.is_rendered)
-
-    def test_breadcrumbs_in_context(self):
-        self.response.render()
-        self.assertIn('<a href="/">Page 1</a> &raquo;', self.response.content)
-        self.assertIn('<strong>Page 3</strong>', self.response.content)
 
 
 class PageReorderViewTestCase(TransactionTestCase):

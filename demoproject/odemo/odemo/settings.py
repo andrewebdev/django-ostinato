@@ -123,6 +123,8 @@ INSTALLED_APPS = (
     'grappelli',
     'django.contrib.admin',
 
+    'website',  # We want website templates to override ostinato templates
+
     'ostinato',
     'ostinato.pages',
     'ostinato.blog',
@@ -134,7 +136,6 @@ INSTALLED_APPS = (
     'taggit',
     'taggit_templatetags',
 
-    'website',
     'blog',
 )
 

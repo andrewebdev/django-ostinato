@@ -1,6 +1,8 @@
 Introduction
 ============
 
+.. image:: picture.png
+
 Django-ostinato is a collection of applications that aims to bring together
 some of the most common features expected from a CMS.
 

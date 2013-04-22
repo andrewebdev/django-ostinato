@@ -2,7 +2,7 @@
 <!--[if lt IE 9]><html class="ie"><![endif]-->
 <!--[if gte IE 9]><!--><html><!--<![endif]-->
     
-    {% load pages_tags %}
+    {% load pages_tags website_tags %}
 
     <head>
         <meta charset="utf-8" />
@@ -11,6 +11,7 @@
         
         <title>{% block title %}{% endblock %}Ostinato Demo</title>
         
+        <link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,600,400italic,600italic' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="{{ STATIC_URL }}css/main.css" />
         
         <!--[if lt IE 9]>
@@ -21,21 +22,26 @@
     <body lang="en">
 
         <header>
-            <h1>Ostinato Demo</h1>
+            <div class="inner">
+                <h1>Ostinato Demo</h1>
 
-            <nav>
-                {% navbar %}
-            </nav>
+                <nav>
+                    {% navbar %}
+                </nav>
+            </div>
         </header>
 
         <section id="content">
-            <div class="crumbs">{% breadcrumbs %}</div>
-            
+            <div class="crumbs">{% block breadcrumbs %}{% crumbs page %}{% endblock %}</div>
+                
             {% block content %}
             {% endblock %}
         </section>
 
         <footer>
+            <div class="inner">
+                <p>Copyright &copy; Andre Engelbrecht, 2013. All rights reserved.</p>
+            </div>
         </footer>
     </body>
     

@@ -3,6 +3,7 @@
     by Joni Korpi       <http://jonikorpi.com/>
     licensed under CC0  <http://creativecommons.org/publicdomain/zero/1.0/>
 */
+@import "compass/css3";
 
 
 //
@@ -14,6 +15,12 @@ $em: $font-size / 1em;  // Shorthand for outputting ems
 
 $column: 48px;  // The column-width of your grid in pixels
 $gutter: 24px;  // The gutter-width of your grid in pixels
+
+$color-green1: #298B2F;
+$color-green2: #316834;
+$color-green3: #0D5A12;
+$color-green4: #5DC563;
+$color-green5: #78C57D;
 
 
 //
@@ -163,14 +170,95 @@ body {
 
 
 /** Website Styles **/
-header, #content {
+body {
+    font-family: 'Titillium Web', sans-serif;
+    @include background(linear-gradient(top, #fff, #999));
+}
+
+header, #content { overflow: hidden; width: 100%; }
+
+.inner, .crumbs {
     margin: 1em auto 0 auto;
     width: $cols10;
 }
 
+
 header {
+    position: relative;
+    border-top: 1px solid #000;
+    color: #999;
+    @include background(linear-gradient(top, #555, #000));
+
     nav {
-        li { margin-right: 1em; display: inline-block; }
+        position: relative;
+        float: right;
+        a {
+            display: inline-block;
+            padding: 0.2em 1em;
+            border: 1px solid black;
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+
+            @include background(linear-gradient(top, #aaa, #fff));
+            @include border-radius(5px 5px 0 0);
+
+            &.active, &.active:hover {
+                border-color: #activatea;
+                @include background(linear-gradient(top, $color-green1, $color-green2));
+                color: #eee;
+            }
+            &:hover {
+                border-color: #999;
+                border-bottom-color: black;
+                color: black;
+            }
+        }
+    }
+}
+
+
+#content {
+    padding-bottom: 1em;
+
+    .crumbs {
+        margin: 0em auto;
+        p { font-size: 14px; margin: 0.25em 0 0.5em; }
+        strong { font-weight: 600; }
+    }
+
+    article {
+        @extend .inner;
+        margin-top: 0;
+        background-color: white;
+        overflow: hidden;
+
+        @include box-shadow(0 0 5px 1px #999);
+        @include border-radius(5px);
+
+        h1, h2, h3, p, ul, ol {
+            margin: 0 10px 1em;
+        }
+
+        p {
+            line-height: 1.3em;
+            margin-bottom: 1em;
+        }
+    }
+
+}
+
+
+footer {
+    position: relative;
+    overflow: hidden;
+    color: #999;
+    padding: 0 1em;
+    @include background(linear-gradient(top, #555, #000));
+
+    p {
+        color: #aaa;
+        margin-bottom: 1em;
     }
 }
 
