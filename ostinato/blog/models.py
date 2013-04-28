@@ -21,7 +21,7 @@ class BlogEntryBase(models.Model):
     state = models.IntegerField(_("State"), default=1,
         choices=BlogEntryWorkflow.get_choices())
     author = models.ForeignKey(User, verbose_name=_("Author"))
-    
+
     created_date = models.DateTimeField(_("Created date"), auto_now_add=True)
     modified_date = models.DateTimeField(_("Modified date"), auto_now=True,
         null=True, blank=True)

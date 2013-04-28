@@ -12,6 +12,18 @@ class Entry(BlogEntryBase):
     class Meta:
         verbose_name_plural = "Entries"
 
+    @models.permalink
+    def get_absolute_url(self):
+        if self.publish_date:
+            return ("blog_entry_detail", [], {
+                'year': self.publish_date.year,
+                'month': self.publish_date.strftime('%m'),
+                'day': self.publish_date.strftime('%d'),
+                'slug': self.slug,
+            })
+        else:
+            return ("blog_entry_preview", [self.id], {})
+
 
 @page_content.register
 class LandingPage(SEOPage):

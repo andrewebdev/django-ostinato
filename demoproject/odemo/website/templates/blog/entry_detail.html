@@ -1,13 +1,11 @@
 {% extends 'pages/base.html' %}
-{% load taggit_extras %}
+{% load taggit_extras pages_tags %}
 
+{% block breadcrumbs %}{% breadcrumbs page obj=entry %}{% endblock %}
 
 {% block content %}
-    {% for entry in latest_entries %}
     <article>
         <h2>{{ entry.title }}</h2>
         {{ entry.content|safe }}
-        <p><a href="{{ entry.get_absolute_url }}">More</a></p>
     </article>
-    {% endfor %}
 {% endblock %}

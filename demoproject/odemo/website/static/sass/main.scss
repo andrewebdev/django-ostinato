@@ -237,8 +237,12 @@ header {
         @include border-radius(5px);
 
         h1, h2, h3, p, ul, ol {
-            margin: 0 10px 1em;
+            margin: 0 10px;
         }
+
+        h1 { font-size: 22px; }
+        h2 { font-size: 20px; }
+        h3 { font-size: 18px; }
 
         p {
             line-height: 1.3em;

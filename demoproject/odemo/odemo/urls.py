@@ -9,11 +9,11 @@ from django.views.generic import TemplateView
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    url(r'^blog/', include('blog.urls')),
     url(r'^admin/', include(admin.site.urls)),
     (r'^grappelli/', include('grappelli.urls')),
     (r'^tinymce/', include('tinymce.urls')),
 )
 
 urlpatterns += staticfiles_urlpatterns()
-
 urlpatterns += patterns('', url(r'^', include('ostinato.pages.urls')))

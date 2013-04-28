@@ -31,7 +31,7 @@ def create_objects():
         content='Entry Content 2',
         author=u,
     )
-    
+
     Entry.objects.create(
         title='Entry Title 3',
         slug='entry-title-3',

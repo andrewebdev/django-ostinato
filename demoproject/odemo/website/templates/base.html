@@ -2,7 +2,7 @@
 <!--[if lt IE 9]><html class="ie"><![endif]-->
 <!--[if gte IE 9]><!--><html><!--<![endif]-->
     
-    {% load pages_tags website_tags %}
+    {% load pages_tags %}
 
     <head>
         <meta charset="utf-8" />
@@ -32,7 +32,7 @@
         </header>
 
         <section id="content">
-            <div class="crumbs">{% block breadcrumbs %}{% crumbs page %}{% endblock %}</div>
+            <div class="crumbs">{% block breadcrumbs %}{% breadcrumbs page %}{% endblock %}</div>
                 
             {% block content %}
             {% endblock %}
