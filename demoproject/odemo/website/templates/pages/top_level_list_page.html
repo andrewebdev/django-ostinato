@@ -2,11 +2,19 @@
 {% load pages_tags %}
 
 {% block content %}
-    {% filter_pages parent=page state=5 as children %}
     {% for p in children %}
     <article>
         <h2>{{ p.title }}</h2>
-        <p>{{ p.description }}</p>
+        {{ p.contents.content|safe }}
+
+        {% if p.template == "website.contactpage" %}
+            <form action="." method="post" accept-charset="utf-8">{% csrf_token %}
+                <input type="hidden" name="page_id" value="{{ p.slug }}">
+                {{ p.form.as_p }}
+                <p><input type="submit" value="Send"></p>
+            </form>
+        {% endif %}
+
     </article>
     {% endfor %}
 {% endblock %}

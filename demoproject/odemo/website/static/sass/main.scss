@@ -86,7 +86,7 @@ html {
     -ms-text-size-adjust: 100%;
 }
 
-    body {min-height: 100%; font-size: 100%;}
+body {min-height: 100%; font-size: 100%;}
 
 sub, sup {
     font-size: 75%; 
@@ -219,7 +219,6 @@ header {
 
 
 #content {
-    padding-bottom: 1em;
 
     .crumbs {
         margin: 0em auto;
@@ -230,6 +229,7 @@ header {
     article {
         @extend .inner;
         margin-top: 0;
+        margin-bottom: 1em;
         background-color: white;
         overflow: hidden;
 

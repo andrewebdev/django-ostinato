@@ -53,7 +53,8 @@ class GenericPage(SEOPage):
 
 @page_content.register
 class TopLevelListPage(SEOPage):
-    pass
+    class ContentOptions:
+        view = 'website.views.TopLevelListPageView'
 
 
 @page_content.register
@@ -77,3 +78,10 @@ class ContactPage(SEOPage):
 
     class ContentOptions:
         form = 'website.forms.ContactPageForm'
+        view = 'website.views.ContactPageView'
+
+    def get_next_url(self):
+        return self.success_page.get_absolute_url()
+
+    def get_recipients(self):
+        return [i for i in self.recipients.replace(' ', '').split(',')]

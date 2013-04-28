@@ -15,4 +15,3 @@ MANIFEST
 dist/
 demoproject/src/*
 demoproject/config.rb
-django-ostinato.sublime*

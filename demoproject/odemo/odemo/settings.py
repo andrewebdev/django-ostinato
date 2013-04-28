@@ -139,6 +139,7 @@ INSTALLED_APPS = (
     'blog',
 )
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Third party app config
 MPTT_ADMIN_LEVEL_INDENT = 20
