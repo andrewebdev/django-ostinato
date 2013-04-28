@@ -1,0 +1,11 @@
+{
+	"folders":
+	[
+		{
+			"path": "/home/andre/dev/django-ostinato",
+            "folder_exclude_patterns": [
+                "dist", "docs", "*.egg-info",
+                "demoproject/bin", "demoproject/parts", "demoproject/develop-eggs"]
+		}
+	]
+}

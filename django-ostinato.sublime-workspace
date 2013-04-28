@@ -1,0 +1,1109 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"ifelse",
+				"ifelse	django-ifelse"
+			],
+			[
+				"if",
+				"if	django-if"
+			],
+			[
+				"Blog",
+				"BlogEntryBase"
+			],
+			[
+				"static",
+				"staticfiles_urlpatterns"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "demoproject/odemo/website/static/sass/main.scss",
+			"settings":
+			{
+				"buffer_size": 6298,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/andre/.config/sublime-text-2/Packages/Gist/Gist.sublime-settings",
+			"settings":
+			{
+				"buffer_size": 1010,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "demoproject/odemo/website/templates/pages/top_level_list_page.html",
+			"settings":
+			{
+				"buffer_size": 367,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "demoproject/odemo/website/templates/pages/contact_page_include.html",
+			"settings":
+			{
+				"buffer_size": 151,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/andre/.config/sublime-text-2/Packages/User/Fetch.sublime-settings",
+			"settings":
+			{
+				"buffer_size": 357,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "demoproject/odemo/website/models.py",
+			"settings":
+			{
+				"buffer_size": 2238,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 285.0,
+		"selected_items":
+		[
+			[
+				":w",
+				":w - Save"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"fetchpack",
+				"Fetch: Package"
+			],
+			[
+				"fet",
+				"Fetch: File"
+			],
+			[
+				":q",
+				"Set Syntax: SQL"
+			],
+			[
+				"fetch",
+				"Fetch: File"
+			],
+			[
+				"block",
+				"Snippet: block"
+			],
+			[
+				":comment",
+				"Snippet: comment"
+			],
+			[
+				"syntaxscss",
+				"Set Syntax: SCSS"
+			],
+			[
+				"install ",
+				"Package Control: Install Package"
+			],
+			[
+				"packageinstall",
+				"Package Control: Install Package"
+			],
+			[
+				":",
+				":w - Save"
+			],
+			[
+				"Dart",
+				"Build: Dart dart2js"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 139.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/home/andre/dev/django-ostinato/testing/test.html",
+		"/home/andre/.config/sublime-text-2/Packages/User/HTML/Django/comment.sublime-snippet",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/templates/base.html",
+		"/home/andre/.config/sublime-text-2/Packages/User/HTML/script-source.sublime-snippet",
+		"/home/andre/.config/sublime-text-2/Packages/User/HTML/form.sublime-snippet",
+		"/home/andre/.config/sublime-text-2/Packages/User/HTML/Django/django-ifelse.sublime-snippet",
+		"/home/andre/.config/sublime-text-2/Packages/User/HTML/Django/django-if.sublime-snippet",
+		"/home/andre/.config/sublime-text-2/Packages/User/HTML/Django/extends.sublime-snippet",
+		"/home/andre/.config/sublime-text-2/Packages/User/HTML/block.sublime-snippet",
+		"/home/andre/.config/sublime-text-2/Packages/User/html/block.sublime-snippet",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/views.py",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/forms.py",
+		"/home/andre/.config/sublime-text-2/Packages/Default/Default (Linux).sublime-keymap",
+		"/home/andre/dev/django-ostinato/ostinato/blog/models.py",
+		"/home/andre/dev/django-ostinato/ostinato/models.py",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/blog/models.py",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/models.py",
+		"/home/andre/dev/django-ostinato/ostinato/blog/tests.py",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/blog/views.py",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/templatetags/website_tags.py",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/templates/blog/entry_detail.html",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/blog/urls.py",
+		"/home/andre/dev/django-ostinato/ostinato/blog/views.py",
+		"/home/andre/dev/django-ostinato/ostinato/blog/urls.py",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/static/sass/main.scss",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/templates/pages/generic_page.html",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/templates/blog/landing_page.html",
+		"/home/andre/dev/django-ostinato/ostinato/pages/tests.py",
+		"/home/andre/dev/django-ostinato/ostinato/pages/templatetags/pages_tags.py",
+		"/home/andre/dev/django-ostinato/demoproject/travis.cfg",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/odemo/test_settings.py",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/odemo/test_urls.py",
+		"/home/andre/dev/django-ostinato/ostinato/pages/templates/pages/tests/basic_page.html",
+		"/home/andre/dev/django-ostinato/ostinato/pages/templates/pages/tests/landing_page.html",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/templates/pages/top_level_list_page.html",
+		"/home/andre/dev/django-ostinato/docs-source/ostinato.pages.rst",
+		"/home/andre/dev/django-ostinato/ostinato/pages/models.py",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/templates/pages/base.html",
+		"/home/andre/dev/django-ostinato/README.rst",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/templates/pages/navbar.html",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/templates/pages/breadcrumbs.html",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/templatetags/__init__.py",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/templates/pages/case_study_page.html",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/website/templates/pages/home_page.html",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/odemo/settings.py",
+		"/home/andre/dev/django-ostinato/.travis.yml",
+		"/home/andre/dev/django-ostinato/.travis.yaml",
+		"/home/andre/dev/django-ostinato/setup.py",
+		"/home/andre/dev/django-ostinato/demoproject/buildout.cfg",
+		"/home/andre/dev/django-ostinato/ostinato/tests/runtests.py",
+		"/home/andre/dev/django-ostinato/ostinato/runtests/runtests.py",
+		"/home/andre/dev/django-ostinato/ostinato/runtests/__init__.py",
+		"/home/andre/dev/django-ostinato/ostinato/testproject/runtests.py",
+		"/home/andre/dev/django-ostinato/ostinato/testproject/__init__.py",
+		"/home/andre/dev/django-ostinato/ostinato/pages/static/pages/js/page_admin.js",
+		"/home/andre/dev/django-ostinato/ostinato/pages/admin.py",
+		"/home/andre/dev/django-ostinato/ostinato/pages/static/pages/css/pages_admin.css",
+		"/home/andre/dev/django-ostinato/ostinato/blog/managers.py",
+		"/home/andre/dev/django-ostinato/docs-source/conf.py",
+		"/home/andre/dev/django-ostinato/ostinato/__init__.py",
+		"/home/andre/dev/django-ostinato/ostinato/blog/workflow.py",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/blog/admin.py",
+		"/home/andre/dev/django-ostinato/demoproject/odemo/odemo/urls.py",
+		"/home/andre/dev/django-ostinato/ostinato/pages/workflow.py",
+		"/home/andre/dev/django-ostinato/ostinato/statemachine/tests.py",
+		"/home/andre/dev/django-ostinato/ostinato/statemachine/core.py",
+		"/home/andre/dev/django-ostinato/ostinato/statemachine/__init__.py",
+		"/home/andre/dev/django-ostinato/ostinato/pages/views.py",
+		"/home/andre/dev/django-ostinato/ostinato/pages/managers.py",
+		"/home/andre/dev/django-ostinato/ostinato/locale/af/LC_MESSAGES/django.po",
+		"/home/andre/dev/django-ostinato/.gitignore",
+		"/home/andre/dev/tehnode/tehnode/website/static/cards/django-ostinato.sublime-project",
+		"/home/andre/Desktop/canned_bid.txt",
+		"/home/andre/dev/django-ostinato/ostinato/pages/templates/pages/breadcrumbs.html",
+		"/home/andre/dev/django-ostinato/ostinato/pages/forms.py",
+		"/home/andre/dev/django-ostinato/ostinato/pages/templates/admin/pages_change_list.html",
+		"/home/andre/dev/django-ostinato/ostinato/pages/templates/admin/pages_change_list_grappelli.html",
+		"/home/andre/dev/django-ostinato/ostinato/pages/templatetags/pages_admin_tags.py",
+		"/home/andre/dev/django-ostinato/ostinato/pages/templates/admin/pages_tree_view.html",
+		"/home/andre/dev/django-ostinato/ostinato/pages/templates/admin/pages/pages_tree_view.html",
+		"/home/andre/dev/django-ostinato/ostinato/pages/templates/admin/pages_change_list_results.html",
+		"/home/andre/dev/django-ostinato/ostinato/pages/templates/admin/mptt_change_list_results.html",
+		"/home/andre/dev/django-ostinato/ostinato/pages/templates/admin/ostinato_change_list.html",
+		"/home/andre/dev/django-ostinato/ostinato/statemachine/forms.py",
+		"/home/andre/dev/django-ostinato/demoproject/src/odemo/templates/pages/landing_page.html",
+		"/home/andre/dev/django-ostinato/demoproject/src/odemo/models.py",
+		"/home/andre/dev/django-ostinato/demoproject/src/odemo/templates/base.html",
+		"/home/andre/dev/django-ostinato/demoproject/src/odemo/urls.py",
+		"/home/andre/dev/django-ostinato/demoproject/src/odemo/settings.py",
+		"/home/andre/dev/django-ostinato/ostinato/pages/urls.py",
+		"/home/andre/dev/django-ostinato/demoproject/src/odemo/admin.py",
+		"/home/andre/dev/django-ostinato/demoproject/src/odemo/templates/page_templates/landing_page.html",
+		"/home/andre/dev/django-ostinato/demoproject/src/odemo/templates/page_templates/base.html",
+		"/home/andre/dev/django-ostinato/demoproject/src/odemo/static/css/main.css",
+		"/home/andre/dev/tehnode/tehnode/tehnode/local_settings.py",
+		"/home/andre/dev/tehnode/tehnode/tehnode/settings.py",
+		"/home/andre/.config/sublime-text-2/Packages/User/Preferences.sublime-settings",
+		"/home/andre/dev/tehnode/tehnode/website/static/cards/cards.dart",
+		"/home/andre/.config/sublime-text-2/Packages/Color Scheme - Default/IDLE.tmTheme",
+		"/home/andre/.config/sublime-text-2/Packages/Theme - Default/Default.sublime-theme",
+		"/home/andre/.config/sublime-text-2/Packages/Block Cursor Everywhere/package-metadata.json",
+		"/home/andre/Applications/Sublime Text 2/sublime_text.desktop"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"pre",
+			"em",
+			"queryset",
+			"Context",
+			"Context(",
+			"breadcrumbs",
+			"get_breadcrumbs",
+			"self",
+			"test_suite",
+			"pass",
+			"test_related_lookup",
+			"test_published",
+			"view",
+			"test_get_navbar",
+			"PageWorkflow",
+			"breadcrumbs_in_context",
+			"state_field",
+			"$(",
+			".actions",
+			"\n        ",
+			"reorder",
+			"            #",
+			"def items_for_result(cl, result, form):\n    \"\"\"\n    Generates the actual list of data.\n\n    This function is just a copy from the default django function, with\n    a couple of our own modifications, which we will notify about via\n    comments.\n    \"\"\"\n    first = True\n    pk = cl.lookup_opts.pk.attname\n    for field_name in cl.list_display:\n        row_class = ''\n\n        try:\n            f, attr, value = lookup_field(field_name, result, cl.model_admin)\n        except (AttributeError, ObjectDoesNotExist):\n            result_repr = EMPTY_CHANGELIST_VALUE\n        else:\n            if f is None:\n                if field_name == u'action_checkbox':\n                    row_class = ' class=\"action-checkbox\"'\n                allow_tags = getattr(attr, 'allow_tags', False)\n                boolean = getattr(attr, 'boolean', False)\n                if boolean:\n                    allow_tags = True\n                    result_repr = _boolean_icon(value)\n                else:\n                    result_repr = smart_unicode(value)\n                # Strip HTML tags in the resulting text, except if the\n                # function has an \"allow_tags\" attribute set to True.\n                if not allow_tags:\n                    result_repr = escape(result_repr)\n                else:\n                    result_repr = mark_safe(result_repr)\n            else:\n                if isinstance(f.rel, models.ManyToOneRel):\n                    field_val = getattr(result, f.name)\n                    if field_val is None:\n                        result_repr = EMPTY_CHANGELIST_VALUE\n                    else:\n                        result_repr = escape(field_val)\n                else:\n                    result_repr = display_for_field(value, f)\n                if isinstance(f, models.DateField)\\\n                or isinstance(f, models.TimeField)\\\n                or isinstance(f, models.ForeignKey):\n                    row_class = ' class=\"nowrap\"'\n\n        if force_unicode(result_repr) == '':\n            result_repr = mark_safe('&nbsp;')\n\n        # If list_display_links not defined, add the link tag to the first field\n        if (first and not cl.list_display_links) or field_name in cl.list_display_links:\n            table_tag = {True:'th', False:'td'}[first]\n            first = False\n            url = cl.url_for_result(result)\n\n            # Convert the pk to something that can be used in Javascript.\n            # Problem cases are long ints (23L) and non-ASCII strings.\n            if cl.to_field:\n                attr = str(cl.to_field)\n            else:\n                attr = pk\n\n            value = result.serializable_value(attr)\n            result_id = repr(force_unicode(value))[1:]\n\n            yield mark_safe(u'<%s%s><a href=\"%s\"%s>%s</a></%s>' % \\\n                (table_tag, row_class, url, (cl.is_popup and ' onclick=\"opener.dismissRelatedLookupPopup(window, %s); return false;\"' % result_id or ''), conditional_escape(result_repr), table_tag))\n\n        else:\n            # By default the fields come from ModelAdmin.list_editable, but if we pull\n            # the fields out of the form instead of list_editable custom admins\n            # can provide fields on a per request basis\n            if (form and field_name in form.fields and not (\n                    field_name == cl.model._meta.pk.name and\n                        form[cl.model._meta.pk.name].is_hidden)):\n                bf = form[field_name]\n                result_repr = mark_safe(force_unicode(bf.errors) + force_unicode(bf))\n            else:\n                result_repr = conditional_escape(result_repr)\n\n            yield mark_safe(u'<td%s>%s</td>' % (row_class, result_repr))\n\n    if form and not form[cl.model._meta.pk.name].is_hidden:\n        yield mark_safe(u'<td>%s</td>' % force_unicode(form[cl.model._meta.pk.name]))\n\n\ndef pages_results(cl):\n    \"\"\"\n    This function is just a duplicate of the standard django results()\n    function. We only have it here so that we can override the\n    ``items_for_result()`` method.\n    \"\"\"\n    if cl.formset:\n        for res, form in zip(cl.result_list, cl.formset.forms):\n            yield ResultList(form, items_for_result(cl, res, form))\n    else:\n        for res in cl.result_list:\n            yield ResultList(None, items_for_result(cl, res, None))\n\n\n@register.inclusion_tag('admin/ostinato_change_list_results.html')\ndef pages_result_list(cl):\n    \"\"\" Our custom results list for ostinato pages \"\"\"\n    return {\n        \"cl\": cl,\n        \"is_grappelli\": \"grappelli\" in settings.INSTALLED_APPS,\n        \"result_hidden_fields\": list(result_hidden_fields(cl)),\n        \"result_headers\": list(result_headers(cl)),\n        \"results\": list(pages_results(cl)),\n    }\n",
+			"lookup_field",
+			"page_id",
+			"toggle_row",
+			"        ",
+			"\n        "
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"get_workflow()",
+			"django.jQuery(",
+			"toggleRow"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "demoproject/odemo/website/static/sass/main.scss",
+					"settings":
+					{
+						"buffer_size": 6298,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								629,
+								629
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/Syntax Highlighting for Sass/Syntaxes/SCSS.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/home/andre/.config/sublime-text-2/Packages/Gist/Gist.sublime-settings",
+					"settings":
+					{
+						"buffer_size": 1010,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								247,
+								247
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/JavaScript/JSON.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "demoproject/odemo/website/templates/pages/top_level_list_page.html",
+					"settings":
+					{
+						"buffer_size": 367,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								55,
+								55
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/HTML/HTML.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "demoproject/odemo/website/templates/pages/contact_page_include.html",
+					"settings":
+					{
+						"buffer_size": 151,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								149,
+								149
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/HTML/HTML.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "/home/andre/.config/sublime-text-2/Packages/User/Fetch.sublime-settings",
+					"settings":
+					{
+						"buffer_size": 357,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								103,
+								103
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/JavaScript/JSON.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "demoproject/odemo/website/models.py",
+					"settings":
+					{
+						"buffer_size": 2238,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								763,
+								763
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"spell_check": false,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 68.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 34.0
+	},
+	"input":
+	{
+		"height": 33.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 112.0
+	},
+	"replace":
+	{
+		"height": 64.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"base.ht",
+				"demoproject/odemo/website/templates/base.html"
+			],
+			[
+				"base.html",
+				"demoproject/odemo/website/templates/base.html"
+			],
+			[
+				"scss",
+				"demoproject/odemo/website/static/sass/main.scss"
+			],
+			[
+				"models",
+				"ostinato/blog/models.py"
+			],
+			[
+				"models.py",
+				"ostinato/models.py"
+			],
+			[
+				"main.scss",
+				"demoproject/odemo/website/static/sass/main.scss"
+			],
+			[
+				"odemo/blog/mod",
+				"demoproject/odemo/blog/models.py"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+			[
+				"",
+				"/home/andre/dev/tehnode/tehnode.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 276.0,
+	"status_bar_visible": true
+}
