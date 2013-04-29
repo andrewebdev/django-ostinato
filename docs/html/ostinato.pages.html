@@ -422,16 +422,6 @@ specific page.</p>
 {% navbar for_page=page %}
 </pre></div>
 </div>
-<p>The <tt class="docutils literal"><span class="pre">navbar</span></tt> tag also allows has the ability to &#8220;discover&#8221; a page, based on
-the path. This is helpful if you are on a page that isn&#8217;t a ostinato page, but
-a page-slug does exist in the url path, and you want that page to be
-highlighted as the active page.</p>
-<div class="highlight-html"><div class="highlight"><pre>{% load pages_tags %}
-{% navbar path=request.path %}
-</pre></div>
-</div>
-<p>Note that in the example above, you will need to add the django request
-context-processor.</p>
 <p><strong>breadcrumbs(for_page=None, obj=None)</strong></p>
 <p>This tag will by default look for <tt class="docutils literal"><span class="pre">page</span></tt> in the context. If found it will
 render the breadcrumbs for this page&#8217;s ancestors.</p>

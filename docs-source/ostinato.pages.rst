@@ -416,20 +416,6 @@ specific page.
     {% navbar for_page=page %}
 
 
-The ``navbar`` tag also allows has the ability to "discover" a page, based on
-the path. This is helpful if you are on a page that isn't a ostinato page, but
-a page-slug does exist in the url path, and you want that page to be
-highlighted as the active page.
-
-.. code-block:: html
-    
-    {% load pages_tags %}
-    {% navbar path=request.path %}
-
-Note that in the example above, you will need to add the django request
-context-processor.
-
-
 **breadcrumbs(for_page=None, obj=None)**
 
 This tag will by default look for ``page`` in the context. If found it will
