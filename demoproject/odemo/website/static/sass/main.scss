@@ -281,6 +281,7 @@ header {
                 border: 1px solid #999;
                 color: white;
                 font-weight: bold;
+                margin-left: 103px;
                 @include background(linear-gradient(top, $color-green1, $color-green2));
                 &:hover { background-color: black; color: #eee; }
             }
