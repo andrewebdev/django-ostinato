@@ -1,4 +1,3 @@
-from django.utils.datastructures import SortedDict
 from appregister import SortedRegistry
 
 
@@ -18,7 +17,7 @@ class ContentRegister(SortedRegistry):
 
     def get_template_name(self, template_id):
         choices = self.get_template_choices()
-        
+
         for c in choices:
             if c[0] == template_id:
                 return c[1]
@@ -27,4 +26,3 @@ class ContentRegister(SortedRegistry):
 
 
 page_content = ContentRegister()
-

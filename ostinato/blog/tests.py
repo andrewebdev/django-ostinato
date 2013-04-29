@@ -1,6 +1,4 @@
 from django.test import TestCase
-from django.test.client import Client
-from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.utils import timezone
@@ -15,8 +13,8 @@ class Entry(BlogEntryBase):
 
 
 def create_objects():
-    u = User.objects.create(username='user1', password='',
-        email='test@example.com')
+    u = User.objects.create(
+        username='user1', password='', email='test@example.com')
 
     Entry.objects.create(
         title='Entry Title 1',
@@ -49,10 +47,10 @@ class BlogEntryBaseTestCase(TestCase):
         self.assertTrue(BlogEntryBase._meta.abstract)
 
     def test_model_instance(self):
-        u = User.objects.create(username='user1', password='',
-            email='test@example.com')
+        u = User.objects.create(
+            username='user1', password='', email='test@example.com')
 
-        entry = Entry.objects.create(
+        Entry.objects.create(
             title='Entry Title 1',
             slug='entry-title-1',
             content='Entry Content 1',
@@ -62,7 +60,8 @@ class BlogEntryBaseTestCase(TestCase):
     def test_slug_is_unique(self):
         create_objects()
         with self.assertRaises(IntegrityError):
-            Entry.objects.create(title='Invalid', slug='entry-title-1',
+            Entry.objects.create(
+                title='Invalid', slug='entry-title-1',
                 author=User.objects.all()[0])
 
     def test_unicode_name(self):
@@ -160,5 +159,6 @@ class BlogEntryManagerTestCase(TestCase):
             sm.take_action('publish')
             item.save()
 
-        self.assertEqual([2, 3],
+        self.assertEqual(
+            [2, 3],
             list(Entry.objects.published().values_list('id', flat=True)))
