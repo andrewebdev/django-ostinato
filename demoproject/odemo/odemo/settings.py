@@ -119,7 +119,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     'grappelli',
     'django.contrib.admin',
 
@@ -140,6 +140,7 @@ INSTALLED_APPS = (
 )
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner'
 
 # Third party app config
 MPTT_ADMIN_LEVEL_INDENT = 20

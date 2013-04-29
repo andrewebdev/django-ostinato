@@ -1,24 +1,19 @@
 from django.test import TestCase, TransactionTestCase
-from django.test.client import Client, RequestFactory
+from django.test.client import RequestFactory
 from django.db import models
 from django.contrib import admin
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.core.cache import get_cache
 from django.template import Context, Template
 from django.template.response import SimpleTemplateResponse, TemplateResponse
-from django.utils import simplejson as json
-from django.utils import timezone
 from django import http
-from django.conf import settings
 
 from ostinato.pages.registry import page_content
 from ostinato.pages.models import Page, PageContent
 from ostinato.pages.views import PageView, PageReorderView, page_dispatch
 from ostinato.pages.templatetags.pages_tags import (
     get_page, filter_pages, breadcrumbs)
-from ostinato.utils import benchmark
 
 
 page_content.setup()  # Clear the registry before we start the tests
@@ -34,8 +29,8 @@ class Contributor(models.Model):
     name = models.CharField(max_length=50)
 
     ## Required to test the inlines with through model
-    photos = models.ManyToManyField(Photo, through='ContributorPhotos',
-        null=True, blank=True)
+    photos = models.ManyToManyField(
+        Photo, through='ContributorPhotos', null=True, blank=True)
 
 
 class ContributorPhotos(models.Model):
@@ -46,6 +41,7 @@ class ContributorPhotos(models.Model):
 
 class ContributorInline(admin.StackedInline):
     model = Contributor
+
 
 class PhotoInline(admin.StackedInline):
     model = Contributor.photos.through
@@ -104,36 +100,36 @@ class OtherPage(ContentMixin, PageContent):
 
 
 def create_pages():
-    user = User.objects.create(username='user1', password='secret',
-        email='user1@example.com')
+    user = User.objects.create(
+        username='user1', password='secret', email='user1@example.com')
 
     p = Page.objects.create(
         title="Page 1", slug="page-1",
         author=user, show_in_nav=True,
-        created_date = "2012-04-10 12:14:51.203925+00:00",
-        modified_date = "2012-04-10 12:14:51.203925+00:00",
+        created_date="2012-04-10 12:14:51.203925+00:00",
+        modified_date="2012-04-10 12:14:51.203925+00:00",
         template='pages.landingpage',
     )
-    p2 = Page.objects.create(
+    Page.objects.create(
         title="Page 2", slug="page-2", short_title='P2',
         author=user, show_in_nav=True,
-        created_date = "2012-04-10 12:14:51.203925+00:00",
-        modified_date = "2012-04-10 12:14:51.203925+00:00",
+        created_date="2012-04-10 12:14:51.203925+00:00",
+        modified_date="2012-04-10 12:14:51.203925+00:00",
         template='pages.basicpage',
     )
-    p3 = Page.objects.create(
+    Page.objects.create(
         title="Page 3", slug="page-3", short_title='Page 3',
         author=user, show_in_nav=True,
-        created_date = "2012-04-10 12:14:51.203925+00:00",
-        modified_date = "2012-04-10 12:14:51.203925+00:00",
+        created_date="2012-04-10 12:14:51.203925+00:00",
+        modified_date="2012-04-10 12:14:51.203925+00:00",
         template='pages.basicpage',
         parent=p,
     )
-    func_page = Page.objects.create(
+    Page.objects.create(
         title="Page 1", slug="func-page",
         author=user, show_in_nav=False,
-        created_date = "2012-04-10 12:14:51.203925+00:00",
-        modified_date = "2012-04-10 12:14:51.203925+00:00",
+        created_date="2012-04-10 12:14:51.203925+00:00",
+        modified_date="2012-04-10 12:14:51.203925+00:00",
         template='pages.basicpagefunc',
     )
 
@@ -161,7 +157,8 @@ class ContentRegistryTestCase(TestCase):
         ), page_content.get_template_choices())
 
     def test_get_template_name(self):
-        self.assertEqual('Pages | Basic Page',
+        self.assertEqual(
+            'Pages | Basic Page',
             page_content.get_template_name('pages.basicpage'))
 
 
@@ -267,7 +264,8 @@ class PageManagerTestCase(TestCase):
         create_pages()
 
     def test_published(self):
-        self.assertEqual([1, 3, 2, 4],
+        self.assertEqual(
+            [1, 3, 2, 4],
             list(Page.objects.published().values_list('id', flat=True)))
 
     def test_get_empty_navbar(self):
@@ -320,8 +318,8 @@ class PageManagerTestCase(TestCase):
         rf = RequestFactory()
         request = rf.get('/page-1/page-3/')
 
-        self.assertEqual('page-3',
-            Page.objects.get_from_path(request.path).slug)
+        self.assertEqual(
+            'page-3', Page.objects.get_from_path(request.path).slug)
 
     def test_generate_url_cache(self):
         cache = get_cache('default')
@@ -336,7 +334,6 @@ class PageManagerTestCase(TestCase):
         self.assertEqual('/', cache_url(1))
         self.assertEqual('/page-2/', cache_url(2))
         self.assertEqual('/page-1/page-3/', cache_url(3))
-
 
     def test_clear_url_cache(self):
         cache = get_cache('default')
@@ -367,8 +364,8 @@ class PageContentModelTestCase(TestCase):
         self.assertEqual('pages/tests/landing_page.html', p.get_template())
 
     def test_get_template_when_none(self):
-        p = Page.objects.create(title='Test Page', slug='test-page',
-            template='pages.otherpage')
+        p = Page.objects.create(
+            title='Test Page', slug='test-page', template='pages.otherpage')
         self.assertEqual('pages/other_page.html', p.get_template())
 
     def test_add_content(self):
@@ -397,8 +394,8 @@ class PageViewTestCase(TestCase):
 
     def test_reverse_lookup(self):
         self.assertEqual('/', reverse('ostinato_page_home'))
-        self.assertEqual('/page-1/',
-            reverse('ostinato_page_view', args=['page-1']))
+        self.assertEqual(
+            '/page-1/', reverse('ostinato_page_view', args=['page-1']))
 
     def test_view_response(self):
         response = self.client.get('/page-1/')
@@ -601,8 +598,8 @@ class PageReorderViewTestCase(TransactionTestCase):
     def test_post_response(self):
 
         # We need a logged in user
-        u = User.objects.create(username='tester', password='',
-            email='test@example.com')
+        u = User.objects.create(
+            username='tester', password='', email='test@example.com')
         u.is_staff = True
         u.set_password('secret')
         u.save()
