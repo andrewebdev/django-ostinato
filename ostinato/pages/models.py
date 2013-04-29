@@ -2,15 +2,11 @@ import re
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from django.core.exceptions import FieldError
 from django.core.cache import get_cache
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django.dispatch import receiver
-from django.db.models.signals import pre_save
 from django.conf import settings
 
 from mptt.models import MPTTModel, TreeForeignKey
@@ -22,39 +18,50 @@ from ostinato.pages.workflow import get_workflow
 DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 5)
 
 
+class ContentError(Exception):
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return self.value
+
+
 ## Models
 class Page(MPTTModel):
     """ A basic page model """
     title = models.CharField(_("Title"), max_length=150)
-    slug = models.SlugField(_("Slug"), unique=True,
-        help_text=_("A url friendly slug."))
-    short_title = models.CharField(_("Short title"),
-        max_length=50, null=True, blank=True,
+    slug = models.SlugField(
+        _("Slug"), unique=True, help_text=_("A url friendly slug."))
+    short_title = models.CharField(
+        _("Short title"), max_length=50, null=True, blank=True,
         help_text=_("A shorter title which can be used in menus etc. If "
                     "this is not supplied then the normal title field will "
                     "be used."))
 
-    template = models.CharField(_("Template"), max_length=250) 
+    template = models.CharField(_("Template"), max_length=250)
 
-    redirect = models.CharField(_("Redirect"),
-        max_length=200, blank=True, null=True,
+    redirect = models.CharField(
+        _("Redirect"), max_length=200, blank=True, null=True,
         help_text=_("Use this to point to redirect to another page or "
                     "website."))
 
     show_in_nav = models.BooleanField(_("Show in nav"), default=True)
     show_in_sitemap = models.BooleanField(_("Show in sitemap"), default=True)
 
-    state = models.IntegerField(_("State"),
-        default=DEFAULT_STATE, choices=get_workflow().get_choices())
+    state = models.IntegerField(
+        _("State"), default=DEFAULT_STATE, choices=get_workflow().get_choices())
 
     created_date = models.DateTimeField(_("Created date"), null=True, blank=True)
     modified_date = models.DateTimeField(_("Modified date"), null=True, blank=True)
     publish_date = models.DateTimeField(_("Published date"), null=True, blank=True)
 
-    author = models.ForeignKey(User, verbose_name=_("Author"),
+    author = models.ForeignKey(
+        User, verbose_name=_("Author"),
         related_name='pages_authored', null=True, blank=True)
 
-    parent = TreeForeignKey('self', verbose_name=_("Parent"),
+    parent = TreeForeignKey(
+        'self', verbose_name=_("Parent"),
         null=True, blank=True, related_name='page_children')
 
     ## Managers
@@ -64,16 +71,13 @@ class Page(MPTTModel):
     _contents = None
     _content_model = None
 
-
     class Meta:
         permissions = get_workflow().get_permissions()
         verbose_name = _("Page")
         verbose_name_plural = _("Pages")
 
-
     def __unicode__(self):
         return '%s' % self.title
-
 
     def save(self, *args, **kwargs):
         now = timezone.now()
@@ -94,9 +98,7 @@ class Page(MPTTModel):
         Page.objects.clear_url_cache()
         Page.objects.clear_navbar_cache()
         Page.objects.clear_breadcrumbs_cache()
-
         return page
-
 
     def get_short_title(self):
         if self.short_title:
@@ -104,12 +106,10 @@ class Page(MPTTModel):
         else:
             return self.title
 
-
     @models.permalink
     def perma_url(self, data):
         """ A seperate method to specifically deal with permalinks """
         return data
-
 
     def get_absolute_url(self, clear_cache=False):
         """ Cycle through the parents and generate the path """
@@ -141,14 +141,12 @@ class Page(MPTTModel):
 
         return url
 
-
     def get_content_model(self):
         if not self._content_model:
             label, model = self.template.split('.')
             content_type = ContentType.objects.get(app_label=label, model=model)
             self._content_model = content_type.model_class()
         return self._content_model
-
 
     def get_content(self):
         """
@@ -164,7 +162,6 @@ class Page(MPTTModel):
 
     contents = property(get_content)
 
-
     def get_template(self):
         return self.get_content_model().get_template()
 
@@ -175,8 +172,8 @@ class PageContent(models.Model):
     Our base PageContent model. All other content models need to subclass
     this one.
     """
-    page = models.OneToOneField(Page,
-        related_name='%(app_label)s_%(class)s_content')
+    page = models.OneToOneField(
+        Page, related_name='%(app_label)s_%(class)s_content')
 
     class Meta:
         abstract = True
@@ -195,11 +192,9 @@ class PageContent(models.Model):
 
     def add_content(self, **kwargs):
         for k in kwargs:
-
             if hasattr(self, k):
-                raise Exception('Cannot add "%s" to %s since that attribute'
-                    'already exists.' % (k, self))
-
+                raise ContentError('Cannot add "%s" to %s since that attribute '
+                                   'already exists.' % (k, self))
             self.__dict__[k] = kwargs[k]
 
     @classmethod
