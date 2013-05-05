@@ -80,30 +80,42 @@ class PageManager(TreeManager):
 
         return crumbs
 
-    def get_from_path(self, url_path):
+    def get_from_path(self, url_path, clear_cache=False):
         """ Returns a page object, base on the url path. """
+        cache = get_cache('default')
+        cache_key = 'ostinato:pages:page_for_path:%s' % url_path
 
-        path = url_path.split('/')
-        path.reverse()
+        if clear_cache:
+            cache.delete(cache_key)
 
-        ## TODO: Maybe we should cache the page paths somewhere, so that
-        ## we dont have to do a query for each page.
-        for node in path:
-            try:
-                if node:
-                    page = self.get_query_set().get(slug=node)
-                    return page
-            except:
-                pass
+        page = cache.get(cache_key)
+
+        if not page:
+            path = url_path.split('/')
+            path.reverse()
+
+            for node in path:
+                try:
+                    if node:
+                        page = self.get_query_set().get(slug=node)
+                        cache.set(cache_key, page, 60 * 60 * 24 * 7 * 4)
+                        break
+                except:
+                    pass
+
+        return page
 
     def generate_url_cache(self):
-        cache = get_cache('default')
         for page in self.get_query_set().all():
             page.get_absolute_url()
 
     def clear_url_cache(self):
         cache = get_cache('default')
-        page_ids = list(self.get_query_set().values_list('id', flat=True))
+        pages = self.get_query_set()
+        page_ids = list(pages.values_list('id', flat=True))
+        # We must clear the page_for_path cache before the normal url cache
+        # since get_absolute_url() will create a cache if it doesn't exist
+        cache.delete_many(['ostinato:pages:page_for_path:%s' % p.get_absolute_url() for p in pages])
         cache.delete_many(['ostinato:pages:page:%s:url' % i for i in page_ids])
 
     def clear_navbar_cache(self):

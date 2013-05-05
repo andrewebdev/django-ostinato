@@ -119,16 +119,15 @@ class Page(MPTTModel):
         if clear_cache:
             cache.delete(cache_key)
 
-        # Try to get the path from the cache
         url = cache.get(cache_key)
 
         if not url:
-            # Generate the url and add it to the cache
             if self.redirect:
                 return self.redirect
 
             if self.is_root_node() and self == Page.objects.root_nodes()[0]:
                 url = reverse('ostinato_page_home')
+
             else:
                 path = list(self.get_ancestors().values_list('slug', flat=True))
                 path.append(self.slug)
@@ -136,8 +135,14 @@ class Page(MPTTModel):
                     'path': '/'.join(path)
                 }))
 
-            # Set the cache to timeout after an hour
-            cache.set(cache_key, url, 60 * 60)
+            # Set the cache to timeout after a month
+            cache.set(cache_key, url, 60 * 60 * 24 * 7 * 4)
+
+        # Now that we have the url, we should also cache the path lookup.
+        # This is used by the PageManager.objects.get_from_path() to discover
+        # a page based on the url path.
+        url_cache_key = 'ostinato:pages:page_for_path:%s' % url
+        cache.set(url_cache_key, self, 60 * 60 * 24 * 7 * 4)
 
         return url
 

@@ -161,6 +161,11 @@ class ContentRegistryTestCase(TestCase):
             'Pages | Basic Page',
             page_content.get_template_name('pages.basicpage'))
 
+    def test_get_template_name_invalid_id(self):
+        self.assertEqual(
+            'invalid.content',
+            page_content.get_template_name('invalid.content'))
+
 
 class PageModelTestCase(TestCase):
 
@@ -305,6 +310,20 @@ class PageManagerTestCase(TestCase):
         p.save()
         self.assertEqual(expected_nav, Page.objects.get_navbar())
 
+    def test_get_navbar_for_page(self):
+        expected_nav = [{
+            'slug': u'page-3',
+            'title': u'Page 3',
+            'url': '/page-1/page-3/',
+            'level': 1,
+            'tree_id': 1,
+        }]
+        self.assertEqual(
+            expected_nav,
+            Page.objects.get_navbar(
+                for_page=Page.objects.get(slug='page-1'),
+                clear_cache=True))
+
     def test_get_breadcrumbs(self):
         expected_crumbs = [{
             'slug': u'page-1',
@@ -316,14 +335,20 @@ class PageManagerTestCase(TestCase):
             'url': '/page-1/page-3/',
         }]
         p = Page.objects.get(slug='page-3')
-        self.assertEqual(expected_crumbs, Page.objects.get_breadcrumbs(p))
+        self.assertEqual(expected_crumbs, Page.objects.get_breadcrumbs(
+            p, clear_cache=True))
 
     def test_get_page_from_path(self):
         rf = RequestFactory()
         request = rf.get('/page-1/page-3/')
-
         self.assertEqual(
-            'page-3', Page.objects.get_from_path(request.path).slug)
+            'page-3',
+            Page.objects.get_from_path(request.path, clear_cache=True).slug)
+
+    def test_get_page_from_path_returns_none(self):
+        rf = RequestFactory()
+        request = rf.get('/no/pages/on/path/')
+        self.assertIsNone(Page.objects.get_from_path(request.path))
 
     def test_generate_url_cache(self):
         cache = get_cache('default')
