@@ -1,9 +1,6 @@
 from django.views.generic import View, TemplateView
-from django.views.generic.edit import FormMixin
 from django.shortcuts import get_object_or_404
-from django.utils import simplejson as json
 from django.utils.decorators import method_decorator
-from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.contrib.admin.views.decorators import staff_member_required
 from django import http
@@ -24,10 +21,10 @@ def page_dispatch(request, *args, **kwargs):
 
     ## Some basic page checking and authorization
     if 'path' in kwargs:
-        path = kwargs['path'].split('/')
-
-        if not path[-1]:
-            path = path[:-1]
+        if kwargs['path'][-1] == '/':
+            path = kwargs['path'][:-1].split('/')
+        else:
+            path = kwargs['path'].split('/')
 
         page = get_object_or_404(Page, slug=path[-1])
 
@@ -39,8 +36,9 @@ def page_dispatch(request, *args, **kwargs):
             raise http.Http404
 
     sm = get_workflow()(instance=page)
-    if sm.state == 'Private' and not request.user.has_perm('pages.private_view'):
-        if page.author != request.user or not request.user.is_superuser:
+    has_perm = request.user.has_perm('pages.private_view')
+    if sm.state == 'Private' and not has_perm:
+        if request.user != page.author and not request.user.is_superuser:
             return http.HttpResponseForbidden()
 
     content = page.get_content_model()
@@ -97,4 +95,3 @@ class CustomView(PageView):
         c = super(CustomView, self).get_context_data(**kwargs)
         c['custom'] = 'Some Custom Context'
         return c
-

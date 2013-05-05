@@ -2,7 +2,7 @@ from django.test import TestCase, TransactionTestCase
 from django.test.client import RequestFactory
 from django.db import models
 from django.contrib import admin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.core.cache import get_cache
 from django.template import Context, Template
@@ -431,6 +431,9 @@ class PageViewTestCase(TestCase):
     def setUp(self):
         create_pages()
 
+    def tearDown(self):
+        self.client.logout()
+
     def test_view_exists(self):
         PageView
 
@@ -458,6 +461,48 @@ class PageViewTestCase(TestCase):
         response = self.client.get('/func-page/')
         self.assertEqual(200, response.status_code)
 
+    def test_unauthorized_user_raises_forbidden(self):
+        # First we make the page private
+        p = Page.objects.get(slug='page-1')
+        p.state = 1
+        p.save()
+
+        response = self.client.get('/page-1/')
+        self.assertEqual(403, response.status_code)
+
+    def test_author_can_access_own_private_page(self):
+        # First we make the page private
+        p = Page.objects.get(slug='page-1')
+        p.state = 1
+        p.save()
+
+        u = User.objects.get(username='user1')
+        u.set_password('secret')
+        u.save()
+
+        self.client.login(username="user1", password='secret')
+        response = self.client.get('/page-1/')
+        self.assertEqual(200, response.status_code)
+
+    def test_superuser_can_access_private_page(self):
+        # First we make the page private
+        p = Page.objects.get(slug='page-1')
+        p.state = 1
+        p.save()
+
+        # Make a second user, which is a superuser
+        u = User.objects.create(
+            username='not_an_author',
+            password="secret",
+            email="naa@example.com")
+        u.set_password("secret")
+        u.is_superuser = True
+        u.save()
+
+        self.client.login(username='not_an_author', password='secret')
+        response = self.client.get('/page-1/')
+        self.assertEqual(200, response.status_code)
+
 
 class ViewDispatcherTestCase(TestCase):
 
@@ -472,7 +517,7 @@ class ViewDispatcherTestCase(TestCase):
     def test_returns_valid_view(self):
         rf = RequestFactory()
         request = rf.get('/page-1/')
-
+        request.user = AnonymousUser()
         response = page_dispatch(request)
         self.assertEqual(200, response.status_code)
         self.assertIsInstance(response, TemplateResponse)
