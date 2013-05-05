@@ -10,6 +10,5 @@ class PageSitemap(Sitemap):
     def items(self):
         return Page.objects.published().filter(show_in_sitemap=True)
 
-    def lastmod(self, obj): 
+    def lastmod(self, obj):
         return obj.modified_date
-

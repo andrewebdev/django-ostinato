@@ -544,10 +544,9 @@ class NavBarTemplateTagTestCase(TestCase):
     def setUp(self):
         create_pages()
 
+    def test_navbar_renders(self):
         t = Template('{% load pages_tags %}{% navbar %}')
         self.response = SimpleTemplateResponse(t)
-
-    def test_navbar_renders(self):
         self.response.render()
         self.assertTrue(self.response.is_rendered)
 

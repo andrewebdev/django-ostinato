@@ -14,14 +14,10 @@ def navbar(context, for_page=None):
     ``for_page`` is used to specify a navbar for a specific
         page (it's children); defaults to root level pages
     """
+    # TODO: Maybe we should set page to be ``for_page`` if it's not in the
+    # context?
     page = context.get('page', None)
-
-    if for_page and not for_page.is_leaf_node():
-        navbar = Page.objects.get_navbar(for_page=for_page)
-    else:
-        # Return root level pages
-        navbar = Page.objects.get_navbar(for_page=None)
-
+    navbar = Page.objects.get_navbar(for_page=for_page)
     return {
         'page': page,
         'navbar': navbar,
@@ -62,6 +58,7 @@ def get_page(**kwargs):
     try:
         return Page.objects.filter(**kwargs)[0]
     except:
+        # Template tags should fail silently
         return None
 
 
@@ -73,4 +70,5 @@ def filter_pages(**kwargs):
     try:
         return Page.objects.filter(**kwargs)
     except:
+        # Template tags should fail silently
         return None
