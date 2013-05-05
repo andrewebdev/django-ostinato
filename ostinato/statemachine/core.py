@@ -1,5 +1,4 @@
 class SMException(Exception):
-
     def __init__(self, value):
         self.value = value
 
@@ -28,7 +27,6 @@ class State(object):
         ('delete', 'Can Delete'),
     )
 
-
     def __init__(self, instance=None, **kwargs):
         self.instance = instance
         self.extra_args = kwargs
@@ -54,9 +52,10 @@ class State(object):
         try:
             new_state = self.transitions[action]
         except KeyError:
-            raise InvalidTransition('%s is not a valid action. Valid actions '\
-                'are: %s' % (action, [k for k in self.transitions]))
-        
+            raise InvalidTransition(
+                '%s is not a valid action. Valid actions are: %s' % (
+                    action, [k for k in self.transitions]))
+
         # Try to run a custom method if it exists
         if hasattr(self, action):
             getattr(self, action)(**kwargs)
@@ -104,8 +103,9 @@ class StateMachine(object):
         """
         choices = ()
         for k in cls.state_map:
-            choices += ((k,
-                cls.state_map[k].verbose_name or cls.state_map[k].__name__),)
+            choices += (
+                (k, cls.state_map[k].verbose_name or cls.state_map[k].__name__),
+            )
 
         return choices
 
@@ -122,8 +122,7 @@ class StateMachine(object):
 
         state = self.extra_args.get('state', None)
         if not state:
-            state = getattr(self.instance, self.state_field, None)\
-                    or self.initial_state
+            state = getattr(self.instance, self.state_field, None) or self.initial_state
 
             if state not in self.state_map:
                 state = self.initial_state
@@ -179,7 +178,6 @@ class StateMachine(object):
                     raise InvalidState(
                         "%s contains an invalid action target, %s." %
                         (state_cl.__name__, t))
-
 
     @classmethod
     def get_permissions(cls):

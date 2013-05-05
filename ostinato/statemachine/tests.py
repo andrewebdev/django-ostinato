@@ -2,8 +2,8 @@ from django.test import TestCase
 from django.db import models
 
 from ostinato.statemachine import State, StateMachine
-from ostinato.statemachine import (InvalidState, InvalidTransition,
-    InvalidStateMachine)
+from ostinato.statemachine import (
+    InvalidState, InvalidTransition, InvalidStateMachine)
 
 
 # Create a test model to test the StateMachine with
@@ -71,7 +71,8 @@ class StateTestCase(TestCase):
 
     def test_init_and_kwargs(self):
         temp = TestModel(name='Test Model 1', state='private')
-        private = Private(instance=temp,
+        private = Private(
+            instance=temp,
             **{'arg1': 'Argument 1', 'arg2': 'Argument 2'})
 
         self.assertEqual(temp, private.instance)
@@ -80,7 +81,8 @@ class StateTestCase(TestCase):
 
     def test_set_state(self):
         temp = TestModel(name='Test Model 1', state='private')
-        private = Private(instance=temp,
+        private = Private(
+            instance=temp,
             **{'arg1': 'Argument 1', 'arg2': 'Argument 2'})
 
         self.assertEqual('test_state', private.set_state('test_state'))
@@ -88,14 +90,16 @@ class StateTestCase(TestCase):
 
     def test_transition(self):
         temp = TestModel(name='Test Model 1', state='private')
-        private = Private(instance=temp,
+        private = Private(
+            instance=temp,
             **{'arg1': 'Argument 1', 'arg2': 'Argument 2'})
 
         self.assertEqual('public', private.transition('publish'))
 
     def test_invalid_transition(self):
         temp = TestModel(name='Test Model 1', state='private')
-        private = Private(instance=temp,
+        private = Private(
+            instance=temp,
             **{'arg1': 'Argument 1', 'arg2': 'Argument 2'})
 
         with self.assertRaises(InvalidTransition):
@@ -179,7 +183,7 @@ class StateMachineTestCase(TestCase):
             ('can_publish', 'Can Publish'),
             ('can_retract', 'Can Retract'),
         )
-        
+
         for p in expected_perms:
             self.assertIn(p, perms)
 
@@ -188,15 +192,15 @@ class StateMachineTestCase(TestCase):
 
         re = """"invalid" is not a valid state for InvalidSM. Valid states are \\['public', 'private', 'error'\\]"""
         with self.assertRaisesRegexp(InvalidStateMachine, re):
-            invalid_sm = InvalidSM(instance=temp)
+            InvalidSM(instance=temp)
 
         re = "ErrorState contains an invalid action target, invalid."
         with self.assertRaisesRegexp(InvalidState, re):
-            invalid_sm = ErrorSM(instance=temp)
+            ErrorSM(instance=temp)
 
         re = "HangingState does not have any actions, any object entering this state may never be to get out!"
         with self.assertRaisesRegexp(InvalidState, re):
-            invalid_sm = HangingSM(instance=temp)
+            HangingSM(instance=temp)
 
 
 # Create some states and a StateMachine
@@ -220,7 +224,7 @@ class IntPublic(State):
 
 class TestIntegerStateMachine(StateMachine):
     state_map = {1: IntPrivate, 2: IntPublic}
-    initial_state = 1 
+    initial_state = 1
 
 
 class NumberedStateMachineTestCase(TestCase):
@@ -274,4 +278,3 @@ class NumberedStateMachineTestCase(TestCase):
 
         self.assertEqual(2, temp.state_num)
         self.assertEqual('Object made public', temp.message)
-

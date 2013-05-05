@@ -92,6 +92,18 @@ class BlogEntryWorkflowTestCase(TestCase):
         # ... and the publish date should also be updated
         self.assertGreaterEqual(timezone.now(), entry.publish_date)
 
+    def test_approve_from_review_sets_publish_date(self):
+        entry = Entry.objects.get(id=1)
+        sm = BlogEntryWorkflow(instance=entry)
+
+        sm.take_action('review')
+        self.assertEqual('Review', sm.state)
+        self.assertIsNone(entry.publish_date)
+
+        sm.take_action('approve')
+        self.assertEqual('Published', sm.state)
+        self.assertIsNotNone(entry.publish_date)
+
     def test_archive_action_method(self):
         entry = Entry.objects.get(id=1)
         entry.state = 5  # force the state for now
