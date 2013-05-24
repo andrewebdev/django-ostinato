@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse
 from django.contrib.admin.views.decorators import staff_member_required
+from django.conf import settings
 from django import http
 
 from ostinato.pages.models import Page
@@ -18,6 +19,7 @@ def page_dispatch(request, *args, **kwargs):
     If the page has a custom view, we will dispatch to that view, otherwise
     we will use our default ``PageView``
     """
+    PAGES_SITE_TREEID = getattr(settings, 'OSTINATO_PAGES_SITE_TREEID', None)
 
     ## Some basic page checking and authorization
     if 'path' in kwargs:
@@ -26,14 +28,17 @@ def page_dispatch(request, *args, **kwargs):
         else:
             path = kwargs['path'].split('/')
 
-        page = get_object_or_404(Page, slug=path[-1])
+        if PAGES_SITE_TREEID:
+            page = get_object_or_404(Page, slug=path[-1], tree_id=PAGES_SITE_TREEID)
+        else:
+            page = get_object_or_404(Page, slug=path[-1])
 
     else:
-        # If we are looking at the root object, show the first root page
-        try:
-            page = Page.objects.root_nodes()[0]
-        except IndexError:
-            raise http.Http404
+        # If we are looking at the root path, show the root page for the current site
+        if PAGES_SITE_TREEID:
+            page = get_object_or_404(Page, tree_id=PAGES_SITE_TREEID, level=0)
+        else:
+            page = get_object_or_404(Page, tree_id=1, level=0)
 
     sm = get_workflow()(instance=page)
     has_perm = request.user.has_perm('pages.private_view')

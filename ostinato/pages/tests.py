@@ -1,5 +1,6 @@
 from django.test import TestCase, TransactionTestCase
 from django.test.client import RequestFactory
+from django.test.utils import override_settings
 from django.db import models
 from django.contrib import admin
 from django.contrib.auth.models import User, AnonymousUser
@@ -19,7 +20,7 @@ from ostinato.pages.templatetags.pages_tags import (
 page_content.setup()  # Clear the registry before we start the tests
 
 
-## Create some Page Content
+## Create some Page Content... TODO: All of these should probably be fixtures
 class Photo(models.Model):
     photo_path = models.CharField(max_length=250)
 
@@ -265,6 +266,7 @@ class PageModelTestCase(TestCase):
         self.assertEqual(c, p.contents)
 
 
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
 class PageManagerTestCase(TestCase):
 
     urls = 'ostinato.pages.urls'
@@ -324,6 +326,31 @@ class PageManagerTestCase(TestCase):
                 for_page=Page.objects.get(slug='page-1'),
                 clear_cache=True))
 
+    def test_get_navbar_sites_enabled(self):
+        expected_nav = [{
+            'slug': u'page-3',
+            'title': u'Page 3',
+            'url': '/page-1/page-3/',
+            'level': 1,
+            'tree_id': 1,
+        }]
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            self.assertEqual(
+                expected_nav, Page.objects.get_navbar(clear_cache=True))
+
+    def test_get_navbar_sites_enabled_for_page(self):
+        expected_nav = [{
+            'slug': u'page-3',
+            'title': u'Page 3',
+            'url': '/page-1/page-3/',
+            'level': 1,
+            'tree_id': 1,
+        }]
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            self.assertEqual(
+                expected_nav, Page.objects.get_navbar(
+                    for_page=Page.objects.get(slug='page-1'), clear_cache=True))
+
     def test_get_breadcrumbs(self):
         expected_crumbs = [{
             'slug': u'page-1',
@@ -376,6 +403,7 @@ class PageManagerTestCase(TestCase):
         self.assertEqual(None, cache_url(3))
 
 
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
 class PageContentModelTestCase(TestCase):
 
     def test_model_exists(self):
@@ -424,6 +452,7 @@ class PageContentModelTestCase(TestCase):
         self.assertEqual(qs[0], p.testing.all()[0])
 
 
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
 class PageViewTestCase(TestCase):
 
     urls = 'ostinato.pages.urls'
@@ -504,6 +533,43 @@ class PageViewTestCase(TestCase):
         self.assertEqual(200, response.status_code)
 
 
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
+class SitesEnabledPageViewTestCase(TestCase):
+
+    urls = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
+
+    def test_view_respsponse(self):
+        response = self.client.get('/page-1/')
+
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(
+                'pages/tests/landing_page.html', response.templates[0].name)
+
+    def test_different_site_page_returns_404(self):
+        # Without sites enabled, respond as normal
+        response = self.client.get('/page-2/')
+        self.assertEqual(200, response.status_code)
+
+        # With sites enabled raise 404
+        # Note below I also pass DEBUG=True; This is because by default django
+        # will try to find a 404.html template and not find it in our tests.
+        # Setting debug to True will make django uses it's own 404 template
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1, DEBUG=True):
+            response = self.client.get('/page-2/')
+            self.assertEqual(404, response.status_code)
+
+    def test_root_page_for_site(self):
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=2, DEBUG=True):
+            response = self.client.get('/')
+            self.assertEqual(200, response.status_code)
+            self.assertEqual('page-2', response.context['page'].slug)
+
+
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
 class ViewDispatcherTestCase(TestCase):
 
     urls = 'ostinato.pages.urls'
@@ -537,6 +603,7 @@ class ViewDispatcherTestCase(TestCase):
         self.assertEqual('Some Custom Context', response.context['custom'])
 
 
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
 class NavBarTemplateTagTestCase(TestCase):
 
     urls = 'ostinato.pages.urls'
@@ -551,6 +618,7 @@ class NavBarTemplateTagTestCase(TestCase):
         self.assertTrue(self.response.is_rendered)
 
 
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
 class GetPageTemplateTagTestCase(TestCase):
 
     urls = 'ostinato.pages.urls'
@@ -560,6 +628,24 @@ class GetPageTemplateTagTestCase(TestCase):
         p = get_page(slug="page-1")
         self.assertEqual("Page 1", p.title)
 
+    def test_tag_returns_page_with_sites_enabled(self):
+        create_pages()
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            p = get_page(slug="page-1")
+            self.assertEqual("Page 1", p.title)
+
+    def test_tag_returns_none_for_different_site_page(self):
+        create_pages()
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            p = get_page(slug='page-2')
+            self.assertEqual(None, p)
+
+    def test_tag_returns_page_ignore_sites(self):
+        create_pages()
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            p = get_page(slug='page-2', ignore_sites=True)
+            self.assertEqual('page-2', p.slug)
+
     def test_tag_renders(self):
         t = Template('{% load pages_tags %}{% get_page slug="page-1" as somepage %}{{ somepage.title }}')
         response = SimpleTemplateResponse(t)
@@ -567,6 +653,7 @@ class GetPageTemplateTagTestCase(TestCase):
         self.assertTrue(response.is_rendered)
 
 
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
 class FilterPageTemplateTagTestCase(TestCase):
 
     urls = 'ostinato.pages.urls'
@@ -576,6 +663,18 @@ class FilterPageTemplateTagTestCase(TestCase):
         pages = filter_pages(template='pages.basicpage')
         self.assertEqual(2, len(pages))
 
+    def test_tag_returns_queryset_with_sites_enabled(self):
+        create_pages()
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            pages = filter_pages(template='pages.basicpage')
+            self.assertEqual(1, len(pages))
+
+    def test_tag_returns_queryset_ignore_sites(self):
+        create_pages()
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            pages = filter_pages(template='pages.basicpage', ignore_sites=True)
+            self.assertEqual(2, len(pages))
+
     def test_tag_renders(self):
         t = Template('{% load pages_tags %}{% get_page template="pages.basicpage" as page_list %}')
         response = SimpleTemplateResponse(t)
@@ -583,6 +682,7 @@ class FilterPageTemplateTagTestCase(TestCase):
         self.assertTrue(response.is_rendered)
 
 
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
 class BreadCrumbsTempalteTagTestCase(TestCase):
 
     urls = 'ostinato.pages.urls'
@@ -654,6 +754,7 @@ class BreadCrumbsTempalteTagTestCase(TestCase):
         self.assertTrue(response.is_rendered)
 
 
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
 class PageReorderViewTestCase(TransactionTestCase):
 
     url = 'ostinato.pages.urls'

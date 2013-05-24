@@ -35,6 +35,7 @@ TIME_ZONE = 'Europe/London'
 LANGUAGE_CODE = 'en-GB'
 
 SITE_ID = 1
+OSTINATO_PAGES_SITE_TREEID = 1
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.

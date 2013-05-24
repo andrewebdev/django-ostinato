@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 
 from ostinato.pages.models import Page
 
@@ -14,8 +15,6 @@ def navbar(context, for_page=None):
     ``for_page`` is used to specify a navbar for a specific
         page (it's children); defaults to root level pages
     """
-    # TODO: Maybe we should set page to be ``for_page`` if it's not in the
-    # context?
     page = context.get('page', None)
     navbar = Page.objects.get_navbar(for_page=for_page)
     return {
@@ -51,24 +50,27 @@ def breadcrumbs(context, for_page=None, obj=None):
 
 
 @register.assignment_tag  # Requires Django 1.4+
-def get_page(**kwargs):
+def get_page(ignore_sites=False, **kwargs):
     """
     A handy helper that returns the first page filtered by **kwargs
     """
+    PAGES_SITE_TREEID = getattr(settings, 'OSTINATO_PAGES_SITE_TREEID', None)
+
+    if PAGES_SITE_TREEID and not ignore_sites:
+        kwargs.update({'tree_id': PAGES_SITE_TREEID})
     try:
         return Page.objects.filter(**kwargs)[0]
-    except:
-        # Template tags should fail silently
+    except IndexError:
         return None
 
 
 @register.assignment_tag
-def filter_pages(**kwargs):
+def filter_pages(ignore_sites=False, **kwargs):
     """
     A handy helper that can search for a list of pages filtered by **kwargs.
     """
-    try:
-        return Page.objects.filter(**kwargs)
-    except:
-        # Template tags should fail silently
-        return None
+    PAGES_SITE_TREEID = getattr(settings, 'OSTINATO_PAGES_SITE_TREEID', None)
+
+    if PAGES_SITE_TREEID and not ignore_sites:
+        kwargs.update({'tree_id': PAGES_SITE_TREEID})
+    return Page.objects.filter(**kwargs)

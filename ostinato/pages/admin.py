@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin.util import unquote
+from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django import forms
@@ -42,8 +43,9 @@ def content_inline_factory(page):
         if content_form:
             module_path, form_class = content_form.rsplit('.', 1)
 
-            form = __import__(module_path, locals(), globals(),
-                [form_class], -1).__dict__[form_class]
+            form = __import__(
+                module_path, locals(), globals(), [form_class], -1
+            ).__dict__[form_class]
 
     return PageContentInline
 
@@ -52,7 +54,7 @@ def content_inline_factory(page):
 class PageAdminForm(sm_form_factory(sm_class=get_workflow())):  # <3 python
 
     template = forms.ChoiceField()
-    
+
     def __init__(self, *args, **kwargs):
         super(PageAdminForm, self).__init__(*args, **kwargs)
         self.fields['template'].choices = page_content.get_template_choices()
@@ -65,9 +67,10 @@ class PageAdmin(MPTTModelAdmin):
     save_on_top = True
     form = PageAdminForm
 
-    list_display = ('tree_node', 'title', 'page_actions', 'slug',
+    list_display = (
+        'tree_node', 'get_title', 'page_actions', 'slug',
         'template_name', 'page_state', 'show_in_nav', 'show_in_sitemap')
-    list_display_links = ('title',)
+    list_display_links = ('get_title',)
     list_filter = ('author', 'show_in_nav', 'show_in_sitemap', 'state')
 
     search_fields = ('title', 'short_title', 'slug', 'author')
@@ -107,7 +110,6 @@ class PageAdmin(MPTTModelAdmin):
             'pages/js/page_admin.js',
         )
 
-
     def tree_node(self, obj):
         """
         A custom title for the list display that will be indented based on
@@ -126,17 +128,32 @@ class PageAdmin(MPTTModelAdmin):
     tree_node.short_description = ''
     tree_node.allow_tags = True
 
+    def get_title(self, obj):
+        PAGES_SITE_TREEID = getattr(settings, 'OSTINATO_PAGES_SITE_TREEID', None)
+        PAGES_INDENT = getattr(settings, 'OSTINATO_PAGES_ADMIN_INDENT', 4 * '&nbsp;')
+
+        title = obj.get_short_title()
+
+        if PAGES_SITE_TREEID:
+            if obj.level == 0:
+                try:
+                    tree_site = Site.objects.get(id=obj.tree_id)
+                except:
+                    return '%s (No Site)' % title
+                return '%s (%s)' % (title, tree_site.name)
+
+        return '%s%s' % (PAGES_INDENT * obj.level, title)
+    get_title.short_description = _("Title")
+    get_title.allow_tags = True
 
     def page_state(self, obj):
         sm = get_workflow()(instance=obj)
         return sm.state
     page_state.short_description = _("State")
 
-
     def template_name(self, obj):
         return page_content.get_template_name(obj.template)
     template_name.short_description = _("Template")
-
 
     def page_actions(self, obj):
         """ A List view item that shows the movement actions """
@@ -156,12 +173,10 @@ class PageAdmin(MPTTModelAdmin):
     page_actions.short_description = _("Actions")
     page_actions.allow_tags = True
 
-
     def add_view(self, request, form_url='', extra_context=None):
         # We need to clear the inlines. Django keeps it cached somewhere
         self.inlines = ()
         return super(PageAdmin, self).add_view(request, form_url, extra_context)
-
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """

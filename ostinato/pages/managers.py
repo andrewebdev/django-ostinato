@@ -1,6 +1,6 @@
-from django.db import models
 from django.core.cache import get_cache
 from django.utils import timezone
+from django.conf import settings
 
 from mptt.managers import TreeManager
 
@@ -18,6 +18,8 @@ class PageManager(TreeManager):
         ``for_page`` is an instance of Page. If specified, will only
         return immediate child pages for that page.
         """
+        PAGES_SITE_TREEID = getattr(settings, 'OSTINATO_PAGES_SITE_TREEID', None)
+
         cache = get_cache('default')
         if for_page:
             cache_key = 'ostinato:pages:page:%s:navbar' % for_page.id
@@ -32,7 +34,16 @@ class PageManager(TreeManager):
 
         if not navbar:
             navbar = []
-            nav_items = self.published().filter(parent=for_page, show_in_nav=True)
+
+            if PAGES_SITE_TREEID:
+                nav_items = self.published().filter(
+                    parent__level=0, parent__tree_id=PAGES_SITE_TREEID,
+                    show_in_nav=True)
+
+            else:
+                nav_items = self.published().filter(
+                    parent=for_page, show_in_nav=True)
+
             for page in nav_items:
                 navbar.append({
                     'slug': page.slug,
