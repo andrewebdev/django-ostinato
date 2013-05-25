@@ -120,8 +120,8 @@ class PageAdmin(MPTTModelAdmin):
         This node will also have some information for the row, like the
         level etc.
         """
-        content = '<span id="tid_%s_%s" class="tree_node closed">' % (
-            obj.tree_id, obj.level)
+        content = '<span id="tid_%s_%s_%s_%s" class="tree_node closed">' % (
+            obj.tree_id, obj.level, obj.lft, obj.rght)
         if obj.get_descendant_count() > 0:
             content += '<a class="toggle_children" href="#">%s</a>' % geticon('tree_closed')
         content += '</span>'

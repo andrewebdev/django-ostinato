@@ -2,7 +2,7 @@
 
 <!-- LOADING -->
 {% load url from future %}
-{% load admin_list i18n grp_tags pages_admin_tags %}
+{% load admin_list i18n grp_tags %}
 
 <!-- STYLESHEETS -->
 {% block stylesheets %}
@@ -226,7 +226,7 @@
             {% endif %}
             <!-- CHANGELIST-RESULTS -->
             {% block result_list %}
-                {% pages_result_list cl %}
+                {% result_list cl %}
             {% endblock %}
         </section>
         <!-- PAGINATION BOTTOM -->

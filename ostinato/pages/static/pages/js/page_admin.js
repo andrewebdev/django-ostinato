@@ -6,7 +6,9 @@ function getNodeID($node) {
 
     return {
         'treeID': parseInt(nodeIDList[1]),
-        'level': parseInt(nodeIDList[2])
+        'level': parseInt(nodeIDList[2]),
+        'lft': parseInt(nodeIDList[3]),
+        'rght': parseInt(nodeIDList[4])
     }
 }
 
@@ -66,16 +68,18 @@ django.jQuery(document).ready(function() {
         $parentNode.removeClass('open');
         $parentNode.removeClass('closed');
 
-        // Find all the rows of the same tree_id, with a higher level 
-        django.jQuery('span.tree_node[id*="tid_' + parentNodeID.treeID + '_"]').each(function(i) {
+        // Find all the rows of the same treeID
+        query = 'span.tree_node[id*="tid_' + parentNodeID.treeID + '_"]';
+        django.jQuery(query).each(function(i) {
             var $node = django.jQuery(this);
             var nodeID = getNodeID($node);
 
-            // Expand/Collapse that row
-            if (nodeID.level > parentNodeID.level) {
+            // Expand/Collapse the row
+            if ((nodeID.lft > parentNodeID.lft) && (nodeID.rght < parentNodeID.rght)) {
                 if (is_open) {
                     toggleRow($node, 'collapse');
 
+                    // All child nodes must be fully collapsed as well
                     if ($node.hasClass('open')) {
                         $node.removeClass('open');
                         $node.addClass('closed');
@@ -83,10 +87,9 @@ django.jQuery(document).ready(function() {
                             .html('<img src="' + STATIC_URL +
                                   '/pages/img/tree_closed.png" alt="expand" />');
                     }
-                } else {
-                    if (nodeID.level == parentNodeID.level + 1) {
-                        toggleRow($node, 'expand');
-                    }
+                } else if (nodeID.level == parentNodeID.level + 1) {
+                    // only expand immediate children
+                    toggleRow($node, 'expand');
                 }
             }
         });
