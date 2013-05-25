@@ -13,7 +13,13 @@
 <!-- JAVASCRIPTS -->
 {% block javascripts %}
     {# The following global variable will assist us in our javascript #}
-    <script type="text/javascript">var STATIC_URL = "{{ STATIC_URL }}";</script>
+    <script type="text/javascript">
+        var STATIC_URL = "{{ STATIC_URL }}";
+        var page_action_urls = {
+            move: '{% url 'ostinato_page_reorder' %}',
+            duplicate: '{% url 'ostinato_page_duplicate' %}'
+        };
+    </script>
     
     {{ block.super }}
     {{ media.js }}
@@ -146,7 +152,7 @@
         </ul>
     {% endif %}
 
-    <form id="ostinato_page_move_form" action="{% url 'ostinato_page_reorder' %}" method="post" accept-charset="utf-8">{% csrf_token %}
+    <form id="ostinato_page_action_form" action="." method="post" accept-charset="utf-8">{% csrf_token %}
         <input type="hidden" name="node" />
         <input type="hidden" name="target" />
         <input type="hidden" name="position" />

@@ -11,19 +11,20 @@ function getNodeID($node) {
 }
 
 
-function move_node(move_data) {
-    var $form = django.jQuery('#ostinato_page_move_form');
+function page_action(data, action) {
+    var $form = django.jQuery('#ostinato_page_action_form');
 
-    $form.find('input[name="node"]').val(move_data.node);
-    $form.find('input[name="target"]').val(move_data['target']);
-    $form.find('input[name="position"]').val(move_data.position);
+    $form.find('input[name="node"]').val(data.node);
+    $form.find('input[name="target"]').val(data['target']);
+    $form.find('input[name="position"]').val(data.position);
 
+    $form.attr('action', page_action_urls[action]);
     $form.submit();
 }
 
 
 django.jQuery(document).ready(function() {
-    var page_id, selected_template;
+    var page_id, selected_template, current_action;
 
     /*  Detail View Scripts */
 
@@ -121,13 +122,17 @@ django.jQuery(document).ready(function() {
     });
 
 
-    django.jQuery('.ostinato_page_move').click(function() {
+    // Set up the movement and duplicate actions
+    django.jQuery('.ostinato_page_move, .ostinato_page_duplicate').click(function() {
         /*
             Show the movement actions for the selected page
             make sure that the page being moved does not have it's actions
             visible
         */
-        django.jQuery('.ostinato_page_move, .ostinato_new_child').hide();
+        if (django.jQuery(this).hasClass('ostinato_page_move')) { current_action = 'move'; }
+        if (django.jQuery(this).hasClass('ostinato_page_duplicate')) { current_action = 'duplicate'; }
+
+        django.jQuery('.ostinato_page_move, .ostinato_page_duplicate, .ostinato_new_child').hide();
         django.jQuery('.ostinato_move_action').show();
         django.jQuery(this).siblings('.ostinato_move_action').hide();
         django.jQuery(this).siblings('.ostinato_cancel_move').show();
@@ -143,25 +148,26 @@ django.jQuery(document).ready(function() {
 
     django.jQuery('._left_of').click(function() {
         var target = get_id(django.jQuery(this).parent().attr('id'));
-        move_node({'node': page_id, 'target': target, 'position': 'left'});
+        page_action({'node': page_id, 'target': target, 'position': 'left'}, current_action);
     });
 
     django.jQuery('._right_of').click(function() {
         var target = get_id(django.jQuery(this).parent().attr('id'));
-        move_node({'node': page_id, 'target': target, 'position': 'right'});
+        page_action({'node': page_id, 'target': target, 'position': 'right'}, current_action);
     });
 
     django.jQuery('._child_of').click(function() {
         var target = get_id(django.jQuery(this).parent().attr('id'));
-        move_node({'node': page_id, 'target': target, 'position': 'last-child'});
+        page_action({'node': page_id, 'target': target, 'position': 'last-child'}, current_action);
     });
 
     django.jQuery('.ostinato_cancel_move').click(function() {
         django.jQuery(this).hide();
         django.jQuery('.ostinato_move_action').hide();
-        django.jQuery('.ostinato_page_move, .ostinato_new_child').show();
+        django.jQuery('.ostinato_page_move, .ostinato_page_duplicate, .ostinato_new_child').show();
 
         page_id = null;
+        current_action = null;
     });
 
 });

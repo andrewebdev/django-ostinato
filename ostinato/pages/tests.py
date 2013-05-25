@@ -12,9 +12,11 @@ from django import http
 
 from ostinato.pages.registry import page_content
 from ostinato.pages.models import Page, PageContent, ContentError
-from ostinato.pages.views import PageView, PageReorderView, page_dispatch
+from ostinato.pages.views import page_dispatch, PageView
+from ostinato.pages.views import PageReorderView, PageDuplicateView
 from ostinato.pages.templatetags.pages_tags import (
     get_page, filter_pages, breadcrumbs)
+from ostinato.pages.forms import DuplicatePageForm
 
 
 page_content.setup()  # Clear the registry before we start the tests
@@ -812,3 +814,91 @@ class PageReorderViewTestCase(TransactionTestCase):
         p2 = Page.objects.get(slug='page-2')
 
         self.assertGreater(p.tree_id, p2.tree_id)
+
+
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
+class PageDuplicateViewTestCase(TransactionTestCase):
+
+    url = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
+
+    def test_view_exists(self):
+        PageDuplicateView
+
+    def test_reverse_lookup(self):
+        self.assertEqual('/page_duplicate/', reverse('ostinato_page_duplicate'))
+
+    def test_get_response_not_allowed(self):
+        response = self.client.get('/page_duplicate/')
+        self.assertEqual(405, response.status_code)
+
+    def test_staff_only(self):
+        data = {
+            'node': 2,              # Move node id 2 ...
+            'position': 'left',     # ... to the Left of ...
+            'target': 1,            # ... node id 1
+        }
+        response = self.client.post('/page_duplicate/', data)
+        self.assertEqual(200, response.status_code)
+        self.assertIn('value="Log in"', response.content)
+
+    def test_post_response(self):
+        u = User.objects.create(
+            username='tester', password='', email='test@example.com')
+        u.is_staff = True
+        u.set_password('secret')
+        u.save()
+
+        login = self.client.login(username='tester', password='secret')
+        self.assertTrue(login)
+
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+        self.assertLess(p.tree_id, p2.tree_id)
+
+        data = {
+            'node': 2,              # Select Node id 2 ...
+            'position': 'right',     # ... duplicate to the right of ...
+            'target': 2,            # ... node id 2 (myself)
+        }
+
+        response = self.client.post('/page_duplicate/', data)
+        self.assertEqual(302, response.status_code)
+
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+        p3 = Page.objects.get(slug='page-2-copy')
+
+        self.assertGreater(p3.tree_id, p2.tree_id)
+        self.assertEqual('Page 2', p3.title)
+
+    def test_page_content_is_also_duplicated(self):
+        u = User.objects.create(
+            username='tester', password='', email='test@example.com')
+        u.is_staff = True
+        u.set_password('secret')
+        u.save()
+
+        login = self.client.login(username='tester', password='secret')
+        self.assertTrue(login)
+
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+        p2_content = BasicPage.objects.create(
+            page=p2, content="This is some content for the page")
+        p2_content.save()
+
+        data = {
+            'node': 2,              # Select Node id 2 ...
+            'position': 'right',     # ... duplicate to the right of ...
+            'target': 2,            # ... node id 2 (myself)
+        }
+        form = DuplicatePageForm(data)
+        if form.is_valid():
+            form.save()
+
+        p3 = Page.objects.get(slug='page-2-copy')
+        self.assertEqual(
+            'This is some content for the page', p3.contents.content)

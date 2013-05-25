@@ -144,8 +144,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner'
 
 # Third party app config
-MPTT_ADMIN_LEVEL_INDENT = 20
-
 TINYMCE_DEFAULT_CONFIG = {
     'theme': 'advanced',
     'plugins': "paste",

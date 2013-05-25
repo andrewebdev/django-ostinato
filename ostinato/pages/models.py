@@ -147,6 +147,8 @@ class Page(MPTTModel):
         return url
 
     def get_content_model(self):
+        # TODO: Cache this so that we dont need to do a DB lookup everytime
+        # we want to know what the model is?
         if not self._content_model:
             label, model = self.template.split('.')
             content_type = ContentType.objects.get(app_label=label, model=model)

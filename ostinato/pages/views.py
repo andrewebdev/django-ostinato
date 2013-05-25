@@ -8,7 +8,7 @@ from django import http
 
 from ostinato.pages.models import Page
 from ostinato.pages.workflow import get_workflow
-from ostinato.pages.forms import MovePageForm
+from ostinato.pages.forms import MovePageForm, DuplicatePageForm
 
 
 def page_dispatch(request, *args, **kwargs):
@@ -86,16 +86,23 @@ class PageReorderView(View):
     @method_decorator(staff_member_required)
     def post(self, *args, **kwargs):
         form = MovePageForm(self.request.POST)
-
         if form.is_valid():
             form.save()
+        return http.HttpResponseRedirect(reverse('admin:pages_page_changelist'))
 
+
+class PageDuplicateView(View):
+
+    @method_decorator(staff_member_required)
+    def post(self, *args, **kwargs):
+        form = DuplicatePageForm(self.request.POST)
+        if form.is_valid():
+            form.save()
         return http.HttpResponseRedirect(reverse('admin:pages_page_changelist'))
 
 
 ## A Custom View Example
 class CustomView(PageView):
-
     def get_context_data(self, **kwargs):
         c = super(CustomView, self).get_context_data(**kwargs)
         c['custom'] = 'Some Custom Context'
