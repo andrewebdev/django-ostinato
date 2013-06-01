@@ -12,7 +12,6 @@ function getNodeID($node) {
     }
 }
 
-
 function page_action(data, action) {
     var $form = django.jQuery('#ostinato_page_action_form');
 
@@ -130,21 +129,43 @@ django.jQuery(document).ready(function() {
         /*
             Show the movement actions for the selected page
             make sure that the page being moved does not have it's actions
-            visible
+            visible.
+
+            Also when the current_action is 'move', do NOT show the
+            moveto location links for chile pages, since a parent cannot be a
+            child of it's children.
         */
+        var query = 'span.tree_node[id*="tid_"]';
+        var $parentNode = django.jQuery(this).parents('tr').find(query);
+        var parentNodeID = getNodeID($parentNode);
+
         if (django.jQuery(this).hasClass('ostinato_page_move')) { current_action = 'move'; }
         if (django.jQuery(this).hasClass('ostinato_page_duplicate')) { current_action = 'duplicate'; }
 
         django.jQuery('.ostinato_page_move, .ostinato_page_duplicate, .ostinato_new_child').hide();
-        django.jQuery('.ostinato_move_action').show();
+        django.jQuery('.ostinato_move_action').each(function() {
+            // Only show the move actions if the target to be moved is not a
+            // parent of this node.
+            if (current_action == 'move') {
+                var $node = django.jQuery(this).parents('tr').find(query);
+                var nodeID = getNodeID($node);
+
+                if ((nodeID.lft > parentNodeID.lft) && (nodeID.rght < parentNodeID.rght)) {
+                    // We are a child of the node being moved, dont show anything
+                } else {
+                    // We are not a child of the node being moved
+                    django.jQuery(this).show();
+                }
+            } else {
+                django.jQuery(this).show();
+            }
+        });
         django.jQuery(this).siblings('.ostinato_move_action').hide();
         django.jQuery(this).siblings('.ostinato_cancel_move').show();
 
         page_id = get_id(django.jQuery(this).parent().attr('id'));
-
     }).each(function() {
         django.jQuery(this).parent().parent().css('text-align', 'center');
-
     });
 
     django.jQuery('.ostinato_move_action, .ostinato_cancel_move').css('display', 'none');
