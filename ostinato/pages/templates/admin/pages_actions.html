@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load url from future %}
 
 <span id="_page_{{ obj.id }}">
     
@@ -23,7 +24,7 @@
         title="as descendant"><img src="{% static 'pages/img/as_child.png' %}" /></a>
 
     <a class="ostinato_new_child"
-        href="{% url admin:pages_page_add %}?parent={{ obj.id }}"
+        href="{% url 'admin:pages_page_add' %}?parent={{ obj.id }}"
         title="new page below"><img src="{% static 'pages/img/new_child.png' %}" /></a>
 
     <a class="ostinato_cancel_move"
