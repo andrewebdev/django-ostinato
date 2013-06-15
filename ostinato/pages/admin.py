@@ -10,7 +10,7 @@ from mptt.admin import MPTTModelAdmin
 from ostinato.statemachine.forms import sm_form_factory
 from ostinato.pages.models import Page
 from ostinato.pages.workflow import get_workflow
-from ostinato.pages.registry import page_content
+from ostinato.pages.registry import page_templates
 
 
 # Some helpers to get the icons
@@ -26,28 +26,18 @@ def geticon(action):
     return '<img src="%s" />' % staticurl('pages/img/%s.png' % action)
 
 
-def content_inline_factory(page):
-    content_model = page.get_content_model()
-
-    class PageContentInline(admin.StackedInline):
-        model = content_model
-        extra = 1
-        max_num = 1
-        can_delete = False
-        fk_name = 'page'
-        classes = ('grp-collapse grp-open',)
-        inline_classes = ('grp-collapse grp-open',)
-
-        ## Check for a custom form and try to load it
-        content_form = getattr(content_model.ContentOptions, 'form', None)
-        if content_form:
-            module_path, form_class = content_form.rsplit('.', 1)
-
-            form = __import__(
-                module_path, locals(), globals(), [form_class], -1
-            ).__dict__[form_class]
-
-    return PageContentInline
+class PageContentInline(admin.StackedInline):
+    """
+    This Inline base class should be used to add content to the admin
+    for a page.
+    """
+    model = None  # Expected to be overridden
+    extra = 1
+    max_num = 1
+    can_delete = False
+    fk_name = 'page'
+    classes = ('grp-collapse grp-open',)
+    inline_classes = ('grp-collapse grp-open',)
 
 
 ## Admin Models
@@ -57,7 +47,7 @@ class PageAdminForm(sm_form_factory(sm_class=get_workflow())):  # <3 python
 
     def __init__(self, *args, **kwargs):
         super(PageAdminForm, self).__init__(*args, **kwargs)
-        self.fields['template'].choices = page_content.get_template_choices()
+        self.fields['template'].choices = page_templates.get_template_choices()
 
     class Meta:
         model = Page
@@ -68,19 +58,17 @@ class PageAdmin(MPTTModelAdmin):
     form = PageAdminForm
 
     list_display = (
-        'tree_node', 'get_title', 'page_actions', 'slug',
+        'tree_node', 'get_slug', 'page_actions', 'slug',
         'template_name', 'page_state', 'show_in_nav', 'show_in_sitemap')
-    list_display_links = ('get_title',)
+    list_display_links = ('get_slug',)
     list_filter = ('author', 'show_in_nav', 'show_in_sitemap', 'state')
 
-    search_fields = ('title', 'short_title', 'slug', 'author')
     date_hierarchy = 'publish_date'
     inlines = ()
 
     fieldsets = (
         (None, {
             'fields': (
-                ('title', 'short_title'),
                 'slug', 'template', 'redirect', 'parent',
                 ('show_in_nav', 'show_in_sitemap'),
             ),
@@ -91,7 +79,6 @@ class PageAdmin(MPTTModelAdmin):
         }),
 
     )
-    prepopulated_fields = {'slug': ('title',)}
 
     if 'grappelli' in settings.INSTALLED_APPS:
         change_list_template = 'admin/pages_change_list_grappelli.html'
@@ -128,23 +115,21 @@ class PageAdmin(MPTTModelAdmin):
     tree_node.short_description = ''
     tree_node.allow_tags = True
 
-    def get_title(self, obj):
+    def get_slug(self, obj):
         PAGES_SITE_TREEID = getattr(settings, 'OSTINATO_PAGES_SITE_TREEID', None)
         PAGES_INDENT = getattr(settings, 'OSTINATO_PAGES_ADMIN_INDENT', 4 * '&nbsp;')
-
-        title = obj.get_short_title()
 
         if PAGES_SITE_TREEID:
             if obj.level == 0:
                 try:
                     tree_site = Site.objects.get(id=obj.tree_id)
                 except:
-                    return '%s (No Site)' % title
-                return '%s (%s)' % (title, tree_site.name)
+                    return '%s (No Site)' % obj.slug
+                return '%s (%s)' % (obj.slug, tree_site.name)
 
-        return '%s%s' % (PAGES_INDENT * obj.level, title)
-    get_title.short_description = _("Title")
-    get_title.allow_tags = True
+        return '%s%s' % (PAGES_INDENT * obj.level, obj.slug)
+    get_slug.short_description = _("Page Slug")
+    get_slug.allow_tags = True
 
     def page_state(self, obj):
         sm = get_workflow()(instance=obj)
@@ -162,7 +147,9 @@ class PageAdmin(MPTTModelAdmin):
     page_actions.allow_tags = True
 
     def add_view(self, request, form_url='', extra_context=None):
-        # We need to clear the inlines. Django keeps it cached somewhere
+        """
+        We need to clear the inlines. Django keeps it cached somewhere
+        """
         self.inlines = ()
         return super(PageAdmin, self).add_view(request, form_url, extra_context)
 
@@ -176,35 +163,57 @@ class PageAdmin(MPTTModelAdmin):
         if object_id:
             page = self.get_object(request, unquote(object_id))
 
-            if page.template:
-                self.inlines = (content_inline_factory(page),)
+            template = page_templates.get_template(page.template)
+            for inline_def in template.content_inlines:
+                through = None
 
-            content_model = page.get_content_model()
-            if hasattr(content_model.ContentOptions, 'admin_inlines'):
-                for inline_def in content_model.ContentOptions.admin_inlines:
-                    through = None
+                if isinstance(inline_def, (str, unicode)):
+                    inline_str = inline_def
+                else:
+                    inline_str, through = inline_def
 
-                    if isinstance(inline_def, (str, unicode)):
-                        inline_str = inline_def
-                    else:
-                        inline_str, through = inline_def
+                try:
+                    module_path, inline_class = inline_str.rsplit('.', 1)
+                    inline = __import__(module_path, locals(), globals(),
+                        [inline_class], -1).__dict__[inline_class]
 
-                    try:
-                        module_path, inline_class = inline_str.rsplit('.', 1)
-                        inline = __import__(module_path, locals(), globals(),
-                            [inline_class], -1).__dict__[inline_class]
+                except KeyError:
+                    raise Exception('"%s" could not be imported from, '\
+                        '"%s". Please check the import path for the page '\
+                        'inlines' % (inline_class, module_path))
 
-                    except KeyError:
-                        raise Exception('"%s" could not be imported from, '\
-                            '"%s". Please check the import path for the page '\
-                            'inlines' % (inline_class, module_path))
+                except AttributeError:
+                    raise Exception('Incorrect import path for page '\
+                        'content inlines. Expected a string containing the'\
+                        ' full import path.')
 
-                    except AttributeError:
-                        raise Exception('Incorrect import path for page '\
-                            'content inlines. Expected a string containing the'\
-                            ' full import path.')
+                self.inlines += (inline,)
 
-                    self.inlines += (inline,)
+            # if hasattr(content_model.ContentOptions, 'admin_inlines'):
+            #     for inline_def in content_model.ContentOptions.admin_inlines:
+            #         through = None
+
+            #         if isinstance(inline_def, (str, unicode)):
+            #             inline_str = inline_def
+            #         else:
+            #             inline_str, through = inline_def
+
+            #         try:
+            #             module_path, inline_class = inline_str.rsplit('.', 1)
+            #             inline = __import__(module_path, locals(), globals(),
+            #                 [inline_class], -1).__dict__[inline_class]
+
+            #         except KeyError:
+            #             raise Exception('"%s" could not be imported from, '\
+            #                 '"%s". Please check the import path for the page '\
+            #                 'inlines' % (inline_class, module_path))
+
+            #         except AttributeError:
+            #             raise Exception('Incorrect import path for page '\
+            #                 'content inlines. Expected a string containing the'\
+            #                 ' full import path.')
+
+            #         self.inlines += (inline,)
 
         return super(PageAdmin, self).change_view(
             request, object_id, form_url, extra_context)

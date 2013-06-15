@@ -1,6 +1,10 @@
 from django.conf.urls import patterns, url
 
 from ostinato.pages.views import page_dispatch, PageReorderView, PageDuplicateView
+from ostinato.pages.registry import page_templates
+
+
+page_templates.autodiscover()
 
 
 urlpatterns = patterns('',

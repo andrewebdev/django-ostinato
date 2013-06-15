@@ -30,14 +30,8 @@ class ContentError(Exception):
 ## Models
 class Page(MPTTModel):
     """ A basic page model """
-    title = models.CharField(_("Title"), max_length=150)
     slug = models.SlugField(
         _("Slug"), unique=True, help_text=_("A url friendly slug."))
-    short_title = models.CharField(
-        _("Short title"), max_length=50, null=True, blank=True,
-        help_text=_("A shorter title which can be used in menus etc. If "
-                    "this is not supplied then the normal title field will "
-                    "be used."))
 
     template = models.CharField(_("Template"), max_length=250)
 
@@ -64,12 +58,7 @@ class Page(MPTTModel):
         'self', verbose_name=_("Parent"),
         null=True, blank=True, related_name='page_children')
 
-    ## Managers
     objects = PageManager()
-
-    ## Required for caching some objects
-    _contents = None
-    _content_model = None
 
     class Meta:
         permissions = get_workflow().get_permissions()
@@ -77,7 +66,10 @@ class Page(MPTTModel):
         verbose_name_plural = _("Pages")
 
     def __unicode__(self):
-        return '%s' % self.title
+        return self.slug
+
+    def get_short_title(self):
+        return self.slug
 
     def save(self, *args, **kwargs):
         now = timezone.now()
@@ -99,12 +91,6 @@ class Page(MPTTModel):
         Page.objects.clear_navbar_cache()
         Page.objects.clear_breadcrumbs_cache()
         return page
-
-    def get_short_title(self):
-        if self.short_title:
-            return self.short_title
-        else:
-            return self.title
 
     @models.permalink
     def perma_url(self, data):
@@ -146,70 +132,38 @@ class Page(MPTTModel):
 
         return url
 
-    def get_content_model(self):
-        # TODO: Cache this so that we dont need to do a DB lookup everytime
-        # we want to know what the model is?
-        if not self._content_model:
-            label, model = self.template.split('.')
-            content_type = ContentType.objects.get(app_label=label, model=model)
-            self._content_model = content_type.model_class()
-        return self._content_model
+    # def get_content_model(self):
+    #     # TODO: Cache this so that we dont need to do a DB lookup everytime
+    #     # we want to know what the model is?
+    #     if not self._content_model:
+    #         label, model = self.template.split('.')
+    #         content_type = ContentType.objects.get(app_label=label, model=model)
+    #         self._content_model = content_type.model_class()
+    #     return self._content_model
 
-    def get_content(self):
-        """
-        Returns the content for this page or None if it doesn't exist.
-        """
-        if not self._contents:
-            obj_model = self.get_content_model()
-            try:
-                self._contents = obj_model.objects.get(page=self.id)
-            except obj_model.DoesNotExist:
-                self._contents = 'empty'
-        return self._contents
+    # def get_content(self):
+    #     """
+    #     Returns the content for this page or None if it doesn't exist.
+    #     """
+    #     if not self._contents:
+    #         obj_model = self.get_content_model()
+    #         try:
+    #             self._contents = obj_model.objects.get(page=self.id)
+    #         except obj_model.DoesNotExist:
+    #             self._contents = 'empty'
+    #     return self._contents
 
-    contents = property(get_content)
+    # contents = property(get_content)
 
-    def get_template(self):
-        return self.get_content_model().get_template()
+    # def get_template(self):
+    #     return self.get_content_model().get_template()
 
 
-## Page Templates
 class PageContent(models.Model):
-    """
-    Our base PageContent model. All other content models need to subclass
-    this one.
-    """
-    page = models.OneToOneField(
-        Page, related_name='%(app_label)s_%(class)s_content')
+    page = models.ForeignKey(Page)
+    language = models.CharField(max_length=10)
+    created_date = models.DateTimeField(_("Created date"), auto_now_add=True)
+    modified_date = models.DateTimeField(_("Modified date"), auto_now=True)
 
     class Meta:
         abstract = True
-
-    class ContentOptions:
-        """
-        Custom Options for the Content
-        ``template`` is the template path relative the templatedirs.
-        ``view`` is a custom view that will handle the rendering for the page.
-        ``form`` a custom form to use in the admin.
-        """
-        template = None
-        view = 'ostinato.pages.views.PageView'
-        form = None
-        admin_inlines = []
-
-    def add_content(self, **kwargs):
-        for k in kwargs:
-            if hasattr(self, k):
-                raise ContentError('Cannot add "%s" to %s since that attribute '
-                                   'already exists.' % (k, self))
-            self.__dict__[k] = kwargs[k]
-
-    @classmethod
-    def get_template(cls):
-        template = getattr(cls.ContentOptions, 'template', None)
-
-        if not template:
-            cls_name = re.findall('[A-Z][^A-Z]*', cls.__name__)
-            template = 'pages/%s.html' % '_'.join([i.lower() for i in cls_name])
-
-        return template

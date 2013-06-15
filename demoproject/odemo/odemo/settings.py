@@ -35,7 +35,7 @@ TIME_ZONE = 'Europe/London'
 LANGUAGE_CODE = 'en-GB'
 
 SITE_ID = 1
-OSTINATO_PAGES_SITE_TREEID = 1
+# OSTINATO_PAGES_SITE_TREEID = 1
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -124,11 +124,11 @@ INSTALLED_APPS = (
     'grappelli',
     'django.contrib.admin',
 
-    'website',  # We want website templates to override ostinato templates
+    # 'website',  # We want website templates to override ostinato templates
 
     'ostinato',
     'ostinato.pages',
-    'ostinato.blog',
+    # 'ostinato.blog',
     'ostinato.statemachine',  # Only really need this here for the tests
     'ostinato.contentfilters',
 
@@ -136,8 +136,9 @@ INSTALLED_APPS = (
     'tinymce',
     'taggit',
     'taggit_templatetags',
+    'odemo',
 
-    'blog',
+    # 'blog',
 )
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
