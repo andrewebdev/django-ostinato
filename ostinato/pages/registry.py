@@ -8,14 +8,14 @@ class TemplateRegistry(SortedRegistry):
 
     def get_template(self, template_id):
         for template in self.all():
-            if template_id == template.__name__.lower():
+            if template_id == template.__name__:
                 return template
 
     def get_template_choices(self):
         template_choices = (('', '--------'),)
 
         for template in self.all():
-            template_id = template.__name__.lower()
+            template_id = template.__name__
             template_choices += ((template_id, template.get_verbose_name()),)
 
         return template_choices
@@ -41,7 +41,7 @@ class PageTemplate(object):
     view = 'ostinato.pages.views.PageView'
     form = None
     page_content = []  # List of models to be included
-    # admin_inlines = []
+    admin_inlines = []  # Extra admin inline models
 
     @classmethod
     def get_template(cls):

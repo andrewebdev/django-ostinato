@@ -1,8 +1,5 @@
-import re
-
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.core.cache import get_cache
 from django.utils import timezone
@@ -132,38 +129,25 @@ class Page(MPTTModel):
 
         return url
 
-    # def get_content_model(self):
-    #     # TODO: Cache this so that we dont need to do a DB lookup everytime
-    #     # we want to know what the model is?
-    #     if not self._content_model:
-    #         label, model = self.template.split('.')
-    #         content_type = ContentType.objects.get(app_label=label, model=model)
-    #         self._content_model = content_type.model_class()
-    #     return self._content_model
-
-    # def get_content(self):
-    #     """
-    #     Returns the content for this page or None if it doesn't exist.
-    #     """
-    #     if not self._contents:
-    #         obj_model = self.get_content_model()
-    #         try:
-    #             self._contents = obj_model.objects.get(page=self.id)
-    #         except obj_model.DoesNotExist:
-    #             self._contents = 'empty'
-    #     return self._contents
-
-    # contents = property(get_content)
-
-    # def get_template(self):
-    #     return self.get_content_model().get_template()
-
 
 class PageContent(models.Model):
     page = models.ForeignKey(Page)
-    language = models.CharField(max_length=10)
+    language = models.CharField(max_length=10, editable=False)
     created_date = models.DateTimeField(_("Created date"), auto_now_add=True)
     modified_date = models.DateTimeField(_("Modified date"), auto_now=True)
 
     class Meta:
         abstract = True
+
+
+class MetaContent(PageContent):
+    """
+    This model serves as both an example, and as a default page content
+    model that can be added to any templates. It contains some common fields
+    that most CMS's require in some way.
+    """
+    title = models.CharField(max_length=250)
+    short_title = models.CharField(max_length=50, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    meta_keywords = models.CharField(max_length=250, null=True, blank=True)
+    meta_description = models.TextField(null=True, blank=True)

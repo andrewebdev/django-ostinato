@@ -13,7 +13,7 @@ from ostinato.pages.workflow import get_workflow
 from ostinato.pages.registry import page_templates
 
 
-# Some helpers to get the icons
+# Some helper functions
 def staticurl(p):
     staticurl = settings.STATIC_URL
     if staticurl[-1] == '/':
@@ -26,6 +26,7 @@ def geticon(action):
     return '<img src="%s" />' % staticurl('pages/img/%s.png' % action)
 
 
+# PageContent Inline Admin Classes
 class PageContentInline(admin.StackedInline):
     """
     This Inline base class should be used to add content to the admin
@@ -38,6 +39,15 @@ class PageContentInline(admin.StackedInline):
     fk_name = 'page'
     classes = ('grp-collapse grp-open',)
     inline_classes = ('grp-collapse grp-open',)
+
+
+def content_inline_factory(for_model):
+    """
+    Returns a new Inline Class for ``for_model``
+    """
+    class _FacotryInline(PageContentInline):
+        model = for_model
+    return _FacotryInline
 
 
 ## Admin Models
@@ -137,7 +147,7 @@ class PageAdmin(MPTTModelAdmin):
     page_state.short_description = _("State")
 
     def template_name(self, obj):
-        return page_content.get_template_name(obj.template)
+        return page_templates.get_template_name(obj.template)
     template_name.short_description = _("Template")
 
     def page_actions(self, obj):
@@ -162,58 +172,36 @@ class PageAdmin(MPTTModelAdmin):
 
         if object_id:
             page = self.get_object(request, unquote(object_id))
-
             template = page_templates.get_template(page.template)
-            for inline_def in template.content_inlines:
-                through = None
 
-                if isinstance(inline_def, (str, unicode)):
-                    inline_str = inline_def
-                else:
-                    inline_str, through = inline_def
+            for import_str in template.page_content:
+                # through = None
+
+                # if isinstance(model_path, (str, unicode)):
+                #     inline_str = inline_def
+                # else:
+                #     inline_str, through = inline_def
 
                 try:
-                    module_path, inline_class = inline_str.rsplit('.', 1)
-                    inline = __import__(module_path, locals(), globals(),
+                    module_path, inline_class = import_str.rsplit('.', 1)
+                    model = __import__(
+                        module_path, locals(), globals(),
                         [inline_class], -1).__dict__[inline_class]
 
                 except KeyError:
-                    raise Exception('"%s" could not be imported from, '\
-                        '"%s". Please check the import path for the page '\
+                    raise Exception(
+                        '"%s" could not be imported from, '
+                        '"%s". Please check the import path for the page '
                         'inlines' % (inline_class, module_path))
 
                 except AttributeError:
-                    raise Exception('Incorrect import path for page '\
-                        'content inlines. Expected a string containing the'\
+                    raise Exception(
+                        'Incorrect import path for page '
+                        'content inlines. Expected a string containing the'
                         ' full import path.')
 
+                inline = content_inline_factory(model)
                 self.inlines += (inline,)
-
-            # if hasattr(content_model.ContentOptions, 'admin_inlines'):
-            #     for inline_def in content_model.ContentOptions.admin_inlines:
-            #         through = None
-
-            #         if isinstance(inline_def, (str, unicode)):
-            #             inline_str = inline_def
-            #         else:
-            #             inline_str, through = inline_def
-
-            #         try:
-            #             module_path, inline_class = inline_str.rsplit('.', 1)
-            #             inline = __import__(module_path, locals(), globals(),
-            #                 [inline_class], -1).__dict__[inline_class]
-
-            #         except KeyError:
-            #             raise Exception('"%s" could not be imported from, '\
-            #                 '"%s". Please check the import path for the page '\
-            #                 'inlines' % (inline_class, module_path))
-
-            #         except AttributeError:
-            #             raise Exception('Incorrect import path for page '\
-            #                 'content inlines. Expected a string containing the'\
-            #                 ' full import path.')
-
-            #         self.inlines += (inline,)
 
         return super(PageAdmin, self).change_view(
             request, object_id, form_url, extra_context)
