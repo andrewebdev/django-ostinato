@@ -31,6 +31,7 @@ class CaseStudyTemplate(PageTemplate):
         'website.models.RichContent',
     ]
 
+
 @page_templates.register
 class ContactFormTemplate(PageTemplate):
     page_content = [

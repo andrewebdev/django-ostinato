@@ -7,6 +7,7 @@ from django.conf import settings
 from django import http
 
 from ostinato.pages.models import Page
+from ostinato.pages.registry import page_templates
 from ostinato.pages.workflow import get_workflow
 from ostinato.pages.forms import MovePageForm, DuplicatePageForm
 
@@ -46,11 +47,11 @@ def page_dispatch(request, *args, **kwargs):
         if request.user != page.author and not request.user.is_superuser:
             return http.HttpResponseForbidden()
 
-    content = page.get_content_model()
+    template = page_templates.get_template(page.template)
 
     ## Check if the page has a custom view
-    if hasattr(content.ContentOptions, 'view'):
-        module_path, view_class = content.ContentOptions.view.rsplit('.', 1)
+    if hasattr(template, 'view'):
+        module_path, view_class = template.view.rsplit('.', 1)
 
         # Import our custom view
         v = __import__(module_path, locals(), globals(), [view_class], -1)\
@@ -61,7 +62,7 @@ def page_dispatch(request, *args, **kwargs):
         else:
             # Doesn't look like this is a class based view. Treat it as a
             # traditional function based view
-            kwargs.update({'page': page, 'template': page.get_template()})
+            kwargs.update({'page': page, 'template': template.get_template()})
             return v(request, *args, **kwargs)
 
     else:
@@ -73,7 +74,8 @@ class PageView(TemplateView):
     page = None
 
     def get_template_names(self, **kwargs):
-        return self.page.get_template()
+        template = page_templates.get_template(self.page.template)
+        return template.get_template()
 
     def get_context_data(self, **kwargs):
         c = super(PageView, self).get_context_data(**kwargs)

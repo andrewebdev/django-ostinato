@@ -1,107 +1,25 @@
-from django.test import TestCase  # , TransactionTestCase
+from django.test import TestCase, TransactionTestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from django.db import models
-# from django.contrib import admin
-from django.contrib.auth.models import User  # , AnonymousUser
-# from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User, AnonymousUser
 from django.core.cache import get_cache
-# from django.template import Context, Template
-# from django.template.response import SimpleTemplateResponse, TemplateResponse
-# from django import http
-#
-from ostinato.pages.models import Page, PageContent, ContentError
+from django.core.urlresolvers import reverse
+from django.template import Context, Template
+from django.template.response import SimpleTemplateResponse, TemplateResponse
+from django import http
+
+from ostinato.pages.models import Page, PageContent
 from ostinato.pages.registry import page_templates, PageTemplate
-# from ostinato.pages.views import page_dispatch, PageView
-# from ostinato.pages.views import PageReorderView, PageDuplicateView
-# from ostinato.pages.templatetags.pages_tags import (
-#     get_page, filter_pages, breadcrumbs)
-# from ostinato.pages.forms import DuplicatePageForm
+from ostinato.pages.views import page_dispatch, PageView
+from ostinato.pages.views import PageReorderView, PageDuplicateView
+from ostinato.pages.templatetags.pages_tags import get_page, filter_pages, breadcrumbs
+from ostinato.pages.forms import DuplicatePageForm
 
 
 page_templates.setup()  # Clear the registry before we start the tests
 
 
-# ## Create some Page Content... TODO: All of these should probably be fixtures
-# class Photo(models.Model):
-#     photo_path = models.CharField(max_length=250)
-#
-#
-# class Contributor(models.Model):
-#     page = models.ForeignKey(Page, related_name='testing')
-#     name = models.CharField(max_length=50)
-#
-#     ## Required to test the inlines with through model
-#     photos = models.ManyToManyField(
-#         Photo, through='ContributorPhotos', null=True, blank=True)
-#
-#
-# class ContributorPhotos(models.Model):
-#     contributor = models.ForeignKey(Contributor)
-#     photo = models.ForeignKey(Photo)
-#     order = models.IntegerField(default=1)
-#
-#
-# class ContributorInline(admin.StackedInline):
-#     model = Contributor
-#
-#
-# class PhotoInline(admin.StackedInline):
-#     model = Contributor.photos.through
-#
-#
-# class ContentMixin(models.Model):
-#     """
-#     An example of how you would do mixins. A mixin must be an abstract
-#     model.
-#     """
-#     content = models.TextField()
-#
-#     class Meta:
-#         abstract = True  # Required for mixins
-#
-#
-# def functionview(request, *args, **kwargs):
-#     return http.HttpResponse('ok')
-#
-#
-# @page_content.register
-# class LandingPage(ContentMixin, PageContent):
-#     intro = models.TextField()
-#
-#     class ContentOptions:
-#         template = 'pages/tests/landing_page.html'
-#
-#
-# @page_content.register
-# class BasicPage(ContentMixin, PageContent):
-#
-#     class ContentOptions:
-#         template = 'pages/tests/basic_page.html'
-#         view = 'ostinato.pages.views.CustomView'
-#         admin_inlines = [
-#             'ostinato.pages.tests.ContributorInline',
-#         ]
-#
-#
-# @page_content.register
-# class BasicPageFunc(ContentMixin, PageContent):
-#     """
-#     A page that makes use of the old school function based views.
-#     """
-#     class ContentOptions:
-#         template = 'pages/test/basic_page.html'
-#         view = 'ostinato.pages.tests.functionview'
-#
-#
-# @page_content.register
-# class OtherPage(ContentMixin, PageContent):
-#     """ Test content that doesn't have a template specified """
-#
-#     class Meta:
-#         verbose_name = 'Some Other Page'
-#
-#
 def create_pages():
     user = User.objects.create(
         username='user1', password='secret', email='user1@example.com')
@@ -110,31 +28,27 @@ def create_pages():
         slug="page-1", author=user, show_in_nav=True,
         created_date="2012-04-10 12:14:51.203925+00:00",
         modified_date="2012-04-10 12:14:51.203925+00:00",
-        template='pages.landingpage',
+        template='LandingPageTemplate',
     )
     Page.objects.create(
         slug="page-2", author=user, show_in_nav=True,
         created_date="2012-04-10 12:14:51.203925+00:00",
         modified_date="2012-04-10 12:14:51.203925+00:00",
-        template='pages.basicpage',
+        template='BasicPageTemplate',
     )
     Page.objects.create(
         slug="page-3", author=user, show_in_nav=True,
         created_date="2012-04-10 12:14:51.203925+00:00",
         modified_date="2012-04-10 12:14:51.203925+00:00",
-        template='pages.basicpage',
+        template='BasicPageTemplate',
         parent=p,
     )
     Page.objects.create(
         slug="func-page", author=user, show_in_nav=False,
         created_date="2012-04-10 12:14:51.203925+00:00",
         modified_date="2012-04-10 12:14:51.203925+00:00",
-        template='pages.basicpagefunc',
+        template='FuncPageTemplate',
     )
-
-    ## Create some content
-    # LandingPage.objects.create(
-    #     page=p, intro='Page 1 Introduction', content='Page 1 Content')
 
 
 # ## Actual Tests
@@ -356,10 +270,36 @@ class MetaContent(PageContent):
     description = models.TextField(null=True, blank=True)
 
 
+# Some custom views
+def functionview(request, *args, **kwargs):
+    return http.HttpResponse('ok')
+
+
+class CustomView(PageView):
+    def get_context_data(self, **kwargs):
+        c = super(CustomView, self).get_context_data(**kwargs)
+        c['custom'] = "Some custom content"
+        return c
+
+
 # Register some templates
 @page_templates.register
 class LandingPageTemplate(PageTemplate):
-    page_content = ['pages.tests.MetaContent']
+    template = 'pages/tests/landing_page.html'
+    page_content = ['ostinato.pages.tests.MetaContent']
+
+
+@page_templates.register
+class FuncPageTemplate(PageTemplate):
+    view = 'ostinato.pages.tests.functionview'
+    page_content = ['ostinato.pages.tests.MetaContent']
+
+
+@page_templates.register
+class BasicPageTemplate(PageTemplate):
+    template = 'pages/tests/basic_page.html'
+    view = 'ostinato.pages.tests.CustomView'
+    page_content = ['ostinato.pages.tests.MetaContent']
 
 
 class TemplateRegistryTestCase(TestCase):
@@ -376,13 +316,13 @@ class TemplateRegistryTestCase(TestCase):
     def test_get_template_choices(self):
         self.assertEqual((
             ('', '--------'),
-            ('landingpagetemplate', 'Landing Page Template'),
+            ('LandingPageTemplate', 'Landing Page Template'),
         ), page_templates.get_template_choices())
 
     def test_get_template_name(self):
         self.assertEqual(
             'Landing Page Template',
-            page_templates.get_template_name('landingpagetemplate'))
+            page_templates.get_template_name('LandingPageTemplate'))
 
 
 @override_settings(OSTINATO_PAGES_SITE_TREEID=None)
@@ -395,451 +335,443 @@ class PageContentModelTestCase(TestCase):
         self.assertTrue(PageContent._meta.abstract)
 
 
-# @override_settings(OSTINATO_PAGES_SITE_TREEID=None)
-# class PageViewTestCase(TestCase):
-#
-#     urls = 'ostinato.pages.urls'
-#
-#     def setUp(self):
-#         create_pages()
-#
-#     def tearDown(self):
-#         self.client.logout()
-#
-#     def test_view_exists(self):
-#         PageView
-#
-#     def test_reverse_lookup(self):
-#         self.assertEqual('/', reverse('ostinato_page_home'))
-#         self.assertEqual(
-#             '/page-1/', reverse('ostinato_page_view', args=['page-1']))
-#
-#     def test_view_response(self):
-#         response = self.client.get('/page-1/')
-#
-#         self.assertEqual(200, response.status_code)
-#         self.assertEqual(
-#             'pages/tests/landing_page.html', response.templates[0].name)
-#
-#     def test_view_context(self):
-#         response = self.client.get('/page-1/')
-#         self.assertIn('page', response.context)
-#
-#     def test_view_content(self):
-#         response = self.client.get('/page-1/')
-#         self.assertIn('Page 1 Content', response.content)
-#
-#     def test_function_based_view(self):
-#         response = self.client.get('/func-page/')
-#         self.assertEqual(200, response.status_code)
-#
-#     def test_unauthorized_user_raises_forbidden(self):
-#         # First we make the page private
-#         p = Page.objects.get(slug='page-1')
-#         p.state = 1
-#         p.save()
-#
-#         response = self.client.get('/page-1/')
-#         self.assertEqual(403, response.status_code)
-#
-#     def test_author_can_access_own_private_page(self):
-#         # First we make the page private
-#         p = Page.objects.get(slug='page-1')
-#         p.state = 1
-#         p.save()
-#
-#         u = User.objects.get(username='user1')
-#         u.set_password('secret')
-#         u.save()
-#
-#         self.client.login(username="user1", password='secret')
-#         response = self.client.get('/page-1/')
-#         self.assertEqual(200, response.status_code)
-#
-#     def test_superuser_can_access_private_page(self):
-#         # First we make the page private
-#         p = Page.objects.get(slug='page-1')
-#         p.state = 1
-#         p.save()
-#
-#         # Make a second user, which is a superuser
-#         u = User.objects.create(
-#             username='not_an_author',
-#             password="secret",
-#             email="naa@example.com")
-#         u.set_password("secret")
-#         u.is_superuser = True
-#         u.save()
-#
-#         self.client.login(username='not_an_author', password='secret')
-#         response = self.client.get('/page-1/')
-#         self.assertEqual(200, response.status_code)
-#
-#
-# @override_settings(OSTINATO_PAGES_SITE_TREEID=None)
-# class SitesEnabledPageViewTestCase(TestCase):
-#
-#     urls = 'ostinato.pages.urls'
-#
-#     def setUp(self):
-#         create_pages()
-#
-#     def test_view_respsponse(self):
-#         response = self.client.get('/page-1/')
-#
-#         with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
-#             self.assertEqual(200, response.status_code)
-#             self.assertEqual(
-#                 'pages/tests/landing_page.html', response.templates[0].name)
-#
-#     def test_different_site_page_returns_404(self):
-#         # Without sites enabled, respond as normal
-#         response = self.client.get('/page-2/')
-#         self.assertEqual(200, response.status_code)
-#
-#         # With sites enabled raise 404
-#         # Note below I also pass DEBUG=True; This is because by default django
-#         # will try to find a 404.html template and not find it in our tests.
-#         # Setting debug to True will make django uses it's own 404 template
-#         with self.settings(OSTINATO_PAGES_SITE_TREEID=1, DEBUG=True):
-#             response = self.client.get('/page-2/')
-#             self.assertEqual(404, response.status_code)
-#
-#     def test_root_page_for_site(self):
-#         with self.settings(OSTINATO_PAGES_SITE_TREEID=2, DEBUG=True):
-#             response = self.client.get('/')
-#             self.assertEqual(200, response.status_code)
-#             self.assertEqual('page-2', response.context['page'].slug)
-#
-#
-# @override_settings(OSTINATO_PAGES_SITE_TREEID=None)
-# class ViewDispatcherTestCase(TestCase):
-#
-#     urls = 'ostinato.pages.urls'
-#
-#     def setUp(self):
-#         create_pages()
-#
-#     def test_dispatcher_exists(self):
-#         page_dispatch
-#
-#     def test_returns_valid_view(self):
-#         rf = RequestFactory()
-#         request = rf.get('/page-1/')
-#         request.user = AnonymousUser()
-#         response = page_dispatch(request)
-#         self.assertEqual(200, response.status_code)
-#         self.assertIsInstance(response, TemplateResponse)
-#
-#     def test_custom_view_response(self):
-#         response = self.client.get('/page-2/')
-#
-#         self.assertEqual(200, response.status_code)
-#         self.assertEqual(
-#             'pages/tests/basic_page.html', response.templates[0].name)
-#
-#     def test_custom_view_context(self):
-#         response = self.client.get('/page-2/')
-#
-#         self.assertIn('page', response.context)
-#         self.assertIn('custom', response.context)
-#         self.assertEqual('Some Custom Context', response.context['custom'])
-#
-#
-# @override_settings(OSTINATO_PAGES_SITE_TREEID=None)
-# class NavBarTemplateTagTestCase(TestCase):
-#
-#     urls = 'ostinato.pages.urls'
-#
-#     def setUp(self):
-#         create_pages()
-#
-#     def test_navbar_renders(self):
-#         t = Template('{% load pages_tags %}{% navbar %}')
-#         self.response = SimpleTemplateResponse(t)
-#         self.response.render()
-#         self.assertTrue(self.response.is_rendered)
-#
-#
-# @override_settings(OSTINATO_PAGES_SITE_TREEID=None)
-# class GetPageTemplateTagTestCase(TestCase):
-#
-#     urls = 'ostinato.pages.urls'
-#
-#     def test_tag_returns_page(self):
-#         create_pages()
-#         p = get_page(slug="page-1")
-#         self.assertEqual("Page 1", p.title)
-#
-#     def test_tag_returns_page_with_sites_enabled(self):
-#         create_pages()
-#         with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
-#             p = get_page(slug="page-1")
-#             self.assertEqual("Page 1", p.title)
-#
-#     def test_tag_returns_none_for_different_site_page(self):
-#         create_pages()
-#         with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
-#             p = get_page(slug='page-2')
-#             self.assertEqual(None, p)
-#
-#     def test_tag_returns_page_ignore_sites(self):
-#         create_pages()
-#         with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
-#             p = get_page(slug='page-2', ignore_sites=True)
-#             self.assertEqual('page-2', p.slug)
-#
-#     def test_tag_renders(self):
-#         t = Template('{% load pages_tags %}{% get_page slug="page-1" as somepage %}{{ somepage.title }}')
-#         response = SimpleTemplateResponse(t)
-#         response.render()
-#         self.assertTrue(response.is_rendered)
-#
-#
-# @override_settings(OSTINATO_PAGES_SITE_TREEID=None)
-# class FilterPageTemplateTagTestCase(TestCase):
-#
-#     urls = 'ostinato.pages.urls'
-#
-#     def test_tag_returns_queryset(self):
-#         create_pages()
-#         pages = filter_pages(template='pages.basicpage')
-#         self.assertEqual(2, len(pages))
-#
-#     def test_tag_returns_queryset_with_sites_enabled(self):
-#         create_pages()
-#         with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
-#             pages = filter_pages(template='pages.basicpage')
-#             self.assertEqual(1, len(pages))
-#
-#     def test_tag_returns_queryset_ignore_sites(self):
-#         create_pages()
-#         with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
-#             pages = filter_pages(template='pages.basicpage', ignore_sites=True)
-#             self.assertEqual(2, len(pages))
-#
-#     def test_tag_renders(self):
-#         t = Template('{% load pages_tags %}{% get_page template="pages.basicpage" as page_list %}')
-#         response = SimpleTemplateResponse(t)
-#         response.render()
-#         self.assertTrue(response.is_rendered)
-#
-#
-# @override_settings(OSTINATO_PAGES_SITE_TREEID=None)
-# class BreadCrumbsTempalteTagTestCase(TestCase):
-#
-#     urls = 'ostinato.pages.urls'
-#
-#     def test_tag_returns_breadcrumbs_for_page_in_context(self):
-#         create_pages()
-#         c = Context({"page": Page.objects.get(slug="page-3")})
-#         crumbs = breadcrumbs(c)
-#
-#         expected_crumbs = [{
-#             'slug': u'page-1',
-#             'title': u'Page 1',
-#             'url': '/',
-#         }, {
-#             'slug': u'page-3',
-#             'title': u'Page 3',
-#             'url': '/page-1/page-3/',
-#         }]
-#
-#         self.assertEqual(expected_crumbs, crumbs["breadcrumbs"])
-#
-#     def test_tag_returns_breadcrumbs_for_page_argument(self):
-#         create_pages()
-#         c = Context({})
-#         crumbs = breadcrumbs(c, for_page=Page.objects.get(slug="page-3"))
-#
-#         expected_crumbs = [{
-#             'slug': u'page-1',
-#             'title': u'Page 1',
-#             'url': '/',
-#         }, {
-#             'slug': u'page-3',
-#             'title': u'Page 3',
-#             'url': '/page-1/page-3/',
-#         }]
-#
-#         self.assertEqual(expected_crumbs, crumbs['breadcrumbs'])
-#
-#     def test_crumbs_can_have_custom_object(self):
-#         create_pages()
-#         c = Context({"page": Page.objects.get(slug="page-3")})
-#
-#         # We will just use a page as the custom object. It doesn't really
-#         # matter, as long as the final object has a ``title`` and
-#         # ``get_absolute_url()``
-#         obj_page = Page.objects.get(id=1)
-#         crumbs = breadcrumbs(c, obj=obj_page)
-#
-#         expected_crumbs = [{
-#             'slug': u'page-1',
-#             'title': u'Page 1',
-#             'url': '/',
-#         }, {
-#             'slug': u'page-3',
-#             'title': u'Page 3',
-#             'url': '/page-1/page-3/',
-#         }, {
-#             'title': u'Page 1',
-#             'url': u'/'
-#         }]
-#
-#         self.assertEqual(expected_crumbs, crumbs['breadcrumbs'])
-#
-#     def test_tag_renders(self):
-#         create_pages()
-#         t = Template('{% load pages_tags %}{% get_page slug="page-3" as page %}{% breadcrumbs %}')
-#         response = SimpleTemplateResponse(t)
-#         response.render()
-#         self.assertTrue(response.is_rendered)
-#
-#
-# @override_settings(OSTINATO_PAGES_SITE_TREEID=None)
-# class PageReorderViewTestCase(TransactionTestCase):
-#
-#     url = 'ostinato.pages.urls'
-#
-#     def setUp(self):
-#         create_pages()
-#
-#     def test_view_exists(self):
-#         PageReorderView
-#
-#     def test_reverse_lookup(self):
-#         self.assertEqual('/page_reorder/', reverse('ostinato_page_reorder'))
-#
-#     def test_get_response_not_allowed(self):
-#         response = self.client.get('/page_reorder/')
-#         self.assertEqual(405, response.status_code)
-#
-#     def test_staff_only(self):
-#         data = {
-#             'node': 2,              # Move node id 2 ...
-#             'position': 'left',     # ... to the Left of ...
-#             'target': 1,            # ... node id 1
-#         }
-#         response = self.client.post('/page_reorder/', data)
-#         self.assertEqual(200, response.status_code)
-#         self.assertIn('value="Log in"', response.content)
-#
-#     def test_post_response(self):
-#
-#         # We need a logged in user
-#         u = User.objects.create(
-#             username='tester', password='', email='test@example.com')
-#         u.is_staff = True
-#         u.set_password('secret')
-#         u.save()
-#
-#         login = self.client.login(username='tester', password='secret')
-#         self.assertTrue(login)
-#
-#         p = Page.objects.get(slug='page-1')
-#         p2 = Page.objects.get(slug='page-2')
-#
-#         self.assertLess(p.tree_id, p2.tree_id)
-#
-#         data = {
-#             'node': 2,              # Move node id 2 ...
-#             'position': 'left',     # ... to the Left of ...
-#             'target': 1,            # ... node id 1
-#         }
-#
-#         response = self.client.post('/page_reorder/', data)
-#         self.assertEqual(302, response.status_code)
-#
-#         p = Page.objects.get(slug='page-1')
-#         p2 = Page.objects.get(slug='page-2')
-#
-#         self.assertGreater(p.tree_id, p2.tree_id)
-#
-#
-# @override_settings(OSTINATO_PAGES_SITE_TREEID=None)
-# class PageDuplicateViewTestCase(TransactionTestCase):
-#
-#     url = 'ostinato.pages.urls'
-#
-#     def setUp(self):
-#         create_pages()
-#
-#     def test_view_exists(self):
-#         PageDuplicateView
-#
-#     def test_reverse_lookup(self):
-#         self.assertEqual('/page_duplicate/', reverse('ostinato_page_duplicate'))
-#
-#     def test_get_response_not_allowed(self):
-#         response = self.client.get('/page_duplicate/')
-#         self.assertEqual(405, response.status_code)
-#
-#     def test_staff_only(self):
-#         data = {
-#             'node': 2,              # Move node id 2 ...
-#             'position': 'left',     # ... to the Left of ...
-#             'target': 1,            # ... node id 1
-#         }
-#         response = self.client.post('/page_duplicate/', data)
-#         self.assertEqual(200, response.status_code)
-#         self.assertIn('value="Log in"', response.content)
-#
-#     def test_post_response(self):
-#         u = User.objects.create(
-#             username='tester', password='', email='test@example.com')
-#         u.is_staff = True
-#         u.set_password('secret')
-#         u.save()
-#
-#         login = self.client.login(username='tester', password='secret')
-#         self.assertTrue(login)
-#
-#         p = Page.objects.get(slug='page-1')
-#         p2 = Page.objects.get(slug='page-2')
-#         self.assertLess(p.tree_id, p2.tree_id)
-#
-#         data = {
-#             'node': 2,              # Select Node id 2 ...
-#             'position': 'right',     # ... duplicate to the right of ...
-#             'target': 2,            # ... node id 2 (myself)
-#         }
-#
-#         response = self.client.post('/page_duplicate/', data)
-#         self.assertEqual(302, response.status_code)
-#
-#         p = Page.objects.get(slug='page-1')
-#         p2 = Page.objects.get(slug='page-2')
-#         p3 = Page.objects.get(slug='page-2-copy')
-#
-#         self.assertGreater(p3.tree_id, p2.tree_id)
-#         self.assertEqual('Page 2', p3.title)
-#
-#     def test_page_content_is_also_duplicated(self):
-#         u = User.objects.create(
-#             username='tester', password='', email='test@example.com')
-#         u.is_staff = True
-#         u.set_password('secret')
-#         u.save()
-#
-#         login = self.client.login(username='tester', password='secret')
-#         self.assertTrue(login)
-#
-#         p = Page.objects.get(slug='page-1')
-#         p2 = Page.objects.get(slug='page-2')
-#         p2_content = BasicPage.objects.create(
-#             page=p2, content="This is some content for the page")
-#         p2_content.save()
-#
-#         data = {
-#             'node': 2,              # Select Node id 2 ...
-#             'position': 'right',     # ... duplicate to the right of ...
-#             'target': 2,            # ... node id 2 (myself)
-#         }
-#         form = DuplicatePageForm(data)
-#         if form.is_valid():
-#             form.save()
-#
-#         p3 = Page.objects.get(slug='page-2-copy')
-#         self.assertEqual(
-#             'This is some content for the page', p3.contents.content)
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
+class PageViewTestCase(TestCase):
+
+    urls = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
+
+    def tearDown(self):
+        self.client.logout()
+
+    def test_view_exists(self):
+        PageView
+
+    def test_reverse_lookup(self):
+        self.assertEqual('/', reverse('ostinato_page_home'))
+        self.assertEqual(
+            '/page-1/', reverse('ostinato_page_view', args=['page-1']))
+
+    def test_view_response(self):
+        response = self.client.get('/page-1/')
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(
+            'pages/tests/landing_page.html', response.templates[0].name)
+
+    def test_view_context(self):
+        response = self.client.get('/page-1/')
+        self.assertIn('page', response.context)
+
+    def test_function_based_view(self):
+        response = self.client.get('/func-page/')
+        self.assertEqual(200, response.status_code)
+
+    def test_unauthorized_user_raises_forbidden(self):
+        # First we make the page private
+        p = Page.objects.get(slug='page-1')
+        p.state = 1
+        p.save()
+
+        response = self.client.get('/page-1/')
+        self.assertEqual(403, response.status_code)
+
+    def test_author_can_access_own_private_page(self):
+        # First we make the page private
+        p = Page.objects.get(slug='page-1')
+        p.state = 1
+        p.save()
+
+        u = User.objects.get(username='user1')
+        u.set_password('secret')
+        u.save()
+
+        self.client.login(username="user1", password='secret')
+        response = self.client.get('/page-1/')
+        self.assertEqual(200, response.status_code)
+
+    def test_superuser_can_access_private_page(self):
+        # First we make the page private
+        p = Page.objects.get(slug='page-1')
+        p.state = 1
+        p.save()
+
+        # Make a second user, which is a superuser
+        u = User.objects.create(
+            username='not_an_author',
+            password="secret",
+            email="naa@example.com")
+        u.set_password("secret")
+        u.is_superuser = True
+        u.save()
+
+        self.client.login(username='not_an_author', password='secret')
+        response = self.client.get('/page-1/')
+        self.assertEqual(200, response.status_code)
+
+
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
+class SitesEnabledPageViewTestCase(TestCase):
+
+    urls = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
+
+    def test_view_respsponse(self):
+        response = self.client.get('/page-1/')
+
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(
+                'pages/tests/landing_page.html', response.templates[0].name)
+
+    def test_different_site_page_returns_404(self):
+        # Without sites enabled, respond as normal
+        response = self.client.get('/page-2/')
+        self.assertEqual(200, response.status_code)
+
+        # With sites enabled raise 404
+        # Note below I also pass DEBUG=True; This is because by default django
+        # will try to find a 404.html template and not find it in our tests.
+        # Setting debug to True will make django uses it's own 404 template
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1, DEBUG=True):
+            response = self.client.get('/page-2/')
+            self.assertEqual(404, response.status_code)
+
+    def test_root_page_for_site(self):
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=2, DEBUG=True):
+            response = self.client.get('/')
+            self.assertEqual(200, response.status_code)
+            self.assertEqual('page-2', response.context['page'].slug)
+
+
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
+class ViewDispatcherTestCase(TestCase):
+
+    urls = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
+
+    def test_dispatcher_exists(self):
+        page_dispatch
+
+    def test_returns_valid_view(self):
+        rf = RequestFactory()
+        request = rf.get('/page-1/')
+        request.user = AnonymousUser()
+        response = page_dispatch(request)
+        self.assertEqual(200, response.status_code)
+        self.assertIsInstance(response, TemplateResponse)
+
+    def test_custom_view_response(self):
+        response = self.client.get('/page-2/')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(
+            'pages/tests/basic_page.html', response.templates[0].name)
+
+    def test_custom_view_context(self):
+        response = self.client.get('/page-2/')
+
+        self.assertIn('page', response.context)
+        self.assertIn('custom', response.context)
+        self.assertEqual('Some custom content', response.context['custom'])
+
+
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
+class GetPageTemplateTagTestCase(TestCase):
+
+    urls = 'ostinato.pages.urls'
+
+    def test_tag_returns_page(self):
+        create_pages()
+        p = get_page(slug="page-1")
+        self.assertEqual("LandingPageTemplate", p.template)
+
+    def test_tag_returns_page_with_sites_enabled(self):
+        create_pages()
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            p = get_page(slug="page-1")
+            self.assertEqual("LandingPageTemplate", p.template)
+
+    def test_tag_returns_none_for_different_site_page(self):
+        create_pages()
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            p = get_page(slug='page-2')
+            self.assertEqual(None, p)
+
+    def test_tag_returns_page_ignore_sites(self):
+        create_pages()
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            p = get_page(slug='page-2', ignore_sites=True)
+            self.assertEqual('page-2', p.slug)
+
+    def test_tag_renders(self):
+        t = Template('{% load pages_tags %}{% get_page slug="page-1" as somepage %}')
+        response = SimpleTemplateResponse(t)
+        response.render()
+        self.assertTrue(response.is_rendered)
+
+
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
+class FilterPageTemplateTagTestCase(TestCase):
+
+    urls = 'ostinato.pages.urls'
+
+    def test_tag_returns_queryset(self):
+        create_pages()
+        pages = filter_pages(template='BasicPageTemplate')
+        self.assertEqual(2, len(pages))
+
+    def test_tag_returns_queryset_with_sites_enabled(self):
+        create_pages()
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            pages = filter_pages(template='BasicPageTemplate')
+            self.assertEqual(1, len(pages))
+
+    def test_tag_returns_queryset_ignore_sites(self):
+        create_pages()
+        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
+            pages = filter_pages(template='BasicPageTemplate', ignore_sites=True)
+            self.assertEqual(2, len(pages))
+
+    def test_tag_renders(self):
+        t = Template('{% load pages_tags %}{% get_page template="BasicPageTemplate" as page_list %}')
+        response = SimpleTemplateResponse(t)
+        response.render()
+        self.assertTrue(response.is_rendered)
+
+
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
+class NavBarTemplateTagTestCase(TestCase):
+
+    urls = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
+
+    def test_navbar_renders(self):
+        t = Template('{% load pages_tags %}{% navbar %}')
+        self.response = SimpleTemplateResponse(t)
+        self.response.render()
+        self.assertTrue(self.response.is_rendered)
+
+
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
+class BreadCrumbsTempalteTagTestCase(TestCase):
+
+    urls = 'ostinato.pages.urls'
+
+    def test_tag_returns_breadcrumbs_for_page_in_context(self):
+        create_pages()
+        c = Context({"page": Page.objects.get(slug="page-3")})
+        crumbs = breadcrumbs(c)
+
+        expected_crumbs = [{
+            'slug': u'page-1',
+            'title': u'page-1',
+            'url': '/',
+        }, {
+            'slug': u'page-3',
+            'title': u'page-3',
+            'url': '/page-1/page-3/',
+        }]
+
+        self.assertEqual(expected_crumbs, crumbs["breadcrumbs"])
+
+    def test_tag_returns_breadcrumbs_for_page_argument(self):
+        create_pages()
+        c = Context({})
+        crumbs = breadcrumbs(c, for_page=Page.objects.get(slug="page-3"))
+
+        expected_crumbs = [{
+            'slug': u'page-1',
+            'title': u'page-1',
+            'url': '/',
+        }, {
+            'slug': u'page-3',
+            'title': u'page-3',
+            'url': '/page-1/page-3/',
+        }]
+
+        self.assertEqual(expected_crumbs, crumbs['breadcrumbs'])
+
+    def test_crumbs_can_have_custom_object(self):
+        create_pages()
+        c = Context({"page": Page.objects.get(slug="page-3")})
+
+        # We will just use a page as the custom object. It doesn't really
+        # matter, as long as the final object has a ``title`` and
+        # ``get_absolute_url()``
+        obj_page = Page.objects.get(id=1)
+        crumbs = breadcrumbs(c, obj=obj_page)
+
+        expected_crumbs = [{
+            'slug': u'page-1',
+            'title': u'page-1',
+            'url': '/',
+        }, {
+            'slug': u'page-3',
+            'title': u'page-3',
+            'url': '/page-1/page-3/',
+        }, {
+            'title': u'page-1',
+            'url': u'/'
+        }]
+
+        self.assertEqual(expected_crumbs, crumbs['breadcrumbs'])
+
+    def test_tag_renders(self):
+        create_pages()
+        t = Template('{% load pages_tags %}{% get_page slug="page-3" as page %}{% breadcrumbs %}')
+        response = SimpleTemplateResponse(t)
+        response.render()
+        self.assertTrue(response.is_rendered)
+
+
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
+class PageReorderViewTestCase(TransactionTestCase):
+
+    url = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
+
+    def test_view_exists(self):
+        PageReorderView
+
+    def test_reverse_lookup(self):
+        self.assertEqual('/page_reorder/', reverse('ostinato_page_reorder'))
+
+    def test_get_response_not_allowed(self):
+        response = self.client.get('/page_reorder/')
+        self.assertEqual(405, response.status_code)
+
+    def test_staff_only(self):
+        data = {
+            'node': 2,              # Move node id 2 ...
+            'position': 'left',     # ... to the Left of ...
+            'target': 1,            # ... node id 1
+        }
+        response = self.client.post('/page_reorder/', data)
+        self.assertEqual(200, response.status_code)
+        self.assertIn('value="Log in"', response.content)
+
+    def test_post_response(self):
+
+        # We need a logged in user
+        u = User.objects.create(
+            username='tester', password='', email='test@example.com')
+        u.is_staff = True
+        u.set_password('secret')
+        u.save()
+
+        login = self.client.login(username='tester', password='secret')
+        self.assertTrue(login)
+
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+
+        self.assertLess(p.tree_id, p2.tree_id)
+
+        data = {
+            'node': 2,              # Move node id 2 ...
+            'position': 'left',     # ... to the Left of ...
+            'target': 1,            # ... node id 1
+        }
+
+        response = self.client.post('/page_reorder/', data)
+        self.assertEqual(302, response.status_code)
+
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+
+        self.assertGreater(p.tree_id, p2.tree_id)
+
+
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
+class PageDuplicateViewTestCase(TransactionTestCase):
+
+    url = 'ostinato.pages.urls'
+
+    def setUp(self):
+        create_pages()
+
+    def test_view_exists(self):
+        PageDuplicateView
+
+    def test_reverse_lookup(self):
+        self.assertEqual('/page_duplicate/', reverse('ostinato_page_duplicate'))
+
+    def test_get_response_not_allowed(self):
+        response = self.client.get('/page_duplicate/')
+        self.assertEqual(405, response.status_code)
+
+    def test_staff_only(self):
+        data = {
+            'node': 2,              # Move node id 2 ...
+            'position': 'left',     # ... to the Left of ...
+            'target': 1,            # ... node id 1
+        }
+        response = self.client.post('/page_duplicate/', data)
+        self.assertEqual(200, response.status_code)
+        self.assertIn('value="Log in"', response.content)
+
+    def test_post_response(self):
+        u = User.objects.create(
+            username='tester', password='', email='test@example.com')
+        u.is_staff = True
+        u.set_password('secret')
+        u.save()
+
+        login = self.client.login(username='tester', password='secret')
+        self.assertTrue(login)
+
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+        self.assertLess(p.tree_id, p2.tree_id)
+
+        data = {
+            'node': 2,              # Select Node id 2 ...
+            'position': 'right',     # ... duplicate to the right of ...
+            'target': 2,            # ... node id 2 (myself)
+        }
+
+        response = self.client.post('/page_duplicate/', data)
+        self.assertEqual(302, response.status_code)
+
+        p = Page.objects.get(slug='page-1')
+        p2 = Page.objects.get(slug='page-2')
+        p3 = Page.objects.get(slug='page-2-copy')
+
+        self.assertGreater(p3.tree_id, p2.tree_id)
+
+    def test_page_content_is_also_duplicated(self):
+        u = User.objects.create(
+            username='tester', password='', email='test@example.com')
+        u.is_staff = True
+        u.set_password('secret')
+        u.save()
+
+        login = self.client.login(username='tester', password='secret')
+        self.assertTrue(login)
+
+        p2 = Page.objects.get(slug='page-2')
+        p2_content = MetaContent.objects.create(
+            page=p2, title="Page 2", description="Page 2 Description")
+        p2_content.save()
+
+        data = {
+            'node': 2,              # Select Node id 2 ...
+            'position': 'right',     # ... duplicate to the right of ...
+            'target': 2,            # ... node id 2 (myself)
+        }
+        form = DuplicatePageForm(data)
+        if form.is_valid():
+            form.save()
+
+        content = MetaContent.objects.get(page__slug='page-2-copy')
+        self.assertEqual('Page 2 Description', content.description)

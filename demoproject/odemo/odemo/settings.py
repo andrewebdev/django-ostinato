@@ -128,7 +128,7 @@ INSTALLED_APPS = (
 
     'ostinato',
     'ostinato.pages',
-    # 'ostinato.blog',
+    'ostinato.blog',
     'ostinato.statemachine',  # Only really need this here for the tests
     'ostinato.contentfilters',
 
@@ -142,7 +142,7 @@ INSTALLED_APPS = (
 )
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner'
+# TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner'
 
 # Third party app config
 TINYMCE_DEFAULT_CONFIG = {

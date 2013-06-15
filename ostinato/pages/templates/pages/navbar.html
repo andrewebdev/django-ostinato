@@ -2,7 +2,7 @@
 <ul>
     {% for p in navbar %}
     <li {% if p.slug == page.slug %}class="active"{% endif %}>
-        <a href="{{ p.url }}">{{ p.title }}</a></li>
+        <a href="{{ p.url }}">{{ p.slug }}</a></li>
     {% endfor %}
 </ul>
 {% endif %}
