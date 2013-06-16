@@ -79,6 +79,7 @@ class PageAdmin(MPTTModelAdmin):
     fieldsets = (
         (None, {
             'fields': (
+                ('title', 'short_title'),
                 'slug', 'template', 'redirect', 'parent',
                 ('show_in_nav', 'show_in_sitemap'),
             ),
@@ -89,6 +90,7 @@ class PageAdmin(MPTTModelAdmin):
         }),
 
     )
+    prepopulated_fields = {'slug': ('title',)}
 
     if 'grappelli' in settings.INSTALLED_APPS:
         change_list_template = 'admin/pages_change_list_grappelli.html'
@@ -138,7 +140,7 @@ class PageAdmin(MPTTModelAdmin):
                 return '%s (%s)' % (obj.slug, tree_site.name)
 
         return '%s%s' % (PAGES_INDENT * obj.level, obj.slug)
-    get_slug.short_description = _("Page Slug")
+    get_slug.short_description = _("URL Slug")
     get_slug.allow_tags = True
 
     def page_state(self, obj):

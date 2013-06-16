@@ -36,10 +36,10 @@ def breadcrumbs(context, for_page=None, obj=None):
     breadcrumbs = Page.objects.get_breadcrumbs(for_page=for_page)
 
     if obj:
-        # Note that __unicode__() and get_absolute_url() is required for the
-        # custom object.
+        # Note that the custom object _must_ have ``get_title()`` and 
+        # ``get_absolute_url()`` methods in order to work correctly
         breadcrumbs.append({
-            'title': str(obj),
+            'title': obj.get_title(),
             'url': obj.get_absolute_url(),
         })
 

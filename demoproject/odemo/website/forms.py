@@ -25,7 +25,7 @@ class ContactForm(forms.Form):
 
 
 # Pages Admin Forms
-class HomePageForm(forms.ModelForm):
+class LandingPageTemplateForm(forms.ModelForm):
     content = forms.CharField(widget=TinyMCE())
 
     class Meta:

@@ -26,18 +26,21 @@ def create_pages():
         username='user1', password='secret', email='user1@example.com')
 
     p = Page.objects.create(
+        title = "Page 1", short_title="",
         slug="page-1", author=user, show_in_nav=True,
         created_date="2012-04-10 12:14:51.203925+00:00",
         modified_date="2012-04-10 12:14:51.203925+00:00",
         template='LandingPageTemplate',
     )
     Page.objects.create(
+        title="Page 2", short_title="",
         slug="page-2", author=user, show_in_nav=True,
         created_date="2012-04-10 12:14:51.203925+00:00",
         modified_date="2012-04-10 12:14:51.203925+00:00",
         template='BasicPageTemplate',
     )
     Page.objects.create(
+        title="Page 3", short_title="",
         slug="page-3", author=user, show_in_nav=True,
         created_date="2012-04-10 12:14:51.203925+00:00",
         modified_date="2012-04-10 12:14:51.203925+00:00",
@@ -45,11 +48,86 @@ def create_pages():
         parent=p,
     )
     Page.objects.create(
+        title="Function Page", short_title="Func Page",
         slug="func-page", author=user, show_in_nav=False,
         created_date="2012-04-10 12:14:51.203925+00:00",
         modified_date="2012-04-10 12:14:51.203925+00:00",
         template='FuncPageTemplate',
     )
+
+
+# Create a couple of custom models to include in the page
+class MetaContent(PageContent):
+    title = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+
+
+# Some custom views
+def functionview(request, *args, **kwargs):
+    return http.HttpResponse('ok')
+
+
+class CustomView(PageView):
+    def get_context_data(self, **kwargs):
+        c = super(CustomView, self).get_context_data(**kwargs)
+        c['custom'] = "Some custom content"
+        return c
+
+
+# Register some templates
+@page_templates.register
+class LandingPageTemplate(PageTemplate):
+    template = 'pages/tests/landing_page.html'
+    page_content = ['ostinato.pages.tests.MetaContent']
+
+
+@page_templates.register
+class FuncPageTemplate(PageTemplate):
+    view = 'ostinato.pages.tests.functionview'
+    page_content = ['ostinato.pages.tests.MetaContent']
+
+
+@page_templates.register
+class BasicPageTemplate(PageTemplate):
+    template = 'pages/tests/basic_page.html'
+    view = 'ostinato.pages.tests.CustomView'
+    page_content = ['ostinato.pages.tests.MetaContent']
+
+
+# Test the page template registry
+class TemplateRegistryTestCase(TestCase):
+
+    def test_page_template_object(self):
+        PageTemplate
+
+    def test_templates_registered(self):
+        self.assertEqual(3, len(page_templates.all()))
+
+    def test_page_template_in_registry(self):
+        self.assertIn(LandingPageTemplate, page_templates.all())
+
+    def test_get_template_choices(self):
+        self.assertEqual((
+            ('', '--------'),
+            ('LandingPageTemplate', 'Landing Page Template'),
+            ('FuncPageTemplate', 'Func Page Template'),
+            ('BasicPageTemplate', 'Basic Page Template'),
+        ), page_templates.get_template_choices())
+
+    def test_get_template_name(self):
+        self.assertEqual(
+            'Landing Page Template',
+            page_templates.get_template_name('LandingPageTemplate'))
+
+
+@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
+class PageContentModelTestCase(TestCase):
+
+    def test_model_exists(self):
+        PageContent
+
+    def test_model_is_abstract(self):
+        self.assertTrue(PageContent._meta.abstract)
 
 
 # ## Actual Tests
@@ -69,7 +147,14 @@ class PageModelTestCase(TestCase):
         self.assertEqual(4, pages.count())
 
     def test_unicode(self):
-        self.assertEqual('page-1', str(Page.objects.get(id=1)))
+        self.assertEqual('Page 1', str(Page.objects.get(id=1)))
+
+    def test_get_title(self):
+        self.assertEqual('Page 1', Page.objects.get(id=1).get_title())
+
+    def test_get_title_returns_short_title(self):
+        p = Page.objects.get(slug='func-page')
+        self.assertEqual('Func Page', p.get_title())
 
     def test_absolute_url(self):
         p = Page.objects.get(slug='page-1')
@@ -149,13 +234,13 @@ class PageManagerTestCase(TestCase):
     def test_get_navbar(self):
         expected_nav = [{
             'slug': u'page-1',
-            'title': u'page-1',
+            'title': u'Page 1',
             'url': '/',
             'level': 0,
             'tree_id': 1,
         }, {
             'slug': u'page-2',
-            'title': u'page-2',
+            'title': u'Page 2',
             'url': '/page-2/',
             'level': 0,
             'tree_id': 2,
@@ -164,7 +249,7 @@ class PageManagerTestCase(TestCase):
 
         expected_nav = [{
             'slug': u'page-2',
-            'title': u'page-2',
+            'title': u'Page 2',
             'url': '/page-2/',
             'level': 0,
             'tree_id': 2,
@@ -177,7 +262,7 @@ class PageManagerTestCase(TestCase):
     def test_get_navbar_for_page(self):
         expected_nav = [{
             'slug': u'page-3',
-            'title': u'page-3',
+            'title': u'Page 3',
             'url': '/page-1/page-3/',
             'level': 1,
             'tree_id': 1,
@@ -191,7 +276,7 @@ class PageManagerTestCase(TestCase):
     def test_get_navbar_sites_enabled(self):
         expected_nav = [{
             'slug': u'page-3',
-            'title': u'page-3',
+            'title': u'Page 3',
             'url': '/page-1/page-3/',
             'level': 1,
             'tree_id': 1,
@@ -203,7 +288,7 @@ class PageManagerTestCase(TestCase):
     def test_get_navbar_sites_enabled_for_page(self):
         expected_nav = [{
             'slug': u'page-3',
-            'title': u'page-3',
+            'title': u'Page 3',
             'url': '/page-1/page-3/',
             'level': 1,
             'tree_id': 1,
@@ -216,11 +301,11 @@ class PageManagerTestCase(TestCase):
     def test_get_breadcrumbs(self):
         expected_crumbs = [{
             'slug': u'page-1',
-            'title': u'page-1',
+            'title': u'Page 1',
             'url': '/',
         }, {
             'slug': u'page-3',
-            'title': u'page-3',
+            'title': u'Page 3',
             'url': '/page-1/page-3/',
         }]
         p = Page.objects.get(slug='page-3')
@@ -263,80 +348,6 @@ class PageManagerTestCase(TestCase):
         self.assertEqual(None, cache_url(1))
         self.assertEqual(None, cache_url(2))
         self.assertEqual(None, cache_url(3))
-
-
-# Create a couple of custom models to include in the page
-class MetaContent(PageContent):
-    title = models.CharField(max_length=100)
-    description = models.TextField(null=True, blank=True)
-
-
-# Some custom views
-def functionview(request, *args, **kwargs):
-    return http.HttpResponse('ok')
-
-
-class CustomView(PageView):
-    def get_context_data(self, **kwargs):
-        c = super(CustomView, self).get_context_data(**kwargs)
-        c['custom'] = "Some custom content"
-        return c
-
-
-# Register some templates
-@page_templates.register
-class LandingPageTemplate(PageTemplate):
-    template = 'pages/tests/landing_page.html'
-    page_content = ['ostinato.pages.tests.MetaContent']
-
-
-@page_templates.register
-class FuncPageTemplate(PageTemplate):
-    view = 'ostinato.pages.tests.functionview'
-    page_content = ['ostinato.pages.tests.MetaContent']
-
-
-@page_templates.register
-class BasicPageTemplate(PageTemplate):
-    template = 'pages/tests/basic_page.html'
-    view = 'ostinato.pages.tests.CustomView'
-    page_content = ['ostinato.pages.tests.MetaContent']
-
-
-# Now test the registry
-class TemplateRegistryTestCase(TestCase):
-
-    def test_page_template_object(self):
-        PageTemplate
-
-    def test_templates_registered(self):
-        self.assertEqual(3, len(page_templates.all()))
-
-    def test_page_template_in_registry(self):
-        self.assertIn(LandingPageTemplate, page_templates.all())
-
-    def test_get_template_choices(self):
-        self.assertEqual((
-            ('', '--------'),
-            ('LandingPageTemplate', 'Landing Page Template'),
-            ('FuncPageTemplate', 'Func Page Template'),
-            ('BasicPageTemplate', 'Basic Page Template'),
-        ), page_templates.get_template_choices())
-
-    def test_get_template_name(self):
-        self.assertEqual(
-            'Landing Page Template',
-            page_templates.get_template_name('LandingPageTemplate'))
-
-
-@override_settings(OSTINATO_PAGES_SITE_TREEID=None)
-class PageContentModelTestCase(TestCase):
-
-    def test_model_exists(self):
-        PageContent
-
-    def test_model_is_abstract(self):
-        self.assertTrue(PageContent._meta.abstract)
 
 
 @override_settings(OSTINATO_PAGES_SITE_TREEID=None)
@@ -576,11 +587,11 @@ class BreadCrumbsTempalteTagTestCase(TestCase):
 
         expected_crumbs = [{
             'slug': u'page-1',
-            'title': u'page-1',
+            'title': u'Page 1',
             'url': '/',
         }, {
             'slug': u'page-3',
-            'title': u'page-3',
+            'title': u'Page 3',
             'url': '/page-1/page-3/',
         }]
 
@@ -593,11 +604,11 @@ class BreadCrumbsTempalteTagTestCase(TestCase):
 
         expected_crumbs = [{
             'slug': u'page-1',
-            'title': u'page-1',
+            'title': u'Page 1',
             'url': '/',
         }, {
             'slug': u'page-3',
-            'title': u'page-3',
+            'title': u'Page 3',
             'url': '/page-1/page-3/',
         }]
 
@@ -615,14 +626,14 @@ class BreadCrumbsTempalteTagTestCase(TestCase):
 
         expected_crumbs = [{
             'slug': u'page-1',
-            'title': u'page-1',
+            'title': u'Page 1',
             'url': '/',
         }, {
             'slug': u'page-3',
-            'title': u'page-3',
+            'title': u'Page 3',
             'url': '/page-1/page-3/',
         }, {
-            'title': u'page-1',
+            'title': u'Page 1',
             'url': u'/'
         }]
 
@@ -765,7 +776,7 @@ class PageDuplicateViewTestCase(TransactionTestCase):
 
         p2 = Page.objects.get(slug='page-2')
         p2_content = MetaContent.objects.create(
-            page=p2, title="Page 2", description="Page 2 Description")
+            page=p2, description="Page 2 Description")
         p2_content.save()
 
         data = {

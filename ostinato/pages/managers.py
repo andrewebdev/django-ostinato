@@ -47,7 +47,7 @@ class PageManager(TreeManager):
             for page in nav_items:
                 navbar.append({
                     'slug': page.slug,
-                    'title': page.get_short_title(),
+                    'title': page.get_title(),
                     'url': page.get_absolute_url(),
                     'tree_id': page.tree_id,
                     'level': page.level,
@@ -77,12 +77,12 @@ class PageManager(TreeManager):
             for page in parents:
                 crumbs.append({
                     'slug': page.slug,
-                    'title': page.get_short_title(),
+                    'title': page.get_title(),
                     'url': page.get_absolute_url(),
                 })
             crumbs.append({
                 'slug': for_page.slug,
-                'title': for_page.get_short_title(),
+                'title': for_page.get_title(),
                 'url': for_page.get_absolute_url()
             })
 

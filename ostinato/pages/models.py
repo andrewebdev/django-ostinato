@@ -27,6 +27,8 @@ class ContentError(Exception):
 ## Models
 class Page(MPTTModel):
     """ A basic page model """
+    title = models.CharField(max_length=250)
+    short_title = models.CharField(max_length=50, null=True, blank=True)
     slug = models.SlugField(
         _("Slug"), unique=True, help_text=_("A url friendly slug."))
 
@@ -63,10 +65,12 @@ class Page(MPTTModel):
         verbose_name_plural = _("Pages")
 
     def __unicode__(self):
-        return self.slug
+        return self.get_title()
 
-    def get_short_title(self):
-        return self.slug
+    def get_title(self):
+        if self.short_title:
+            return self.short_title
+        return self.title
 
     def save(self, *args, **kwargs):
         now = timezone.now()
@@ -146,8 +150,6 @@ class MetaContent(PageContent):
     model that can be added to any templates. It contains some common fields
     that most CMS's require in some way.
     """
-    title = models.CharField(max_length=250)
-    short_title = models.CharField(max_length=50, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    meta_keywords = models.CharField(max_length=250, null=True, blank=True)
-    meta_description = models.TextField(null=True, blank=True)
+    seo_keywords = models.CharField(max_length=250, null=True, blank=True)
+    seo_description = models.TextField(null=True, blank=True)

@@ -1,0 +1,11 @@
+{% extends 'pages/base.html' %}
+
+
+{% block content %}
+<article>
+
+    <h1>{{ page.metacontent_set.all.0.title }}</h1>
+    {{ page.richcontent_set.all.0.content|safe }}
+
+</article>
+{% endblock %}
