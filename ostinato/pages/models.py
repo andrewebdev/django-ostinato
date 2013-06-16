@@ -142,17 +142,7 @@ class PageContent(models.Model):
 
     class Meta:
         abstract = True
+        unique_together = ('page', 'language')
 
     class ContentOptions:
         form = None
-
-
-class MetaContent(PageContent):
-    """
-    This model serves as both an example, and as a default page content
-    model that can be added to any templates. It contains some common fields
-    that most CMS's require in some way.
-    """
-    description = models.TextField(null=True, blank=True)
-    seo_keywords = models.CharField(max_length=250, null=True, blank=True)
-    seo_description = models.TextField(null=True, blank=True)

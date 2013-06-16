@@ -47,23 +47,3 @@ class TopLevelListPageView(PageView):
                     p.form = ContactForm()
 
         return self.render_to_response(c)
-
-
-class ContactPageView(PageView):
-
-    def get(self, *args, **kwargs):
-        c = self.get_context_data(**kwargs)
-        c['form'] = ContactForm()
-        return self.render_to_response(c)
-
-    def post(self, *args, **kwargs):
-        c = self.get_context_data(**kwargs)
-        form = ContactForm(self.request.POST)
-
-        if form.is_valid():
-            next = self.page.contents.get_next_url()
-            form.save(self.page.contents.get_recipients())
-            return http.HttpResponseRedirect(next)
-
-        c['form'] = form
-        return self.render_to_response(c)

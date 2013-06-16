@@ -16,6 +16,9 @@ from ostinato.pages.views import PageReorderView, PageDuplicateView
 from ostinato.pages.templatetags.pages_tags import get_page, filter_pages, breadcrumbs
 from ostinato.pages.forms import DuplicatePageForm
 
+# Use MetaContent from the pagecontent app
+from ostinato.pagecontent.models import MetaContent
+
 
 page_templates.clear()
 page_templates.autodiscover('ostinato.pages.tests')
@@ -54,12 +57,6 @@ def create_pages():
         modified_date="2012-04-10 12:14:51.203925+00:00",
         template='FuncPageTemplate',
     )
-
-
-# Create a couple of custom models to include in the page
-class MetaContent(PageContent):
-    title = models.CharField(max_length=100)
-    description = models.TextField(null=True, blank=True)
 
 
 # Some custom views
