@@ -7,6 +7,9 @@ from ostinato.pages.models import Page, PageContent
 class RichContent(PageContent):
     content = models.TextField(null=True, blank=True)
 
+    class ContentOptions:
+        form = 'website.forms.RichContentForm'
+
 
 class ContactFormContent(PageContent):
     recipients = models.TextField(
@@ -18,7 +21,6 @@ class ContactFormContent(PageContent):
 
     class ContentOptions:
         form = 'website.forms.ContactPageForm'
-        view = 'website.views.ContactPageView'
 
     def get_next_url(self):
         return self.success_page.get_absolute_url()

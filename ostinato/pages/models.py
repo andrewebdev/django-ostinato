@@ -143,6 +143,9 @@ class PageContent(models.Model):
     class Meta:
         abstract = True
 
+    class ContentOptions:
+        form = None
+
 
 class MetaContent(PageContent):
     """

@@ -5,7 +5,7 @@ from ostinato.pages.registry import PageTemplate, page_templates
 class LandingPageTemplate(PageTemplate):
     page_content = [
         'ostinato.pages.models.MetaContent',
-        ('website.models.RichContent', 'website.forms.RichContentForm'),
+        'website.models.RichContent',
     ]
 
 

@@ -27,12 +27,12 @@ def geticon(action):
 
 
 # PageContent Inline Admin Classes
-def content_inline_factory(for_model, content_form=None):
+def content_inline_factory(content_model):
     """
-    Returns a new Inline Class for ``for_model``
+    Returns a new Inline Class for ``content_model``
     """
     class _FacotryInline(admin.StackedInline):
-        model = for_model
+        model = content_model
         extra = 1
         max_num = 1
         can_delete = False
@@ -40,8 +40,13 @@ def content_inline_factory(for_model, content_form=None):
         classes = ('grp-collapse grp-open',)
         inline_classes = ('grp-collapse grp-open',)
 
+        ## Check for a custom form and try to load it
+        content_form = getattr(content_model.ContentOptions, 'form', None)
         if content_form:
-            form = content_form
+            module_path, form_class = content_form.rsplit('.', 1)
+            form = __import__(
+                module_path, locals(), globals(), [form_class], -1
+            ).__dict__[form_class]
 
     return _FacotryInline
 
@@ -178,35 +183,18 @@ class PageAdmin(MPTTModelAdmin):
                     # Content definition is just a string containing the import
                     # path to the content model
                     content_path = content
-                    edit_form_path = None
+                    through = None
                 else:
                     # Content definition is a list/tuple containing both the
-                    # import paths for the content model and the admin edit form
-                    content_path, edit_form_path = content
+                    # import paths for the content model and the through model 
+                    content_path, through = content
 
                 try:
-                    """
-                    Wrap both the content model import and the custom
-                    admin edit form import in the same try block, since both
-                    basically do the same, and we want the same errors to
-                    be raised.
-
-                    TODO: Could we use django utils import lib here?
-                    """
                     # Import the Content Model
                     module_path, inline_class = content_path.rsplit('.', 1)
                     model = __import__(
                         module_path, locals(), globals(),
                         [inline_class], -1).__dict__[inline_class]
-
-                    # Now import the Content Edit Form
-                    if edit_form_path:
-                        module_path, form_class = edit_form_path.rsplit('.', 1)
-                        content_form = __import__(
-                            module_path, locals(), globals(),
-                            [form_class], -1).__dict__[form_class]
-                    else:
-                        content_form = None
 
                 except KeyError:
                     raise Exception(
@@ -220,7 +208,7 @@ class PageAdmin(MPTTModelAdmin):
                         'content inlines. Expected a string containing the'
                         ' full import path.')
 
-                inline = content_inline_factory(model, content_form)
+                inline = content_inline_factory(model)
                 self.inlines += (inline,)
 
         return super(PageAdmin, self).change_view(
