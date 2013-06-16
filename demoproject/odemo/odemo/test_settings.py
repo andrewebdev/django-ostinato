@@ -123,6 +123,7 @@ INSTALLED_APPS = (
 
     'ostinato',
     'ostinato.pages',
+    'ostinato.pagecontent',
     'ostinato.blog',
     'ostinato.statemachine',  # Only really need this here for the tests
     'ostinato.contentfilters',
