@@ -17,7 +17,8 @@ from ostinato.pages.templatetags.pages_tags import get_page, filter_pages, bread
 from ostinato.pages.forms import DuplicatePageForm
 
 
-page_templates.setup()  # Clear the registry before we start the tests
+page_templates.clear()
+page_templates.autodiscover('ostinato.pages.tests')
 
 
 def create_pages():
@@ -302,13 +303,14 @@ class BasicPageTemplate(PageTemplate):
     page_content = ['ostinato.pages.tests.MetaContent']
 
 
+# Now test the registry
 class TemplateRegistryTestCase(TestCase):
 
     def test_page_template_object(self):
         PageTemplate
 
     def test_templates_registered(self):
-        self.assertEqual(1, len(page_templates.all()))
+        self.assertEqual(3, len(page_templates.all()))
 
     def test_page_template_in_registry(self):
         self.assertIn(LandingPageTemplate, page_templates.all())
@@ -317,6 +319,8 @@ class TemplateRegistryTestCase(TestCase):
         self.assertEqual((
             ('', '--------'),
             ('LandingPageTemplate', 'Landing Page Template'),
+            ('FuncPageTemplate', 'Func Page Template'),
+            ('BasicPageTemplate', 'Basic Page Template'),
         ), page_templates.get_template_choices())
 
     def test_get_template_name(self):
