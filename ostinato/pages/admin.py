@@ -27,26 +27,22 @@ def geticon(action):
 
 
 # PageContent Inline Admin Classes
-class PageContentInline(admin.StackedInline):
-    """
-    This Inline base class should be used to add content to the admin
-    for a page.
-    """
-    model = None  # Expected to be overridden
-    extra = 1
-    max_num = 1
-    can_delete = False
-    fk_name = 'page'
-    classes = ('grp-collapse grp-open',)
-    inline_classes = ('grp-collapse grp-open',)
-
-
-def content_inline_factory(for_model):
+def content_inline_factory(for_model, content_form=None):
     """
     Returns a new Inline Class for ``for_model``
     """
-    class _FacotryInline(PageContentInline):
+    class _FacotryInline(admin.StackedInline):
         model = for_model
+        extra = 1
+        max_num = 1
+        can_delete = False
+        fk_name = 'page'
+        classes = ('grp-collapse grp-open',)
+        inline_classes = ('grp-collapse grp-open',)
+
+        if content_form:
+            form = content_form
+
     return _FacotryInline
 
 
@@ -176,19 +172,41 @@ class PageAdmin(MPTTModelAdmin):
             page = self.get_object(request, unquote(object_id))
             template = page_templates.get_template(page.template)
 
-            for import_str in template.page_content:
-                # through = None
+            for content in template.page_content:
 
-                # if isinstance(model_path, (str, unicode)):
-                #     inline_str = inline_def
-                # else:
-                #     inline_str, through = inline_def
+                if isinstance(content, (str, unicode)):
+                    # Content definition is just a string containing the import
+                    # path to the content model
+                    content_path = content
+                    edit_form_path = None
+                else:
+                    # Content definition is a list/tuple containing both the
+                    # import paths for the content model and the admin edit form
+                    content_path, edit_form_path = content
 
                 try:
-                    module_path, inline_class = import_str.rsplit('.', 1)
+                    """
+                    Wrap both the content model import and the custom
+                    admin edit form import in the same try block, since both
+                    basically do the same, and we want the same errors to
+                    be raised.
+
+                    TODO: Could we use django utils import lib here?
+                    """
+                    # Import the Content Model
+                    module_path, inline_class = content_path.rsplit('.', 1)
                     model = __import__(
                         module_path, locals(), globals(),
                         [inline_class], -1).__dict__[inline_class]
+
+                    # Now import the Content Edit Form
+                    if edit_form_path:
+                        module_path, form_class = edit_form_path.rsplit('.', 1)
+                        content_form = __import__(
+                            module_path, locals(), globals(),
+                            [form_class], -1).__dict__[form_class]
+                    else:
+                        content_form = None
 
                 except KeyError:
                     raise Exception(
@@ -202,7 +220,7 @@ class PageAdmin(MPTTModelAdmin):
                         'content inlines. Expected a string containing the'
                         ' full import path.')
 
-                inline = content_inline_factory(model)
+                inline = content_inline_factory(model, content_form)
                 self.inlines += (inline,)
 
         return super(PageAdmin, self).change_view(
