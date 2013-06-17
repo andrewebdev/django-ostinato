@@ -24,5 +24,12 @@ class ContentRegister(SortedRegistry):
 
         return template_id
 
+    def get_content_model(self, template_id):
+        for v in self.all():
+            content_type = '%s.%s' % (v._meta.app_label.lower(),
+                                      v.__name__.lower())
+            if content_type == template_id:
+                return v
+
 
 page_content = ContentRegister()

@@ -147,13 +147,14 @@ class Page(MPTTModel):
         return url
 
     def get_content_model(self):
-        # TODO: Cache this so that we dont need to do a DB lookup everytime
-        # we want to know what the model is?
-        if not self._content_model:
-            label, model = self.template.split('.')
-            content_type = ContentType.objects.get(app_label=label, model=model)
-            self._content_model = content_type.model_class()
-        return self._content_model
+        """
+        A shortcut to load the content model from the ContentRegister
+        """
+        # FIXME: I dont like the import in here, but this is a requirement
+        # right now, since importing this outside causes circular imports.
+        # This is probably due to a limitation in the appregister code.
+        from ostinato.pages.registry import page_content
+        return page_content.get_content_model(self.template)
 
     def get_content(self):
         """
@@ -196,13 +197,6 @@ class PageContent(models.Model):
         view = 'ostinato.pages.views.PageView'
         form = None
         admin_inlines = []
-
-    def add_content(self, **kwargs):
-        for k in kwargs:
-            if hasattr(self, k):
-                raise ContentError('Cannot add "%s" to %s since that attribute '
-                                   'already exists.' % (k, self))
-            self.__dict__[k] = kwargs[k]
 
     @classmethod
     def get_template(cls):

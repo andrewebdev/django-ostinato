@@ -11,7 +11,7 @@ from django.template.response import SimpleTemplateResponse, TemplateResponse
 from django import http
 
 from ostinato.pages.registry import page_content
-from ostinato.pages.models import Page, PageContent, ContentError
+from ostinato.pages.models import Page, PageContent
 from ostinato.pages.views import page_dispatch, PageView
 from ostinato.pages.views import PageReorderView, PageDuplicateView
 from ostinato.pages.templatetags.pages_tags import (
@@ -168,6 +168,10 @@ class ContentRegistryTestCase(TestCase):
         self.assertEqual(
             'invalid.content',
             page_content.get_template_name('invalid.content'))
+
+    def test_get_model(self):
+        self.assertEqual(
+            BasicPage, page_content.get_content_model('pages.basicpage'))
 
 
 class PageModelTestCase(TestCase):
@@ -426,25 +430,6 @@ class PageContentModelTestCase(TestCase):
         p = Page.objects.create(
             title='Test Page', slug='test-page', template='pages.otherpage')
         self.assertEqual('pages/other_page.html', p.get_template())
-
-    def test_add_content(self):
-        create_pages()
-        p = Page.objects.get(slug='page-1')
-        p.contents.add_content(something='Some Content')
-        self.assertEqual('Some Content', p.contents.something)
-
-    def test_add_content_raises_exception_if_exists(self):
-        create_pages()
-        p = Page.objects.get(slug='page-1')
-        p.contents.add_content(something='Some Content')
-
-        with self.assertRaises(ContentError) as cm:
-            p.contents.add_content(something='This should raise exception')
-
-        e = cm.exception
-        self.assertEqual(
-            'Cannot add "something" to LandingPage object since that attribute already exists.',
-            str(e))
 
     def test_inline_content_for_page(self):
         create_pages()
