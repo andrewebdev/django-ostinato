@@ -215,15 +215,11 @@ def translation_model_factory(content_model, module=None):
     """
 
     class _ContentTranslation(models.Model):
-        """
-        This model should not be subclassed directly, use the ``translation_model``
-        factory function below if you need to create a new subclass of this model
-        """
-        language = models.CharField(max_length=10)
+        _language = models.CharField(max_length=10)
 
         class Meta:
             abstract = True
-            unique_together = ('_page_content', 'language')
+            unique_together = ('_page_content', '_language')
 
     model_name = "%sTranslation" % content_model.__name__
     translated_fields = content_model.ContentOptions.translated_fields

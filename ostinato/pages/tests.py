@@ -193,7 +193,7 @@ class ContentTranslationModelTestCase(TestCase):
         base_content = LandingPage.objects.get(id=1)
         af = LandingPageTranslation.objects.create(
             _page_content=base_content,
-            language="af",
+            _language="af",
             content="Bladsy 1 Inleiding",
         )
 
