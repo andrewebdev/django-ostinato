@@ -209,17 +209,32 @@ class PageContent(models.Model):
         return template
 
 
-class ContentTranslation(models.Model):
+def translation_model_factory(content_model, module=None):
     """
-    When subclassing this model, right now you have to manually specify
-    _content_model as a foreignkey to your extended PageCotent model to be
-    translated.
+    A factory that will create a custom translation model for ``content_model``
     """
-    # The following field is required in your subclass
-    # _page_content = models.ForeignKey(<your_content_model>)
 
-    language = models.CharField(max_length=10)
+    class _ContentTranslation(models.Model):
+        """
+        This model should not be subclassed directly, use the ``translation_model``
+        factory function below if you need to create a new subclass of this model
+        """
+        language = models.CharField(max_length=10)
 
-    class Meta:
-        abstract = True
-        unique_together = ('_page_content', 'language')
+        class Meta:
+            abstract = True
+            unique_together = ('_page_content', 'language')
+
+    model_name = "%sTranslation" % content_model.__name__
+    translated_fields = content_model.ContentOptions.translated_fields
+
+    attrs = {}
+
+    attrs['__module__'] = module or content_model.__module__
+    attrs['_page_content'] = models.ForeignKey(content_model)
+
+    for field in content_model._meta.fields:
+        if field.attname in translated_fields:
+            attrs[field.attname] = field
+
+    return type(model_name, (_ContentTranslation,), attrs)

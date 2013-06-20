@@ -11,7 +11,7 @@ from django.template.response import SimpleTemplateResponse, TemplateResponse
 from django import http
 
 from ostinato.pages.registry import page_content
-from ostinato.pages.models import Page, PageContent, ContentTranslation
+from ostinato.pages.models import Page, PageContent, translation_model_factory
 from ostinato.pages.views import page_dispatch, PageView
 from ostinato.pages.views import PageReorderView, PageDuplicateView
 from ostinato.pages.templatetags.pages_tags import (
@@ -74,6 +74,11 @@ class LandingPage(ContentMixin, PageContent):
 
     class ContentOptions:
         template = 'pages/tests/landing_page.html'
+        # Specify fields to be translated
+        translated_fields = ('content',)
+
+# Create our translation model
+LandingPageTranslation = translation_model_factory(LandingPage)
 
 
 @page_content.register
@@ -103,12 +108,6 @@ class OtherPage(ContentMixin, PageContent):
 
     class Meta:
         verbose_name = 'Some Other Page'
-
-
-# Content Translation Models
-class LandingPageTranslation(ContentTranslation):
-    _page_content = models.ForeignKey(LandingPage)
-    content = models.TextField(null=True, blank=True)
 
 
 # Functions to create test content
@@ -186,25 +185,21 @@ class ContentRegistryTestCase(TestCase):
 
 class ContentTranslationModelTestCase(TestCase):
 
-    def test_model_exists(self):
-        ContentTranslation
-
-    def test_is_abstract(self):
-        self.assertTrue(ContentTranslation._meta.abstract)
-
-    def test_unique_together(self):
-        self.assertEqual(
-            (('_page_content', 'language'),),
-            ContentTranslation._meta.unique_together)
+    def test_translation_model_factory_exists(self):
+        translation_model_factory
 
     def test_create_tranlation_instance(self):
         create_pages()
         base_content = LandingPage.objects.get(id=1)
-        LandingPageTranslation.objects.create(
+        af = LandingPageTranslation.objects.create(
             _page_content=base_content,
             language="af",
             content="Bladsy 1 Inleiding",
         )
+
+        # Check that only the translated fields exist
+        with self.assertRaises(AttributeError):
+            af.intro
 
 
 class PageModelTestCase(TestCase):
