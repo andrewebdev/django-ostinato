@@ -195,6 +195,7 @@ class PageContent(models.Model):
         template = None
         view = 'ostinato.pages.views.PageView'
         form = None
+        translated_fields = ()
         admin_inlines = []
 
     @classmethod
@@ -206,3 +207,19 @@ class PageContent(models.Model):
             template = 'pages/%s.html' % '_'.join([i.lower() for i in cls_name])
 
         return template
+
+
+class ContentTranslation(models.Model):
+    """
+    When subclassing this model, right now you have to manually specify
+    _content_model as a foreignkey to your extended PageCotent model to be
+    translated.
+    """
+    # The following field is required in your subclass
+    # _page_content = models.ForeignKey(<your_content_model>)
+
+    language = models.CharField(max_length=10)
+
+    class Meta:
+        abstract = True
+        unique_together = ('_page_content', 'language')

@@ -11,7 +11,7 @@ from django.template.response import SimpleTemplateResponse, TemplateResponse
 from django import http
 
 from ostinato.pages.registry import page_content
-from ostinato.pages.models import Page, PageContent
+from ostinato.pages.models import Page, PageContent, ContentTranslation
 from ostinato.pages.views import page_dispatch, PageView
 from ostinato.pages.views import PageReorderView, PageDuplicateView
 from ostinato.pages.templatetags.pages_tags import (
@@ -22,7 +22,12 @@ from ostinato.pages.forms import DuplicatePageForm
 page_content.setup()  # Clear the registry before we start the tests
 
 
-## Create some Page Content... TODO: All of these should probably be fixtures
+# Custom Views
+def functionview(request, *args, **kwargs):
+    return http.HttpResponse('ok')
+
+
+# General Models for tests
 class Photo(models.Model):
     photo_path = models.CharField(max_length=250)
 
@@ -42,6 +47,7 @@ class ContributorPhotos(models.Model):
     order = models.IntegerField(default=1)
 
 
+# Inline Classes
 class ContributorInline(admin.StackedInline):
     model = Contributor
 
@@ -50,6 +56,7 @@ class PhotoInline(admin.StackedInline):
     model = Contributor.photos.through
 
 
+# Page Content Models and Mixins
 class ContentMixin(models.Model):
     """
     An example of how you would do mixins. A mixin must be an abstract
@@ -59,10 +66,6 @@ class ContentMixin(models.Model):
 
     class Meta:
         abstract = True  # Required for mixins
-
-
-def functionview(request, *args, **kwargs):
-    return http.HttpResponse('ok')
 
 
 @page_content.register
@@ -102,6 +105,13 @@ class OtherPage(ContentMixin, PageContent):
         verbose_name = 'Some Other Page'
 
 
+# Content Translation Models
+class LandingPageTranslation(ContentTranslation):
+    _page_content = models.ForeignKey(LandingPage)
+    content = models.TextField(null=True, blank=True)
+
+
+# Functions to create test content
 def create_pages():
     user = User.objects.create(
         username='user1', password='secret', email='user1@example.com')
@@ -141,7 +151,7 @@ def create_pages():
         page=p, intro='Page 1 Introduction', content='Page 1 Content')
 
 
-## Actual Tests
+# Actual Tests
 class ContentRegistryTestCase(TestCase):
 
     def test_content_registered(self):
@@ -172,6 +182,29 @@ class ContentRegistryTestCase(TestCase):
     def test_get_model(self):
         self.assertEqual(
             BasicPage, page_content.get_content_model('pages.basicpage'))
+
+
+class ContentTranslationModelTestCase(TestCase):
+
+    def test_model_exists(self):
+        ContentTranslation
+
+    def test_is_abstract(self):
+        self.assertTrue(ContentTranslation._meta.abstract)
+
+    def test_unique_together(self):
+        self.assertEqual(
+            (('_page_content', 'language'),),
+            ContentTranslation._meta.unique_together)
+
+    def test_create_tranlation_instance(self):
+        create_pages()
+        base_content = LandingPage.objects.get(id=1)
+        LandingPageTranslation.objects.create(
+            _page_content=base_content,
+            language="af",
+            content="Bladsy 1 Inleiding",
+        )
 
 
 class PageModelTestCase(TestCase):
