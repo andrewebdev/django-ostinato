@@ -167,11 +167,15 @@ class StateMachine(object):
             state_cl = self.state_map[key]
             targets = state_cl.transitions.values()
 
-            if len(targets) == 0:
-                raise InvalidState(
-                    "%s does not have any actions, any object entering this "
-                    "state may never be to get out!" %
-                    state_cl.__name__)
+            ## This is a hard restriction and removes a very useful feature
+            ## where you might actuall need a orphaned state. Removing this
+            ## restriction.
+            #
+            # if len(targets) == 0:
+            #     raise InvalidState(
+            #         "%s does not have any actions, any object entering this "
+            #         "state may never be to get out!" %
+            #         state_cl.__name__)
 
             for t in targets:
                 if t not in state_keys:

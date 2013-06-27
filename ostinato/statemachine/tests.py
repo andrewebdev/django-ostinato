@@ -198,9 +198,12 @@ class StateMachineTestCase(TestCase):
         with self.assertRaisesRegexp(InvalidState, re):
             ErrorSM(instance=temp)
 
-        re = "HangingState does not have any actions, any object entering this state may never be to get out!"
-        with self.assertRaisesRegexp(InvalidState, re):
-            HangingSM(instance=temp)
+        ## Removed this restriction to allow for a more flexible statemachine
+        ## In practice use cases did come up where we needed orphaned states
+        #
+        # re = "HangingState does not have any actions, any object entering this state may never be to get out!"
+        # with self.assertRaisesRegexp(InvalidState, re):
+        #     HangingSM(instance=temp)
 
 
 # Create some states and a StateMachine
