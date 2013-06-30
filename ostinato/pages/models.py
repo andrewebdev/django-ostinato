@@ -71,7 +71,7 @@ class Page(MPTTModel):
     _content_model = None
 
     class Meta:
-        permissions = get_workflow().get_permissions()
+        permissions = get_workflow().get_permissions('page', 'Page')
         verbose_name = _("Page")
         verbose_name_plural = _("Pages")
 

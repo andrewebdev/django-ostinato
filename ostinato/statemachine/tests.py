@@ -1,18 +1,14 @@
+import json
+
 from django.test import TestCase
 from django.db import models
+from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User, Permission
 
 from ostinato.statemachine import State, StateMachine
 from ostinato.statemachine import (
     InvalidState, InvalidTransition, InvalidStateMachine)
-
-
-# Create a test model to test the StateMachine with
-class TestModel(models.Model):
-    name = models.CharField(max_length=100)
-    state = models.CharField(max_length=20, null=True, blank=True)
-    state_num = models.IntegerField(null=True, blank=True)
-    other_state = models.CharField(max_length=20, null=True, blank=True)
-    message = models.CharField(max_length=250, null=True, blank=True)
+from ostinato.statemachine.views import StateActionView
 
 
 # Create some states and a StateMachine
@@ -61,6 +57,18 @@ class ErrorSM(InvalidSM):
 class HangingSM(InvalidSM):
     state_map = {'private': Private, 'hanging': HangingState, 'public': Public}
     initial_state = 'private'
+
+
+# Create a test model to test the StateMachine with
+class TestModel(models.Model):
+    name = models.CharField(max_length=100)
+    state = models.CharField(max_length=20, null=True, blank=True)
+    state_num = models.IntegerField(null=True, blank=True)
+    other_state = models.CharField(max_length=20, null=True, blank=True)
+    message = models.CharField(max_length=250, null=True, blank=True)
+
+    class Meta:
+        permissions = TestStateMachine.get_permissions('testmodel', 'Test')
 
 
 # Now test the states and statemachine
@@ -170,18 +178,18 @@ class StateMachineTestCase(TestCase):
         self.assertEqual('public', sm.action_result('publish'))
 
     def test_get_permissions(self):
-        perms = TestStateMachine.get_permissions()
+        perms = TestStateMachine.get_permissions('testmodel')
         expected_perms = (
-            ('private_view', '[Private] Can View'),
-            ('private_edit', '[Private] Can Edit'),
-            ('private_delete', '[Private] Can Delete'),
+            ('private_view_testmodel', '[Private] Can View testmodel'),
+            ('private_edit_testmodel', '[Private] Can Edit testmodel'),
+            ('private_delete_testmodel', '[Private] Can Delete testmodel'),
 
-            ('public_view', '[Public] Can View'),
-            ('public_edit', '[Public] Can Edit'),
-            ('public_delete', '[Public] Can Delete'),
+            ('public_view_testmodel', '[Public] Can View testmodel'),
+            ('public_edit_testmodel', '[Public] Can Edit testmodel'),
+            ('public_delete_testmodel', '[Public] Can Delete testmodel'),
 
-            ('can_publish', 'Can Publish'),
-            ('can_retract', 'Can Retract'),
+            ('can_publish_testmodel', 'Can Publish testmodel'),
+            ('can_retract_testmodel', 'Can Retract testmodel'),
         )
 
         for p in expected_perms:
@@ -197,13 +205,6 @@ class StateMachineTestCase(TestCase):
         re = "ErrorState contains an invalid action target, invalid."
         with self.assertRaisesRegexp(InvalidState, re):
             ErrorSM(instance=temp)
-
-        ## Removed this restriction to allow for a more flexible statemachine
-        ## In practice use cases did come up where we needed orphaned states
-        #
-        # re = "HangingState does not have any actions, any object entering this state may never be to get out!"
-        # with self.assertRaisesRegexp(InvalidState, re):
-        #     HangingSM(instance=temp)
 
 
 # Create some states and a StateMachine
@@ -252,19 +253,20 @@ class NumberedStateMachineTestCase(TestCase):
 
     def test_get_permissions(self):
         expected_perms = (
-            ('intprivate_view', '[IntPrivate] Can View'),
-            ('intprivate_edit', '[IntPrivate] Can Edit'),
-            ('intprivate_delete', '[IntPrivate] Can Delete'),
-            ('can_publish', 'Can Publish'),
+            ('intprivate_view_testmodel', '[Private] Can View Test'),
+            ('intprivate_edit_testmodel', '[Private] Can Edit Test'),
+            ('intprivate_delete_testmodel', '[Private] Can Delete Test'),
+            ('can_publish_testmodel', 'Can Publish Test'),
 
-            ('intpublic_view', '[IntPublic] Can View'),
-            ('intpublic_edit', '[IntPublic] Can Edit'),
-            ('intpublic_delete', '[IntPublic] Can Delete'),
-            ('can_retract', 'Can Retract'),
+            ('intpublic_view_testmodel', '[Public] Can View Test'),
+            ('intpublic_edit_testmodel', '[Public] Can Edit Test'),
+            ('intpublic_delete_testmodel', '[Public] Can Delete Test'),
+            ('can_retract_testmodel', 'Can Retract Test'),
         )
 
         for p in expected_perms:
-            self.assertIn(p, TestIntegerStateMachine.get_permissions())
+            self.assertIn(p, TestIntegerStateMachine.get_permissions(
+                'testmodel', verbose_prefix='Test'))
 
     def test_get_available_actions(self):
         temp = TestModel.objects.create(name='Test Model 1', state_num=1)
@@ -281,3 +283,77 @@ class NumberedStateMachineTestCase(TestCase):
 
         self.assertEqual(2, temp.state_num)
         self.assertEqual('Object made public', temp.message)
+
+
+class StateMachineViewsTestCase(TestCase):
+    """
+    Statemachine views that allows for taking actions on a specific model
+    """
+    urls = 'ostinato.statemachine.urls'
+
+    def setUp(self):
+        # Create a test user with the correct permission
+        self.user = User.objects.create(username='test', password='secret', email='test@example.com')
+        self.user.set_password('secret')
+        self.user.save()
+
+        TestModel.objects.create(name='Test Model 1', state='private')
+        self.data = json.dumps({
+            "statemachine": "ostinato.statemachine.tests.TestStateMachine",
+            "action": "publish",
+            "next": "/",
+        })
+
+    def test_view_exists(self):
+        StateActionView
+
+    def test_url_reverse_lookup(self):
+        self.assertEqual(
+            '/app/model/1/',
+            reverse('statemachine_action', kwargs={
+                'app_label': 'app',
+                'model': 'model',
+                'obj_id': 1
+            }))
+
+    def test_get_raises_405(self):
+        response = self.client.get('/app/model/1/')
+        self.assertEqual(405, response.status_code)
+
+    def test_correct_permission_required(self):
+        response = self.client.put('/statemachine/testmodel/1/', data=self.data)
+        self.assertEqual(403, response.status_code)
+
+    def test_put_response(self):
+        perm = Permission.objects.get(codename='can_publish_testmodel')
+        self.user.user_permissions.add(perm)
+        self.user.save()
+
+        self.client.login(username='test', password='secret')
+        response = self.client.put('/statemachine/testmodel/1/', data=self.data)
+        self.assertEqual(200, response.status_code)
+
+    def test_put_takes_action_on_statemachine(self):
+        perm = Permission.objects.get(codename='can_publish_testmodel')
+        self.user.user_permissions.add(perm)
+        self.user.save()
+
+        self.client.login(username='test', password='secret')
+        self.client.put('/statemachine/testmodel/1/', data=self.data)
+        obj = TestModel.objects.get(id=1)
+        self.assertEqual(u'public', obj.state)
+
+    def test_put_response_without_correct_permission(self):
+        perm = Permission.objects.get(codename='can_publish_testmodel')
+        self.user.user_permissions.add(perm)
+        self.user.save()
+
+        TestModel.objects.all().update(state='public')
+
+        self.client.login(username='test', password='secret')
+        response = self.client.put('/statemachine/testmodel/1/', data=self.data)
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(
+            "publish is not a valid action. Valid actions are: ['retract']",
+            response.content)
+ 
