@@ -16,9 +16,9 @@ class Private(State):
     verbose_name = 'Private'
     transitions = {'publish': 'public'}
 
-    def publish(self):
+    def publish(self, msg="Object made public"):
         if self.instance:
-            self.instance.message = 'Object made public'
+            self.instance.message = msg
 
 
 class Public(State):
@@ -302,6 +302,7 @@ class StateMachineViewsTestCase(TestCase):
             "statemachine": "ostinato.statemachine.tests.TestStateMachine",
             "action": "publish",
             "next": "/",
+            "action_kwargs": {"msg": "Custom kwargs for actions"},
         })
 
     def test_view_exists(self):
@@ -324,14 +325,16 @@ class StateMachineViewsTestCase(TestCase):
         response = self.client.put('/statemachine/testmodel/1/', data=self.data)
         self.assertEqual(403, response.status_code)
 
-    def test_put_response(self):
+    def test_put_success_response(self):
         perm = Permission.objects.get(codename='can_publish_testmodel')
         self.user.user_permissions.add(perm)
         self.user.save()
 
         self.client.login(username='test', password='secret')
-        response = self.client.put('/statemachine/testmodel/1/', data=self.data)
-        self.assertEqual(200, response.status_code)
+        response = self.client.put('/statemachine/testmodel/1/',
+                                   data=self.data, follow=True)
+        self.assertEqual([(u'http://testserver/', 302)],
+                         response.redirect_chain)
 
     def test_put_takes_action_on_statemachine(self):
         perm = Permission.objects.get(codename='can_publish_testmodel')
@@ -342,6 +345,9 @@ class StateMachineViewsTestCase(TestCase):
         self.client.put('/statemachine/testmodel/1/', data=self.data)
         obj = TestModel.objects.get(id=1)
         self.assertEqual(u'public', obj.state)
+
+        # Check that the action kwargs was also passed
+        self.assertEqual('Custom kwargs for actions', obj.message)
 
     def test_put_response_without_correct_permission(self):
         perm = Permission.objects.get(codename='can_publish_testmodel')
@@ -356,4 +362,21 @@ class StateMachineViewsTestCase(TestCase):
         self.assertEqual(
             "publish is not a valid action. Valid actions are: ['retract']",
             response.content)
- 
+
+    def test_put_ajax_response(self):
+        perm = Permission.objects.get(codename='can_publish_testmodel')
+        self.user.user_permissions.add(perm)
+        self.user.save()
+
+        self.client.login(username='test', password='secret')
+        response = self.client.put('/statemachine/testmodel/1/',
+            data=self.data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        expected_data = {
+            u"status": u"ok",
+            u"state_before": u"Private",
+            u"state_after": u"Public",
+            u"action_taken": u"publish",
+        }
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(expected_data, json.loads(response.content))

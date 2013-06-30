@@ -17,8 +17,25 @@ class StateActionView(JsonResponseMixin, View):
     to the next url specified in the post arguments.
     """
     def put(self, *args, **kwargs):
-        context = {}
+        """
+            We expect the following JSON data to be sent to this view:
+            {
+                "statemachine": "<import path to statemachine class>",
+                "action": "<action codeword to be taken>",
+                "next": "<next url to redirect to if request is not ajax>",
+                "action_kwargs": <kwargs dict passed to the action method>,
+            }
+
+            Returns Json:
+            {
+                "status": "ok",
+                "state_before": "<state before action taken>",
+                "state_after": "<state after action taken>",
+                "action_taken": "<action that was taken>",
+            }
+        """
         data = json.loads(self.request.read())
+        action_kwargs = data.get('action_kwargs', {})
 
         # Based on the action we need to check the permissions and act
         # accordingly
@@ -38,10 +55,20 @@ class StateActionView(JsonResponseMixin, View):
         obj = model_type.get_object_for_this_type(id=kwargs['obj_id'])
 
         sm = StateMachine(obj)
+        state_before = sm.state
         try:
-            sm.take_action(data['action'])
+            sm.take_action(data['action'], **action_kwargs)
         except InvalidTransition, e:
             return http.HttpResponseForbidden(e)
+        state_after = sm.state
         obj.save()
 
-        return self.render_json_response(context)
+        if self.request.is_ajax():
+            return self.render_json_response({
+                "status": "ok",
+                "state_before": state_before,
+                "state_after": state_after,
+                "action_taken": data['action'],
+            })
+        else:
+            return http.HttpResponseRedirect(data['next'])
