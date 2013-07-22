@@ -289,7 +289,7 @@ class StateMachineViewsTestCase(TestCase):
     """
     Statemachine views that allows for taking actions on a specific model
     """
-    urls = 'ostinato.statemachine.urls'
+    urls = 'ostinato.statemachine.test_urls'
 
     def setUp(self):
         # Create a test user with the correct permission
@@ -322,7 +322,10 @@ class StateMachineViewsTestCase(TestCase):
         self.assertEqual(405, response.status_code)
 
     def test_correct_permission_required(self):
-        response = self.client.put('/statemachine/testmodel/1/', data=self.data)
+        response = self.client.put(
+            '/statemachine/testmodel/1/',
+            data=self.data, content_type='application/json')
+
         self.assertEqual(403, response.status_code)
 
     def test_put_success_response(self):
@@ -331,8 +334,10 @@ class StateMachineViewsTestCase(TestCase):
         self.user.save()
 
         self.client.login(username='test', password='secret')
-        response = self.client.put('/statemachine/testmodel/1/',
-                                   data=self.data, follow=True)
+        response = self.client.put(
+            '/statemachine/testmodel/1/',
+            data=self.data, content_type="application/json", follow=True)
+
         self.assertEqual([(u'http://testserver/', 302)],
                          response.redirect_chain)
 
@@ -342,7 +347,10 @@ class StateMachineViewsTestCase(TestCase):
         self.user.save()
 
         self.client.login(username='test', password='secret')
-        self.client.put('/statemachine/testmodel/1/', data=self.data)
+        self.client.put(
+            '/statemachine/testmodel/1/',
+            data=self.data, content_type="application/json")
+
         obj = TestModel.objects.get(id=1)
         self.assertEqual(u'public', obj.state)
 
@@ -357,7 +365,10 @@ class StateMachineViewsTestCase(TestCase):
         TestModel.objects.all().update(state='public')
 
         self.client.login(username='test', password='secret')
-        response = self.client.put('/statemachine/testmodel/1/', data=self.data)
+        response = self.client.put(
+            '/statemachine/testmodel/1/',
+            data=self.data, content_type="application/json")
+
         self.assertEqual(403, response.status_code)
         self.assertEqual(
             "publish is not a valid action. Valid actions are: ['retract']",
@@ -369,8 +380,10 @@ class StateMachineViewsTestCase(TestCase):
         self.user.save()
 
         self.client.login(username='test', password='secret')
-        response = self.client.put('/statemachine/testmodel/1/',
-            data=self.data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.client.put(
+            '/statemachine/testmodel/1/',
+            data=self.data, content_type="application/json",
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         expected_data = {
             u"status": u"ok",
