@@ -42,9 +42,8 @@ def page_dispatch(request, *args, **kwargs):
 
     sm = get_workflow()(instance=page)
     has_perm = request.user.has_perm('pages.private_view')
-    if sm.state == 'Private' and not has_perm:
-        if request.user != page.author and not request.user.is_superuser:
-            return http.HttpResponseForbidden()
+    if not request.user.is_superuser and sm.state == 'Private' and not has_perm:
+        return http.HttpResponseForbidden()
 
     content = page.get_content_model()
 

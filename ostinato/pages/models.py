@@ -55,10 +55,6 @@ class Page(MPTTModel):
     modified_date = models.DateTimeField(_("Modified date"), null=True, blank=True)
     publish_date = models.DateTimeField(_("Published date"), null=True, blank=True)
 
-    author = models.ForeignKey(
-        User, verbose_name=_("Author"),
-        related_name='pages_authored', null=True, blank=True)
-
     parent = TreeForeignKey(
         'self', verbose_name=_("Parent"),
         null=True, blank=True, related_name='page_children')

@@ -103,34 +103,27 @@ class OtherPage(ContentMixin, PageContent):
 
 
 def create_pages():
-    user = User.objects.create(
-        username='user1', password='secret', email='user1@example.com')
-
     p = Page.objects.create(
-        title="Page 1", slug="page-1",
-        author=user, show_in_nav=True,
+        title="Page 1", slug="page-1", show_in_nav=True,
         created_date="2012-04-10 12:14:51.203925+00:00",
         modified_date="2012-04-10 12:14:51.203925+00:00",
         template='pages.landingpage',
     )
     Page.objects.create(
-        title="Page 2", slug="page-2", short_title='P2',
-        author=user, show_in_nav=True,
+        title="Page 2", slug="page-2", short_title='P2', show_in_nav=True,
         created_date="2012-04-10 12:14:51.203925+00:00",
         modified_date="2012-04-10 12:14:51.203925+00:00",
         template='pages.basicpage',
     )
     Page.objects.create(
-        title="Page 3", slug="page-3", short_title='Page 3',
-        author=user, show_in_nav=True,
+        title="Page 3", slug="page-3", short_title='Page 3', show_in_nav=True,
         created_date="2012-04-10 12:14:51.203925+00:00",
         modified_date="2012-04-10 12:14:51.203925+00:00",
         template='pages.basicpage',
         parent=p,
     )
     Page.objects.create(
-        title="Page 1", slug="func-page",
-        author=user, show_in_nav=False,
+        title="Page 1", slug="func-page", show_in_nav=False,
         created_date="2012-04-10 12:14:51.203925+00:00",
         modified_date="2012-04-10 12:14:51.203925+00:00",
         template='pages.basicpagefunc',
@@ -183,11 +176,6 @@ class PageModelTestCase(TestCase):
 
     def test_model_exists(self):
         Page
-
-    def test_related_lookup(self):
-        u = User.objects.get(username='user1')
-        pages = u.pages_authored.all()
-        self.assertEqual(4, pages.count())
 
     def test_unicode(self):
         self.assertEqual('Page 1', Page.objects.get(id=1).__unicode__())
@@ -251,11 +239,8 @@ class PageModelTestCase(TestCase):
     def test_absolute_url_based_on_location(self):
         p = Page.objects.get(slug='page-1')
         p4 = Page.objects.create(
-            title='Page 4', slug='page-4',
-            author=User.objects.get(id=1),
-            parent=p,
-            redirect='http://www.google.com',
-        )
+            title='Page 4', slug='page-4', parent=p,
+            redirect='http://www.google.com')
         self.assertEqual('http://www.google.com', p4.get_absolute_url())
 
     def test_get_content_model(self):
@@ -485,20 +470,6 @@ class PageViewTestCase(TestCase):
 
         response = self.client.get('/page-1/')
         self.assertEqual(403, response.status_code)
-
-    def test_author_can_access_own_private_page(self):
-        # First we make the page private
-        p = Page.objects.get(slug='page-1')
-        p.state = 1
-        p.save()
-
-        u = User.objects.get(username='user1')
-        u.set_password('secret')
-        u.save()
-
-        self.client.login(username="user1", password='secret')
-        response = self.client.get('/page-1/')
-        self.assertEqual(200, response.status_code)
 
     def test_superuser_can_access_private_page(self):
         # First we make the page private
