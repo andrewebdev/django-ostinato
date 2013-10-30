@@ -3,13 +3,17 @@ from django.utils import timezone
 from ostinato.statemachine import State, IntegerStateMachine
 
 
+def publish(instance, **kwargs):
+    if instance.publish_date is None:
+        instance.publish_date = timezone.now()
+        
+
 class Private(State):
     verbose_name = 'Private'
     transitions = {'review': 3, 'publish': 5}
 
     def publish(self, **kwargs):
-        if self.instance and self.instance.publish_date is None:
-            self.instance.publish_date = timezone.now()
+        publish(self.instance, **kwargs)
 
 
 class Review(State):
@@ -17,8 +21,7 @@ class Review(State):
     transitions = {'reject': 1, 'approve': 5}
 
     def approve(self, **kwargs):
-        if self.instance and self.instance.publish_date is None:
-            self.instance.publish_date = timezone.now()
+        publish(self.instance, **kwargs)
 
 
 class Published(State):
