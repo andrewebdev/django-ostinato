@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.conf import settings
 
 from mptt.managers import TreeManager
+from ostinato.pages import PAGES_SETTINGS
 
 
 class PageManager(TreeManager):
@@ -20,7 +21,7 @@ class PageManager(TreeManager):
         """
         PAGES_SITE_TREEID = getattr(settings, 'OSTINATO_PAGES_SITE_TREEID', None)
 
-        cache = get_cache('default')
+        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
         if for_page:
             cache_key = 'ostinato:pages:page:%s:navbar' % for_page.id
         else:
@@ -63,7 +64,7 @@ class PageManager(TreeManager):
         Returns a list of all the parents, plus the current page. Each item
         in the list contains a short title and url.
         """
-        cache = get_cache('default')
+        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
         cache_key = 'ostinato:pages:page:%s:crumbs' % for_page.id
 
         if clear_cache:
@@ -93,7 +94,7 @@ class PageManager(TreeManager):
 
     def get_from_path(self, url_path, clear_cache=False):
         """ Returns a page object, base on the url path. """
-        cache = get_cache('default')
+        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
         cache_key = 'ostinato:pages:page_for_path:%s' % url_path
 
         if clear_cache:
@@ -121,7 +122,7 @@ class PageManager(TreeManager):
             page.get_absolute_url()
 
     def clear_url_cache(self):
-        cache = get_cache('default')
+        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
         pages = self.get_query_set()
         page_ids = list(pages.values_list('id', flat=True))
         # We must clear the page_for_path cache before the normal url cache
@@ -130,14 +131,14 @@ class PageManager(TreeManager):
         cache.delete_many(['ostinato:pages:page:%s:url' % i for i in page_ids])
 
     def clear_navbar_cache(self):
-        cache = get_cache('default')
+        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
         page_ids = list(self.get_query_set().values_list('id', flat=True))
         cache.delete('ostinato:pages:page:root:navbar')
         cache.delete_many(
             ['ostinato:pages:page:%s:navbar' % i for i in page_ids])
 
     def clear_breadcrumbs_cache(self):
-        cache = get_cache('default')
+        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
         page_ids = list(self.get_query_set().values_list('id', flat=True))
         cache.delete_many(
             ['ostinato:pages:page:%s:crumbs' % i for i in page_ids])

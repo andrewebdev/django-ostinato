@@ -12,9 +12,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from ostinato.pages.managers import PageManager
 from ostinato.pages.workflow import get_workflow
-
-
-DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 5)
+from ostinato.pages import PAGES_SETTINGS
 
 
 class ContentError(Exception):
@@ -49,7 +47,8 @@ class Page(MPTTModel):
     show_in_sitemap = models.BooleanField(_("Show in sitemap"), default=True)
 
     state = models.IntegerField(
-        _("State"), default=DEFAULT_STATE, choices=get_workflow().get_choices())
+        _("State"), default=PAGES_SETTINGS['DEFAULT_STATE'],
+        choices=get_workflow().get_choices())
 
     created_date = models.DateTimeField(_("Created date"), null=True, blank=True)
     modified_date = models.DateTimeField(_("Modified date"), null=True, blank=True)
@@ -108,7 +107,7 @@ class Page(MPTTModel):
 
     def get_absolute_url(self, clear_cache=False):
         """ Cycle through the parents and generate the path """
-        cache = get_cache('default')
+        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
         cache_key = 'ostinato:pages:page:%s:url' % self.id
 
         if clear_cache:
