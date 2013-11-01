@@ -489,3 +489,16 @@ which TreeID belongs to that site.
 
 ``OSTINATO_PAGES_SITE_TREEID = 1`` will tell tell your project that the current
 projects pages are all located in the first Tree.
+
+
+Pages Settings
+--------------
+
+.. code-block:: python
+
+    OSTINATO_PAGES_SETTINGS = {
+        'CACHE_NAME': 'default',
+        'DEFAULT_STATE': 5,
+    }
+
+
