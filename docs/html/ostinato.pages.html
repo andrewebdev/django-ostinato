@@ -463,6 +463,17 @@ found.</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="multi-site-support">
+<h2>Multi Site Support<a class="headerlink" href="#multi-site-support" title="Permalink to this headline">¶</a></h2>
+<p>Ostinato pages can be used for multiple sites. We suggest you read the django
+documentation on the sites framework for a background on how we use it here.</p>
+<p>Every site will have it&#8217;s own Tree. So you create one root page for every site,
+and then all descendants will belong to this site.</p>
+<p>Additionally, in the <tt class="docutils literal"><span class="pre">settings.py</span></tt> file for each site, you need to specify
+which TreeID belongs to that site.</p>
+<p><tt class="docutils literal"><span class="pre">OSTINATO_PAGES_SITE_TREEID</span> <span class="pre">=</span> <span class="pre">1</span></tt> will tell tell your project that the current
+projects pages are all located in the first Tree.</p>
+</div>
 </div>
 
 
@@ -485,6 +496,7 @@ found.</p>
 <li><a class="reference internal" href="#custom-statemachine-for-pages">Custom Statemachine for Pages</a></li>
 <li><a class="reference internal" href="#extra-inline-fields-for-a-page-in-the-admin">Extra Inline Fields for a Page in the Admin</a></li>
 <li><a class="reference internal" href="#template-tags-and-filters">Template tags and filters</a></li>
+<li><a class="reference internal" href="#multi-site-support">Multi Site Support</a></li>
 </ul>
 </li>
 </ul>
