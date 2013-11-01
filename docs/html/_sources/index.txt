@@ -17,7 +17,7 @@ Welcome to django-ostinato's documentation!
 Requirements
 ============
 
-  - django >= 1.5.1
+  - django >= 1.4.2
   - django-mptt == 0.6.0
   - django-appregister == 0.3.1
 
