@@ -186,6 +186,8 @@ class PageContent(models.Model):
         ``template`` is the template path relative the templatedirs.
         ``view`` is a custom view that will handle the rendering for the page.
         ``form`` a custom form to use in the admin.
+        ``translated_fields`` specifies which fields to use in
+            translation models.
         """
         template = None
         view = 'ostinato.pages.views.PageView'
@@ -208,7 +210,6 @@ def translation_model_factory(content_model, module=None):
     """
     A factory that will create a custom translation model for ``content_model``
     """
-
     class _ContentTranslation(models.Model):
         _language = models.CharField(max_length=10)
 
