@@ -14,6 +14,14 @@ Welcome to django-ostinato's documentation!
     -- `Wikipedia <http://en.wikipedia.org/wiki/Ostinato>`_
 
 
+Requirements
+============
+
+  - django >= 1.4.2
+  - django-mptt == 0.6.0
+  - django-appregister == 0.3.1
+
+
 Introduction
 ============
 

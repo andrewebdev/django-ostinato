@@ -3,6 +3,7 @@ python:
     - 2.7
 
 install:
+    - pip install --upgrade setuptools
     - python demoproject/bootstrap.py -c demoproject/travis.cfg
     - demoproject/bin/buildout -c demoproject/travis.cfg
 

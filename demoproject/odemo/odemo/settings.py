@@ -121,7 +121,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'grappelli',
+    # 'grappelli',
     'django.contrib.admin',
 
     'website',  # We want website templates to override ostinato templates

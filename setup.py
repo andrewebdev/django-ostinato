@@ -64,7 +64,7 @@ setup(
     keywords=['django', 'cms', 'ostinato', 'statemachine', 'pages', 'blog'],
     install_requires=[
         'setuptools',
-        'django-mptt == 0.5.2',
+        'django-mptt == 0.6.0',
         'django-appregister == 0.3.1',
     ],
     classifiers=[

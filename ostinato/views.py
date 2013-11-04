@@ -1,6 +1,6 @@
+import json
 from django import http
 from django.core.serializers.json import DjangoJSONEncoder
-from django.utils import simplejson as json
 
 
 class AjaxTemplateResponseMixin(object):
@@ -13,11 +13,11 @@ class AjaxTemplateResponseMixin(object):
         return super(AjaxTemplateResponseMixin, self).get_template_names()
 
 
-class JsonMixin(object):
+class JsonResponseMixin(object):
 
-    def get(self, *args, **kwargs):
+    def render_json_response(self, data, **kwargs):
         # Note the use of the DjangoJSONEncoder here, this handles date/time
         # and Decimal values correctly
-        data = json.dumps(self.get_values(**kwargs), cls=DjangoJSONEncoder)
-        return http.HttpResponse(data, content_type='application/json; charset=utf-8')
-
+        data = json.dumps(data, cls=DjangoJSONEncoder)
+        return http.HttpResponse(
+            data, content_type='application/json; charset=utf-8')

@@ -71,9 +71,9 @@ class PageAdmin(MPTTModelAdmin):
         'tree_node', 'get_title', 'page_actions', 'slug',
         'template_name', 'page_state', 'show_in_nav', 'show_in_sitemap')
     list_display_links = ('get_title',)
-    list_filter = ('author', 'show_in_nav', 'show_in_sitemap', 'state')
+    list_filter = ('show_in_nav', 'show_in_sitemap', 'state')
 
-    search_fields = ('title', 'short_title', 'slug', 'author')
+    search_fields = ('title', 'short_title', 'slug',)
     date_hierarchy = 'publish_date'
     inlines = ()
 
@@ -87,7 +87,7 @@ class PageAdmin(MPTTModelAdmin):
         }),
 
         ('Publication', {
-            'fields': ('state', 'author', 'publish_date'),
+            'fields': ('state', 'publish_date'),
         }),
 
     )

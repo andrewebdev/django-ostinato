@@ -475,3 +475,30 @@ found.
     <h1>{{ mypage.title }}</h1>
 
 
+Multi Site Support
+------------------
+
+Ostinato pages can be used for multiple sites. We suggest you read the django
+documentation on the sites framework for a background on how we use it here.
+
+Every site will have it's own Tree. So you create one root page for every site,
+and then all descendants will belong to this site.
+
+Additionally, in the ``settings.py`` file for each site, you need to specify
+which TreeID belongs to that site.
+
+``OSTINATO_PAGES_SITE_TREEID = 1`` will tell tell your project that the current
+projects pages are all located in the first Tree.
+
+
+Pages Settings
+--------------
+
+.. code-block:: python
+
+    OSTINATO_PAGES_SETTINGS = {
+        'CACHE_NAME': 'default',
+        'DEFAULT_STATE': 5,
+    }
+
+

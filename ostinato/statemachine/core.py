@@ -167,12 +167,6 @@ class StateMachine(object):
             state_cl = self.state_map[key]
             targets = state_cl.transitions.values()
 
-            if len(targets) == 0:
-                raise InvalidState(
-                    "%s does not have any actions, any object entering this "
-                    "state may never be to get out!" %
-                    state_cl.__name__)
-
             for t in targets:
                 if t not in state_keys:
                     raise InvalidState(
@@ -180,23 +174,31 @@ class StateMachine(object):
                         (state_cl.__name__, t))
 
     @classmethod
-    def get_permissions(cls):
+    def get_permissions(cls, prefix, verbose_prefix=""):
         """
         Returns the permissions for the different states and transitions
         as tuples, the same as what django's permission system expects.
+
+        ``prefix`` is required so that we can specify on which model
+        the permission applies.
         """
         perms = ()
 
         for k, v in cls.state_map.iteritems():
             for perm in v.permissions:
+                # permission codename format: "<state>_<action>_<prefix>"
+
                 perms += ((
-                    '%s_%s' % (v.__name__.lower(), perm[0]),
-                    '[%s] %s' % (v.__name__, perm[1])
+                    '%s_%s_%s' % (v.__name__.lower(), perm[0], prefix),
+                    '[%s] %s %s' % (v.verbose_name, perm[1], verbose_prefix or prefix),
                 ),)
 
             # Now add the transition permissions
             for t in v.transitions:
-                perm = ('can_%s' % t, 'Can %s' % t.capitalize())
+                perm = (
+                    'can_%s_%s' % (t, prefix),
+                    'Can %s %s' % (t.capitalize(), verbose_prefix or prefix),
+                )
                 if perm not in perms:  # Dont add it if it already exists
                     perms += (perm,)
 
