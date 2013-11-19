@@ -1,12 +1,15 @@
 from django.utils import timezone
-
 from ostinato.statemachine import State, IntegerStateMachine
 
 
 def publish(instance, **kwargs):
     if instance.publish_date is None:
         instance.publish_date = timezone.now()
-        
+
+def retract(instance, **kwargs):
+    if kwargs.get('reset_publish_date', False):
+        instance.publish_date = None
+
 
 class Private(State):
     verbose_name = 'Private'
@@ -29,13 +32,11 @@ class Published(State):
     transitions = {'retract': 1, 'archive': 10}
 
     def archive(self, **kwargs):
-        if self.instance:
-            self.instance.allow_comments = False
-            self.archive_date = timezone.now()
+        self.instance.allow_comments = False
+        self.instance.archived_date = timezone.now()
 
     def retract(self, **kwargs):
-        if self.instance and kwargs.get('reset_publish_date', False):
-            self.instance.publish_date = None
+        retract(self.instance, **kwargs)
 
 
 class Archived(State):
@@ -43,8 +44,7 @@ class Archived(State):
     transitions = {'retract': 1}
 
     def retract(self, **kwargs):
-        if self.instance and kwargs.get('reset_publish_date', False):
-            self.instance.publish_date = None
+        retract(self.instance, **kwargs)
 
 
 class BlogEntryWorkflow(IntegerStateMachine):

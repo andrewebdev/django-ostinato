@@ -6,13 +6,9 @@ from ostinato.blog.workflow import BlogEntryWorkflow
 from ostinato.statemachine.forms import sm_form_factory
 
 
-class EntryForm(sm_form_factory(sm_class=BlogEntryWorkflow)):
-    class Meta:
-        model = Entry
-
-
 class EntryAdmin(admin.ModelAdmin):
-    form = EntryForm
+    form = sm_form_factory(sm_class=BlogEntryWorkflow)
+
     list_display = ('title', 'slug', 'author', 'entry_state', 'created_date',
         'publish_date')
     list_filter = ('state', 'author')
