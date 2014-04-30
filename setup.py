@@ -56,7 +56,7 @@ setup(
     url='http://django-ostinato.readthedocs.org/en/latest/index.html',
     description='Django-ostinato brings cms-like features to your django projects.',
     author='Andre Engelbrecht',
-    author_email='andre@teh-node.co.za',
+    author_email='andre@tehnode.co.uk',
     license='MIT',
     download_url='https://github.com/andrewebdev/django-ostinato/tarball/master',
     packages=packages,
