@@ -61,6 +61,9 @@ class PageAdminForm(sm_form_factory(sm_class=get_workflow())):  # <3 python
 
     class Meta:
         model = Page
+        fields = ('title', 'short_title', 'slug', 'template', 'redirect',
+                  'parent', 'show_in_nav', 'show_in_sitemap', 'state',
+                  'publish_date')
 
 
 class PageAdmin(MPTTModelAdmin):
