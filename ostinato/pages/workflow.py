@@ -9,25 +9,16 @@ DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 5)
 
 class Private(State):
     verbose_name = 'Private'
-    transitions = {'publish': 5}
-
-    def publish(self, **kwargs):
-        if self.instance and not self.instance.publish_date:
-            self.instance.publish_date = timezone.now()
+    transitions = {'make_public': 5}
 
 
-class Published(State):
-    verbose_name = 'Published'
-    transitions = {'retract': 1, 'archive': 10}
-
-
-class Archived(State):
-    verbose_name = 'Archived'
-    transitions = {'retract': 1}
+class Public(State):
+    verbose_name = 'Public'
+    transitions = {'make_private': 1}
 
 
 class PageWorkflow(IntegerStateMachine):
-    state_map = {1: Private, 5: Published, 10: Archived}
+    state_map = {1: Private, 5: Public}
     initial_state = DEFAULT_STATE
 
 
