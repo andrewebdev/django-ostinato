@@ -34,8 +34,8 @@ class PageWorkflow(IntegerStateMachine):
 def get_workflow():
     """
     This is a helper function that returns the correct workflow to be used.
-    This is required since we provide a setting that allows the developer
-    to change the statemachine that should manage Pages.
+    A developer can change the default workflow behaviour using the
+    ``OSTINATO_PAGES_WORKFLOW_CLASS`` setting.
     """
     custom_workflow = getattr(settings, 'OSTINATO_PAGES_WORKFLOW_CLASS', None)
     if custom_workflow:
