@@ -38,7 +38,7 @@ def content_inline_factory(page):
         classes = ('grp-collapse grp-open',)
         inline_classes = ('grp-collapse grp-open',)
 
-        ## Check for a custom form and try to load it
+        # Check for a custom form and try to load it
         content_form = getattr(content_model.ContentOptions, 'form', None)
         if content_form:
             module_path, form_class = content_form.rsplit('.', 1)
@@ -50,7 +50,7 @@ def content_inline_factory(page):
     return PageContentInline
 
 
-## Admin Models
+# Admin Models
 class PageAdminForm(sm_form_factory(sm_class=get_workflow())):  # <3 python
 
     template = forms.ChoiceField()
@@ -77,7 +77,6 @@ class PageAdmin(MPTTModelAdmin):
     list_filter = ('show_in_nav', 'show_in_sitemap', 'state')
 
     search_fields = ('title', 'short_title', 'slug',)
-    date_hierarchy = 'publish_date'
     inlines = ()
 
     fieldsets = (
@@ -194,18 +193,22 @@ class PageAdmin(MPTTModelAdmin):
 
                     try:
                         module_path, inline_class = inline_str.rsplit('.', 1)
-                        inline = __import__(module_path, locals(), globals(),
-                            [inline_class], -1).__dict__[inline_class]
+                        inline = __import__(
+                            module_path, locals(), globals(),
+                            [inline_class], -1
+                        ).__dict__[inline_class]
 
                     except KeyError:
-                        raise Exception('"%s" could not be imported from, '\
-                            '"%s". Please check the import path for the page '\
+                        raise Exception(
+                            '"%s" could not be imported from, '
+                            '"%s". Please check the import path for the page '
                             'inlines' % (inline_class, module_path))
 
                     except AttributeError:
-                        raise Exception('Incorrect import path for page '\
-                            'content inlines. Expected a string containing the'\
-                            ' full import path.')
+                        raise Exception(
+                            'Incorrect import path for page '
+                            'content inlines. Expected a string containing the '
+                            'full import path.')
 
                     self.inlines += (inline,)
 
@@ -214,3 +217,4 @@ class PageAdmin(MPTTModelAdmin):
 
 
 admin.site.register(Page, PageAdmin)
+
