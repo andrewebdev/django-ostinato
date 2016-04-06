@@ -5,6 +5,8 @@
 *.egg-info
 .*.cfg
 *.db
+*.sqlite3
+*.sublime-workspace
 .children
 .project
 .ropeproject
@@ -17,4 +19,3 @@ dist/
 demoproject/src/*
 demoproject/config.rb
 venv/
-*.sublime-workspace
