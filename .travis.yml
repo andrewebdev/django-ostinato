@@ -7,4 +7,4 @@ install:
     - pip install -r demo/requirements.txt
 
 script:
-    - runtests.py
+    - ./runtests.py
