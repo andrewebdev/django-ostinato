@@ -3,7 +3,7 @@ import re
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.core.cache import get_cache
+from django.core.cache import caches
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
@@ -107,7 +107,7 @@ class Page(MPTTModel):
 
     def get_absolute_url(self, clear_cache=False):
         """ Cycle through the parents and generate the path """
-        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
+        cache = caches[PAGES_SETTINGS['CACHE_NAME']]
         cache_key = 'ostinato:pages:page:%s:url' % self.id
 
         if clear_cache:
@@ -201,3 +201,4 @@ class PageContent(models.Model):
             template = 'pages/%s.html' % '_'.join([i.lower() for i in cls_name])
 
         return template
+

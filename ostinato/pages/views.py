@@ -87,7 +87,8 @@ class PageReorderView(View):
         form = MovePageForm(self.request.POST)
         if form.is_valid():
             form.save()
-        return http.HttpResponseRedirect(reverse('admin:pages_page_changelist'))
+        return http.HttpResponseRedirect(
+            reverse('admin:ostinato_pages_page_changelist'))
 
 
 class PageDuplicateView(View):
@@ -97,12 +98,6 @@ class PageDuplicateView(View):
         form = DuplicatePageForm(self.request.POST)
         if form.is_valid():
             form.save()
-        return http.HttpResponseRedirect(reverse('admin:pages_page_changelist'))
+        return http.HttpResponseRedirect(
+            reverse('admin:ostinato_pages_page_changelist'))
 
-
-## A Custom View Example
-class CustomView(PageView):
-    def get_context_data(self, **kwargs):
-        c = super(CustomView, self).get_context_data(**kwargs)
-        c['custom'] = 'Some Custom Context'
-        return c
