@@ -94,6 +94,12 @@ class Page(MPTTModel):
         Page.objects.clear_breadcrumbs_cache()
         return page
 
+    def delete(self, *args, **kwargs):
+        cache = caches['default']
+        cache_key = 'ostinato:pages:page:%s:url' % self.id
+        cache.delete(cache_key)
+        super(Page, self).delete(*args, **kwargs)
+
     def get_short_title(self):
         if self.short_title:
             return self.short_title
