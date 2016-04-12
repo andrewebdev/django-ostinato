@@ -85,3 +85,4 @@ class ContactPage(SEOPage):
 
     def get_recipients(self):
         return [i for i in self.recipients.replace(' ', '').split(',')]
+

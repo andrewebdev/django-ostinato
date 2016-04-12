@@ -30,6 +30,7 @@ class HomePageForm(forms.ModelForm):
 
     class Meta:
         model = HomePage
+        fields = ('content',)
 
 
 class GenericPageForm(forms.ModelForm):
@@ -37,6 +38,7 @@ class GenericPageForm(forms.ModelForm):
 
     class Meta:
         model = GenericPage
+        fields = ('content',)
 
 
 class CasteStudyPageForm(forms.ModelForm):
@@ -44,6 +46,7 @@ class CasteStudyPageForm(forms.ModelForm):
 
     class Meta:
         model = CaseStudyPage
+        fields = ('content',)
 
 
 class ContactPageForm(forms.ModelForm):
@@ -51,3 +54,5 @@ class ContactPageForm(forms.ModelForm):
 
     class Meta:
         model = ContactPage
+        fields = ('content',)
+
