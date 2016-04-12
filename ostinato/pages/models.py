@@ -24,6 +24,12 @@ class ContentError(Exception):
         return self.value
 
 
+def _clear_cache():
+    Page.objects.clear_url_cache()
+    Page.objects.clear_navbar_cache()
+    Page.objects.clear_breadcrumbs_cache()
+
+
 # Models
 class Page(MPTTModel):
     """ A basic page model """
@@ -89,9 +95,7 @@ class Page(MPTTModel):
         page = super(Page, self).save(*args, **kwargs)
 
         # Make sure to clear the url, navbar and breadcrumbs cache
-        Page.objects.clear_url_cache()
-        Page.objects.clear_navbar_cache()
-        Page.objects.clear_breadcrumbs_cache()
+        _clear_cache()
         return page
 
     def delete(self, *args, **kwargs):
@@ -99,13 +103,7 @@ class Page(MPTTModel):
         When a page is deleted we need to remove it's items from the
         url and navbar cache.
         """
-        cache = caches['default']
-        url_key = 'ostinato:pages:page:%s:url' % self.id
-        navbar_key = 'ostinato:pages:page:%s:navbar' % self.id
-        crumbs_key = 'ostinato:pages:page:%s:crumbs' % self.id
-        cache.delete(url_key)
-        cache.delete(navbar_key)
-        cache.delete(crumbs_key)
+        _clear_cache()
         super(Page, self).delete(*args, **kwargs)
 
     def get_short_title(self):
