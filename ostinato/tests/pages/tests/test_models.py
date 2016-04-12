@@ -90,14 +90,17 @@ class PageModelTestCase(TestCase):
         cache = caches['default']
         url_key = 'ostinato:pages:page:3:url'
         nav_key = 'ostinato:pages:page:3:navbar'
+        crumbs_key = 'ostinato:pages:page:3:crumbs'
 
         # create some dummy cache values
         cache.set(url_key, 'URL Cache Value', 60 * 60 * 24 * 7 * 4)
         cache.set(nav_key, 'Navbar Cache Value', 60 * 60 * 24 * 7 * 4)
+        cache.set(crumbs_key, 'Crumbs Cache Value', 60 * 60 * 24 * 7 * 4)
 
         # Lets make sure that this url wasn't previously cached
         self.assertEqual('URL Cache Value', cache.get(url_key))
         self.assertEqual('Navbar Cache Value', cache.get(nav_key))
+        self.assertEqual('Crumbs Cache Value', cache.get(crumbs_key))
 
         # Delete P3
         p3.delete()
@@ -105,6 +108,7 @@ class PageModelTestCase(TestCase):
         # the cache should now be re-generated
         self.assertEqual(None, cache.get(url_key))
         self.assertEqual(None, cache.get(nav_key))
+        self.assertEqual(None, cache.get(crumbs_key))
 
     def test_urls_updated_after_move(self):
         p = Page.objects.get(slug='page-1')

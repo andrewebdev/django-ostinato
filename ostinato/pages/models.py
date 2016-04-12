@@ -102,8 +102,10 @@ class Page(MPTTModel):
         cache = caches['default']
         url_key = 'ostinato:pages:page:%s:url' % self.id
         navbar_key = 'ostinato:pages:page:%s:navbar' % self.id
+        crumbs_key = 'ostinato:pages:page:%s:crumbs' % self.id
         cache.delete(url_key)
         cache.delete(navbar_key)
+        cache.delete(crumbs_key)
         super(Page, self).delete(*args, **kwargs)
 
     def get_short_title(self):
