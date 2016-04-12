@@ -88,19 +88,23 @@ class PageModelTestCase(TestCase):
     def test_urls_recached_after_page_delete(self):
         p3 = Page.objects.get(slug='page-3')
         cache = caches['default']
-        cache_key = 'ostinato:pages:page:3:url'
+        url_key = 'ostinato:pages:page:3:url'
+        nav_key = 'ostinato:pages:page:3:navbar'
 
-        # Generate the cache
-        p3.get_absolute_url()
+        # create some dummy cache values
+        cache.set(url_key, 'URL Cache Value', 60 * 60 * 24 * 7 * 4)
+        cache.set(nav_key, 'Navbar Cache Value', 60 * 60 * 24 * 7 * 4)
 
         # Lets make sure that this url wasn't previously cached
-        self.assertEqual('/page-1/page-3/', cache.get(cache_key))
+        self.assertEqual('URL Cache Value', cache.get(url_key))
+        self.assertEqual('Navbar Cache Value', cache.get(nav_key))
 
         # Delete P3
         p3.delete()
 
         # the cache should now be re-generated
-        self.assertEqual(None, cache.get(cache_key))
+        self.assertEqual(None, cache.get(url_key))
+        self.assertEqual(None, cache.get(nav_key))
 
     def test_urls_updated_after_move(self):
         p = Page.objects.get(slug='page-1')

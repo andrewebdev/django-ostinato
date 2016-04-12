@@ -95,9 +95,15 @@ class Page(MPTTModel):
         return page
 
     def delete(self, *args, **kwargs):
+        """
+        When a page is deleted we need to remove it's items from the
+        url and navbar cache.
+        """
         cache = caches['default']
-        cache_key = 'ostinato:pages:page:%s:url' % self.id
-        cache.delete(cache_key)
+        url_key = 'ostinato:pages:page:%s:url' % self.id
+        navbar_key = 'ostinato:pages:page:%s:navbar' % self.id
+        cache.delete(url_key)
+        cache.delete(navbar_key)
         super(Page, self).delete(*args, **kwargs)
 
     def get_short_title(self):
