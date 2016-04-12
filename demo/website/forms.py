@@ -41,7 +41,7 @@ class GenericPageForm(forms.ModelForm):
         fields = ('content',)
 
 
-class CasteStudyPageForm(forms.ModelForm):
+class CaseStudyPageForm(forms.ModelForm):
     content = forms.CharField(widget=TinyMCE())
 
     class Meta:
@@ -54,5 +54,5 @@ class ContactPageForm(forms.ModelForm):
 
     class Meta:
         model = ContactPage
-        fields = ('content',)
+        fields = ('content', 'recipients', 'email_subject', 'success_page')
 
