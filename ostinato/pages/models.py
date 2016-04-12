@@ -24,7 +24,7 @@ class ContentError(Exception):
         return self.value
 
 
-## Models
+# Models
 class Page(MPTTModel):
     """ A basic page model """
     title = models.CharField(_("Title"), max_length=150)
@@ -58,10 +58,10 @@ class Page(MPTTModel):
         'self', verbose_name=_("Parent"),
         null=True, blank=True, related_name='page_children')
 
-    ## Managers
+    # Managers
     objects = PageManager()
 
-    ## Required for caching some objects
+    # Required for caching some objects
     _contents = None
     _content_model = None
 
@@ -174,7 +174,7 @@ class Page(MPTTModel):
         return self.get_content_model().get_template()
 
 
-## Page Templates
+# Page Templates
 class PageContent(models.Model):
     """
     Our base PageContent model. All other content models need to subclass
