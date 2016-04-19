@@ -1,5 +1,5 @@
 {% extends 'pages/base.html' %}
-{% load taggit_extras pages_tags %}
+{% load pages_tags %}
 
 {% block breadcrumbs %}{% breadcrumbs page obj=entry %}{% endblock %}
 
@@ -9,3 +9,4 @@
         {{ entry.content|safe }}
     </article>
 {% endblock %}
+

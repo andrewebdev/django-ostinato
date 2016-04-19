@@ -33,3 +33,4 @@ class LandingPage(SEOPage):
     class ContentOptions:
         template = 'blog/landing_page.html'
         view = 'blog.views.LandingPageView'
+

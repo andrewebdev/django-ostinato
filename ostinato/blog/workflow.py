@@ -50,3 +50,4 @@ class Archived(State):
 class BlogEntryWorkflow(IntegerStateMachine):
     state_map = {1: Private, 3: Review, 5: Published, 10: Archived}
     initial_state = 1
+

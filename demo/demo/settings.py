@@ -41,16 +41,12 @@ INSTALLED_APPS = [
 
     'ostinato',
     'ostinato.pages',
-    'ostinato.contentfilters',
-    # Only really adding these so that we can run test against them
-    'ostinato.statemachine',
-    'ostinato.blog',
+    # 'ostinato.contentfilters',
 
     # Other dependencies
     'mptt',
-    'tinymce',
     'taggit',
-    'taggit_templatetags',
+    # 'taggit_templatetags',
 
     # Our Website Custom apps
     'demo',
@@ -86,7 +82,6 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'demo.wsgi.application'
 
 
@@ -95,7 +90,7 @@ WSGI_APPLICATION = 'demo.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': 'demo.db',
     }
 }
 
@@ -135,6 +130,7 @@ STATIC_URL = '/static/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Ostinato settings
+SITE_ID = 1
 OSTINATO_PAGES_SITE_TREEID = 1
 
 # Third party app config

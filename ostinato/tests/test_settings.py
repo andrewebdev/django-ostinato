@@ -13,11 +13,15 @@ INSTALLED_APPS = [
     'django.contrib.sites',
 
     'ostinato',
+
     'ostinato.tests.pages',
     'ostinato.pages',
+
+    # Tests for the blog
+    'ostinato.tests.blog',
+
     # 'ostinato.contentfilters',
     # 'ostinato.statemachine',
-    # 'ostinato.blog',
 
     # Other dependencies
     'mptt',
