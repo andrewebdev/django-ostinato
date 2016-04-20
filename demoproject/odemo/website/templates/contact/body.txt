@@ -1,5 +1,0 @@
-
-Sender: {{ name }}, {{ email }}
-Website: {{ website }}
-
-{{ message }}

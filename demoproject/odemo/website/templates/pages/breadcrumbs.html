@@ -1,9 +1,0 @@
-<p>
-{% for node in breadcrumbs %}
-    {% if not forloop.last %}
-        <a href="{{ node.url }}">{{ node.title }}</a> &raquo;
-    {% else %}
-        <strong>{{ node.title }}</strong>
-    {% endif %}
-{% endfor %}
-</p>

@@ -1,7 +1,0 @@
-{% if navbar %}
-    {% with page.get_root as root_page %}
-        {% for p in navbar %}
-        <a {% if p.slug == page.slug or p.slug == root_page.slug %}class="active"{% endif %} href="{{ p.url }}">{{ p.title }}</a>
-        {% endfor %}
-    {% endwith %}
-{% endif %}
