@@ -44,7 +44,7 @@ class BlogEntryWorkflowTestCase(TestCase):
 
     def test_archive_action_method(self):
         entry = Entry.objects.get(id=1)
-        entry.state = 5  # force the state for now
+        entry.state = 'published'
         entry.save()
 
         sm = BlogEntryWorkflow(instance=entry)
@@ -91,3 +91,4 @@ class BlogEntryWorkflowTestCase(TestCase):
         sm.take_action('retract', reset_publish_date=True)
         self.assertEqual('Private', sm.state)
         self.assertIsNone(entry.publish_date)
+

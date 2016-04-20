@@ -1,5 +1,5 @@
 from django.utils import timezone
-from ostinato.statemachine import State, IntegerStateMachine
+from ostinato.statemachine import State, StateMachine
 
 
 def publish(instance, **kwargs):
@@ -13,7 +13,7 @@ def retract(instance, **kwargs):
 
 class Private(State):
     verbose_name = 'Private'
-    transitions = {'review': 3, 'publish': 5}
+    transitions = {'review': 'review', 'publish': 'published'}
 
     def publish(self, **kwargs):
         publish(self.instance, **kwargs)
@@ -21,7 +21,7 @@ class Private(State):
 
 class Review(State):
     verbose_name = 'Review'
-    transitions = {'reject': 1, 'approve': 5}
+    transitions = {'reject': 'private', 'approve': 'published'}
 
     def approve(self, **kwargs):
         publish(self.instance, **kwargs)
@@ -29,7 +29,7 @@ class Review(State):
 
 class Published(State):
     verbose_name = 'Published'
-    transitions = {'retract': 1, 'archive': 10}
+    transitions = {'retract': 'private', 'archive': 'archived'}
 
     def archive(self, **kwargs):
         self.instance.allow_comments = False
@@ -41,13 +41,18 @@ class Published(State):
 
 class Archived(State):
     verbose_name = 'Archived'
-    transitions = {'retract': 1}
+    transitions = {'retract': 'private'}
 
     def retract(self, **kwargs):
         retract(self.instance, **kwargs)
 
 
-class BlogEntryWorkflow(IntegerStateMachine):
-    state_map = {1: Private, 3: Review, 5: Published, 10: Archived}
-    initial_state = 1
+class BlogEntryWorkflow(StateMachine):
+    state_map = {
+        'private': Private,
+        'review': Review,
+        'published': Published,
+        'archived': Archived
+    }
+    initial_state = 'private'
 

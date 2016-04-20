@@ -18,8 +18,10 @@ class BlogEntryBase(models.Model):
     content = models.TextField(_("Content"))
 
     # Publication Fields
-    state = models.IntegerField(_("State"), default=1,
-        choices=BlogEntryWorkflow.get_choices())
+    state = models.CharField(_("State"),
+                             max_length=20,
+                             default='private',
+                             choices=BlogEntryWorkflow.get_choices())
     author = models.ForeignKey(User, verbose_name=_("Author"))
 
     created_date = models.DateTimeField(_("Created date"), auto_now_add=True)
