@@ -14,13 +14,11 @@ INSTALLED_APPS = [
 
     'ostinato',
 
+    # Pages
     'ostinato.tests.pages',
     'ostinato.pages',
-
-    # Tests for the blog
     'ostinato.tests.blog',
-
-    # 'ostinato.contentfilters',
+    'ostinato.contentfilters',
     # 'ostinato.statemachine',
 
     # Other dependencies

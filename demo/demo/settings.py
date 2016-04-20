@@ -41,7 +41,7 @@ INSTALLED_APPS = [
 
     'ostinato',
     'ostinato.pages',
-    # 'ostinato.contentfilters',
+    'ostinato.contentfilters',
 
     # Other dependencies
     'mptt',

@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from ostinato.contentfilters import ContentMod
+from ostinato.contentfilters import ContentFilter
 from ostinato.contentfilters.templatetags.content_filters import modify
 
 
@@ -21,39 +21,39 @@ class ContentModTestCase(TestCase):
     """ Tests for the Content Modifier Class """
 
     def clear_mods(self):
-        ContentMod._modifiers = []
+        ContentFilter._modifiers = []
 
     def add_test_func(self):
-        ContentMod.register('test_func', test_func)
-        ContentMod.register('test_func_2', test_func_2)
-        ContentMod.register('test_func_3', test_func_3)
+        ContentFilter.register('test_func', test_func)
+        ContentFilter.register('test_func_2', test_func_2)
+        ContentFilter.register('test_func_3', test_func_3)
 
     def test_class_exists(self):
-        ContentMod
+        ContentFilter
 
     def test_register_class_method(self):
         self.clear_mods()
-        self.assertEqual([], ContentMod._modifiers)
+        self.assertEqual([], ContentFilter._modifiers)
 
         self.add_test_func()
         self.assertEqual([
             {'func': test_func, 'name': 'test_func'},
             {'func': test_func_2, 'name': 'test_func_2'},
             {'func': test_func_3, 'name': 'test_func_3'},
-        ], ContentMod._modifiers)
+        ], ContentFilter._modifiers)
 
     def test_modifier(self):
         self.clear_mods()
         self.add_test_func()
 
-        cm = ContentMod()
+        cm = ContentFilter()
         self.assertEqual([test_func, test_func_2, test_func_3], cm.modifiers())
 
     def test_modifiers_exclude_list(self):
         self.clear_mods()
         self.add_test_func()
 
-        cm = ContentMod()
+        cm = ContentFilter()
         self.assertEqual([test_func_2, test_func_3],
             cm.modifiers(exclude='test_func'))
 
@@ -61,7 +61,7 @@ class ContentModTestCase(TestCase):
         self.clear_mods()
         self.add_test_func()
 
-        cm = ContentMod()
+        cm = ContentFilter()
         self.assertEqual(test_func_2, cm['test_func_2'])
 
     def test_modify_function_exists(self):
