@@ -18,7 +18,7 @@ class PageManagerTestCase(TestCase):
             list(Page.objects.published().values_list('id', flat=True)))
 
     def test_get_empty_navbar(self):
-        Page.objects.published().update(state=1)
+        Page.objects.published().update(state='private')
         empty_nav = Page.objects.get_navbar()
         self.assertEqual([], empty_nav)
 

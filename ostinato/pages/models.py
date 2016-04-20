@@ -52,9 +52,10 @@ class Page(MPTTModel):
     show_in_nav = models.BooleanField(_("Show in nav"), default=True)
     show_in_sitemap = models.BooleanField(_("Show in sitemap"), default=True)
 
-    state = models.IntegerField(
-        _("State"), default=PAGES_SETTINGS['DEFAULT_STATE'],
-        choices=get_workflow().get_choices())
+    state = models.CharField(_("State"),
+                             max_length=20,
+                             default=PAGES_SETTINGS['DEFAULT_STATE'],
+                             choices=get_workflow().get_choices())
 
     created_date = models.DateTimeField(_("Created date"), null=True, blank=True)
     modified_date = models.DateTimeField(_("Modified date"), null=True, blank=True)
@@ -87,7 +88,7 @@ class Page(MPTTModel):
 
             # since it's created the first time, and we want it
             # published by default, we need to set the date now.
-            if self.state == 5:
+            if self.state == 'public':
                 self.publish_date = now
 
         self.modified_date = now

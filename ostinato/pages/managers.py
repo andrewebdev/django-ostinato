@@ -10,7 +10,7 @@ class PageManager(TreeManager):
 
     def published(self):
         return self.get_queryset().filter(
-            publish_date__lte=timezone.now(), state=5)
+            publish_date__lte=timezone.now(), state='public')
 
     def get_navbar(self, for_page=None, clear_cache=False):
         """

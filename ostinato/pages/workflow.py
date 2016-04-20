@@ -1,24 +1,24 @@
 from django.conf import settings
 from django.utils import timezone
 
-from ostinato.statemachine import State, IntegerStateMachine
+from ostinato.statemachine import State, StateMachine
 
 
-DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 5)
+DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 'public')
 
 
 class Private(State):
     verbose_name = 'Private'
-    transitions = {'make_public': 5}
+    transitions = {'make_public': 'public'}
 
 
 class Public(State):
     verbose_name = 'Public'
-    transitions = {'make_private': 1}
+    transitions = {'make_private': 'private'}
 
 
-class PageWorkflow(IntegerStateMachine):
-    state_map = {1: Private, 5: Public}
+class PageWorkflow(StateMachine):
+    state_map = {'private': Private, 'public': Public}
     initial_state = DEFAULT_STATE
 
 

@@ -54,7 +54,7 @@ class PageViewTestCase(TestCase):
     def test_unauthorized_user_raises_forbidden(self):
         # First we make the page private
         p = Page.objects.get(slug='page-1')
-        p.state = 1
+        p.state = 'private'
         p.save()
 
         response = self.client.get('/page-1/')
@@ -63,7 +63,7 @@ class PageViewTestCase(TestCase):
     def test_superuser_can_access_private_page(self):
         # First we make the page private
         p = Page.objects.get(slug='page-1')
-        p.state = 1
+        p.state = 'private'
         p.save()
 
         # Make a second user, which is a superuser
