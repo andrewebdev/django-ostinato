@@ -1,0 +1,22 @@
+{
+  "name": "ostinato_admin",
+  "homepage": "https://github.com/andrewebdev/django-ostinato",
+  "authors": [
+    "Andre Engelbrecht <andre@tehnode.co.uk>"
+  ],
+  "description": "Ostinato admin is a polymer based admin for Django",
+  "main": "",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "iron-flex-layout": "polymerelements/iron-flex-layout#^1.3.1"
+  }
+}
