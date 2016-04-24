@@ -8,5 +8,3 @@ WORKDIR /demo/
 ADD demo/requirements.txt /demo/requirements.txt
 RUN pip install -r requirements.txt
 
-ADD demo /demo/
-
