@@ -65,7 +65,7 @@ setup(
     install_requires=[
         'setuptools',
         'django-mptt == 0.6.0',
-        'django-appregister == 0.3.1',
+        'django-appregister',
     ],
     classifiers=[
         'Programming Language :: Python',
