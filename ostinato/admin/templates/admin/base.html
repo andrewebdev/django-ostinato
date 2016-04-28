@@ -25,6 +25,20 @@
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
   data-admin-utc-offset="{% now "Z" %}">
 
+    {% comment %}
+
+        TODO: use paper-toast or some other notification method? We could create
+        our own custom method.
+
+        {% block messages %}
+            {% if messages %}
+            <ul class="messagelist">{% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+            {% endfor %}</ul>
+            {% endif %}
+        {% endblock messages %}
+    {% endcomment %}
+
     <paper-drawer-panel>
         <paper-header-panel drawer>
             <!-- Drawer Header -->
@@ -90,25 +104,6 @@
         </paper-header-panel>
 
     </paper-drawer-panel>
-
-{% comment %}
-<!-- Container -->
-<div id="container">
-
-    {% if not is_popup %}
-    {% endif %}
-
-    {% block messages %}
-        {% if messages %}
-        <ul class="messagelist">{% for message in messages %}
-          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
-        {% endfor %}</ul>
-        {% endif %}
-    {% endblock messages %}
-
-</div>
-<!-- END Container -->
-{% endcomment %}
-
 </body>
 </html>
+
