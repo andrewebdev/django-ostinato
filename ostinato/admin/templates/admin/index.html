@@ -1,52 +1,43 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_static %}
 
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />{% endblock %}
-
-{% block coltype %}colMS{% endblock %}
-
 {% block bodyclass %}{{ block.super }} dashboard{% endblock %}
 
 {% block breadcrumbs %}{% endblock %}
 
 {% block content %}
-<div id="content-main">
-
 {% if app_list %}
+<div class="applist">
     {% for app in app_list %}
-        <div class="app-{{ app.app_label }} module">
-        <table>
-        <caption>
-            <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
-        </caption>
+    <div class="app-{{ app.app_label }} module">
+        <a href="{{ app.app_url }}"
+              class="section"
+              title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">
+            {{ app.name }}</a>
+
         {% for model in app.models %}
-            <tr class="model-{{ model.object_name|lower }}">
-            {% if model.admin_url %}
-                <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
-            {% else %}
-                <th scope="row">{{ model.name }}</th>
-            {% endif %}
+            <div class="model-{{ model.object_name|lower }} row">
+                {% if model.admin_url %}
+                    <a class="layout flex" href="{{ model.admin_url }}">{{ model.name }}</a>
+                {% else %}
+                    <span>{{ model.name }}</span>
+                {% endif %}
 
-            {% if model.add_url %}
-                <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
-            {% else %}
-                <td>&nbsp;</td>
-            {% endif %}
+                {% if model.add_url %}
+                    <a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a>
+                {% endif %}
 
-            {% if model.admin_url %}
-                <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
-            {% else %}
-                <td>&nbsp;</td>
-            {% endif %}
-            </tr>
+                {% if model.admin_url %}
+                    <a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a>
+                {% endif %}
+            </div>
         {% endfor %}
-        </table>
-        </div>
+    </div>
     {% endfor %}
+</div>
 {% else %}
     <p>{% trans "You don't have permission to edit anything." %}</p>
 {% endif %}
-</div>
 {% endblock %}
 
 {% block sidebar %}

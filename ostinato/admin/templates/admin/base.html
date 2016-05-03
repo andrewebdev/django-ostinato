@@ -16,8 +16,8 @@
     <link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" />
     {% block extrastyle %}{% endblock %}
     {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
-    {% block extrahead %}{% endblock %}
     {% endcomment %}
+    {% block extrahead %}{% endblock %}
     {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
 </head>
 {% load i18n %}
@@ -25,29 +25,11 @@
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
   data-admin-utc-offset="{% now "Z" %}">
 
-    {% comment %}
-
-        TODO: use paper-toast or some other notification method? We could create
-        our own custom method.
-
-        {% block messages %}
-            {% if messages %}
-            <ul class="messagelist">{% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
-            {% endfor %}</ul>
-            {% endif %}
-        {% endblock messages %}
-    {% endcomment %}
-
     <paper-drawer-panel>
-        <paper-header-panel drawer>
+        <paper-header-panel drawer mode="seamed">
             <!-- Drawer Header -->
             <div class="paper-header">
                 {% block branding %}{% endblock %}
-            </div>
-
-            <!-- Drawer Content -->
-            <div main>
                 {% block usertools %}
                 {% if has_permission %}
                 <div id="user-tools">
@@ -73,11 +55,23 @@
                 </div>
                 {% endif %}
                 {% endblock %}
-                {% block nav-global %}{% endblock %}
+            </div>
+
+            <!-- Drawer Content -->
+            <div main>
+                <ost-navigation>
+                    {% block nav-global %}
+                    {% endblock %}
+                    <a href="">Test Link</a>
+                    <a href="">Test Link</a>
+                    <a href="">Test Link</a>
+                    <a href="">Test Link</a>
+                    <a href="">Test Link</a>
+                </ost-navigation>
             </div>
         </paper-header-panel>
 
-        <paper-header-panel main>
+        <paper-header-panel main mode="waterfall">
             <!-- Main Content Header -->
             <div class="paper-header">
                 {% block breadcrumbs %}
@@ -89,9 +83,17 @@
             </div>
 
             <!-- Main Content -->
-            <div id="content" class="{% block coltype %}colM{% endblock %}">
-                {% block pretitle %}{% endblock %}
+            <div id="content">
+                {% block messages %}
+                    {% if messages %}
+                    <ul class="messagelist">{% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+                    {% endfor %}</ul>
+                    {% endif %}
+                {% endblock messages %}
+
                 {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+                {% block pretitle %}{% endblock %}
                 {% block content %}
                 {% block object-tools %}{% endblock %}
                 {{ content }}

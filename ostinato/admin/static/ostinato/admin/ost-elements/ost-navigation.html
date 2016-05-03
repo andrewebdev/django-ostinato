@@ -1,0 +1,22 @@
+<dom-module id="ost-navigation">
+    <style>
+        :host {
+            @apply(--layout-vertical);
+            @apply(--ost-navigation);
+        }
+    </style>
+    <template>
+        <content select="a"></content>
+    </template>
+</dom-module>
+<script>
+    (function() {
+        'use strict';
+
+        Polymer({
+            is: 'ost-navigation'
+        });
+
+    })();
+</script>
+
