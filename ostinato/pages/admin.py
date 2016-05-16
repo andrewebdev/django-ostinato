@@ -71,7 +71,7 @@ class PageAdmin(MPTTModelAdmin):
     form = PageAdminForm
 
     list_display = (
-        'tree_node', 'get_title', 'page_actions', 'slug',
+        'get_title', 'page_actions', 'slug',
         'template_name', 'page_state', 'show_in_nav', 'show_in_sitemap')
     list_display_links = ('get_title',)
     list_filter = ('show_in_nav', 'show_in_sitemap', 'state')
@@ -112,7 +112,7 @@ class PageAdmin(MPTTModelAdmin):
             'pages/js/page_admin.js',
         )
 
-    def tree_node(self, obj):
+    def get_node_tag(self, obj):
         """
         A custom title for the list display that will be indented based on
         the level of the node, as well as display a expand/collapse icon
@@ -121,19 +121,23 @@ class PageAdmin(MPTTModelAdmin):
         This node will also have some information for the row, like the
         level etc.
         """
-        content = '<span id="tid_%s_%s_%s_%s" class="tree_node closed">' % (
-            obj.tree_id, obj.level, obj.lft, obj.rght)
         if obj.get_descendant_count() > 0:
-            content += '<a class="toggle_children" href="#">%s</a>' % geticon('tree_closed')
-        content += '</span>'
-        return content
-    tree_node.short_description = ''
-    tree_node.allow_tags = True
+            descendents = 'descendents="true"'
+        else:
+            descendents = ''
+        tag = '<ost-page-node tree-id="%s" level="%s" lft="%s" rght="%s" %s>' % (
+            obj.tree_id,
+            obj.level,
+            obj.lft,
+            obj.rght,
+            descendents
+        )
+        tag += '</ost-page-node>'
+        return tag
 
     def get_title(self, obj):
         PAGES_SITE_TREEID = getattr(settings, 'OSTINATO_PAGES_SITE_TREEID', None)
-        PAGES_INDENT = getattr(settings, 'OSTINATO_PAGES_ADMIN_INDENT', 4 * '&nbsp;')
-
+        node_tag = self.get_node_tag(obj)
         title = obj.get_short_title()
 
         if PAGES_SITE_TREEID:
@@ -141,10 +145,10 @@ class PageAdmin(MPTTModelAdmin):
                 try:
                     tree_site = Site.objects.get(id=obj.tree_id)
                 except:
-                    return '%s (No Site)' % title
-                return '%s (%s)' % (title, tree_site.name)
+                    return '%s %s (No Site)' % (node_tag, title)
+                return '%s %s (%s)' % (node_tag, title, tree_site.name)
 
-        return '%s%s' % (PAGES_INDENT * obj.level, title)
+        return '%s%s' % (node_tag, title)
     get_title.short_description = _("Title")
     get_title.allow_tags = True
 

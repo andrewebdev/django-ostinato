@@ -1,5 +1,5 @@
 {% extends "admin/change_list.html" %}
-{% load admin_list i18n %}
+{% load admin_list i18n admin_static %}
 
 
 {% block extrahead %}
@@ -12,22 +12,128 @@
         };
     </script>
     {{ block.super }}
+
+    <!-- Import webcomponents polyfills and poilymer lib -->
+    <script src="{% static 'pages/bower_components/webcomponentsjs/webcomponents-lite.min.js' %}"></script>
+    <link rel="import" href="{% static 'pages/bower_components/polymer/polymer.html' %}">
+    <link rel="import" href="{% static 'pages/bower_components/iron-icons/iron-icons.html' %}">
+    <link rel="import" href="{% static 'pages/bower_components/paper-icon-button/paper-icon-button.html' %}">
+
+    <dom-module id="ost-pages-action-form">
+        <template>
+            <form id="ostinato_page_action_form" action="{{_action}}" method="post" accept-charset="utf-8">{% csrf_token %}
+                <input type="hidden" name="node" value="{{node}}"/>
+                <input type="hidden" name="target" value="{{target}}"/>
+                <input type="hidden" name="position" value="{{position}}"/>
+            </form>
+        </template>
+    </dom-module>
+    <script>
+        (function() {
+            'use strict';
+
+            Polymer({
+                is: 'ost-pages-action-form',
+                properties: {
+                    node: String,
+                    moveAction: String,
+                    copyAction: String,
+                    target: String,
+                    position: String
+                },
+
+                ready: function() {
+                    this._action = '';
+                }
+            });
+
+        })();
+    </script>
+
+    <dom-module id="ost-page-node">
+        <style>
+            :host {
+                display: inline-block;
+                width: 35px;
+            }
+            paper-icon-button {
+                width: 35px;
+                height: 35px;
+            }
+        </style>
+        <template>
+            <template is="dom-if" if="{{descendents}}">
+                <paper-icon-button icon="{{icon}}" on-click="_handleToggleClick"></paper-icon-button>
+            </template>
+        </template>
+    </dom-module>
+    <script>
+        (function() {
+            'use strict';
+
+            Polymer({
+                is: 'ost-page-node',
+                properties: {
+                    treeId: String,
+                    level: Number,
+                    lft: String,
+                    rght: String,
+                    descendents: {
+                        type: Boolean,
+                        value: false
+                    },
+                    open: {
+                        type: Boolean,
+                        value: false
+                    }
+                },
+
+                attached: function() {
+                    this._toggleDescendents();
+                    this.style = "padding-left: " + this.level * 12 + "px;";
+                },
+
+                _handleToggleClick: function(ev) {
+                    ev.preventDefault();
+                    this.open = !this.open;
+                    this._toggleDescendents();
+                },
+
+                _toggleDescendents: function() {
+                    var desc = document.querySelectorAll('ost-page-node[tree-id="' + this.treeId + '"]');
+
+                    if (this.open) {
+                        this.icon = 'remove-circle';
+                    } else {
+                        this.icon = 'add-circle';
+                    }
+
+                    for (var i=0; i < desc.length; i++) {
+                        var node = desc[i];
+                        var row = node.parentNode.parentNode.parentNode;
+
+                        if (node.level == this.level + 1) {
+                            if (this.open) {
+                                row.style = "display: row;";
+                            } else {
+                                row.style = "display: none;";
+                            }
+                        }
+                    }
+                }
+            });
+
+        })();
+    </script>
+
 {% endblock %}
 
 
 {% block object-tools %}
-    {% comment %}
-        We want to add a cutom form here so that we can implement the page
-        movement correctly. Maybe use backbone instead.
-    {% endcomment %}
+    <ost-pages-action-form move-action="{% url 'ostinato_page_reorder' %}"
+                           copy-action="{% url 'ostinato_page_duplicate' %}"></ost-pages-action-form>
 
     {{ block.super }}
-    <form id="ostinato_page_action_form" action="{% url 'ostinato_page_reorder' %}" method="post" accept-charset="utf-8">{% csrf_token %}
-        <input type="hidden" name="node" />
-        <input type="hidden" name="target" />
-        <input type="hidden" name="position" />
-    </form>
-
 {% endblock %}
 
 
