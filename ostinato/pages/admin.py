@@ -60,6 +60,9 @@ class PageAdminForm(sm_form_factory(sm_class=get_workflow())):  # <3 python
         self.fields['template'].choices = page_content.get_template_choices()
         self.fields['parent'].widget.can_add_related = False
         self.fields['parent'].widget.can_change_related = False
+        if self.instance:
+            self.fields['parent'].queryset = Page.objects.exclude(
+                    id=self.instance.id)
 
     class Meta:
         model = Page
