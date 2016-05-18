@@ -97,7 +97,10 @@ class PageDuplicateView(View):
     def post(self, *args, **kwargs):
         form = DuplicatePageForm(self.request.POST)
         if form.is_valid():
-            form.save()
-        return http.HttpResponseRedirect(
-            reverse('admin:ostinato_pages_page_changelist'))
+            new_page = form.save()
+            next = reverse('admin:ostinato_pages_page_change',
+                           args=(new_page.id,))
+        else:
+            next = reverse('admin:ostinato_pages_page_changelist')
+        return http.HttpResponseRedirect(next)
 

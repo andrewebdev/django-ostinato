@@ -58,6 +58,8 @@ class PageAdminForm(sm_form_factory(sm_class=get_workflow())):  # <3 python
     def __init__(self, *args, **kwargs):
         super(PageAdminForm, self).__init__(*args, **kwargs)
         self.fields['template'].choices = page_content.get_template_choices()
+        self.fields['parent'].widget.can_add_related = False
+        self.fields['parent'].widget.can_change_related = False
 
     class Meta:
         model = Page
@@ -152,6 +154,12 @@ class PageAdmin(MPTTModelAdmin):
     get_title.short_description = _("Title")
     get_title.allow_tags = True
 
+    def page_actions(self, obj):
+        """ A List view item that shows the movement actions """
+        return '<ost-pages-actions node-id="%s"></ost-pages-actions>' % obj.id
+    page_actions.short_description = _("Actions")
+    page_actions.allow_tags = True
+
     def page_state(self, obj):
         sm = get_workflow()(instance=obj)
         return sm.state
@@ -160,12 +168,6 @@ class PageAdmin(MPTTModelAdmin):
     def template_name(self, obj):
         return page_content.get_template_name(obj.template)
     template_name.short_description = _("Template")
-
-    def page_actions(self, obj):
-        """ A List view item that shows the movement actions """
-        return render_to_string('admin/pages_actions.html', {'obj': obj})
-    page_actions.short_description = _("Actions")
-    page_actions.allow_tags = True
 
     def add_view(self, request, form_url='', extra_context=None):
         # We need to clear the inlines. Django keeps it cached somewhere

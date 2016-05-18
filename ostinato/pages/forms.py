@@ -57,3 +57,6 @@ class DuplicatePageForm(MovePageForm):
             page_content.pk = None
             page_content.page = new_page
             page_content.save()
+
+        return new_page
+
