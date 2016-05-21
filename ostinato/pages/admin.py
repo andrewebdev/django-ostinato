@@ -13,19 +13,6 @@ from ostinato.pages.workflow import get_workflow
 from ostinato.pages.registry import page_content
 
 
-# Some helpers to get the icons
-def staticurl(p):
-    staticurl = settings.STATIC_URL
-    if staticurl[-1] == '/':
-        return '%s%s' % (staticurl, p)
-    else:
-        return '%s/%s' % (staticurl, p)
-
-
-def geticon(action):
-    return '<img src="%s" />' % staticurl('pages/img/%s.png' % action)
-
-
 def content_inline_factory(page):
     content_model = page.get_content_model()
 
@@ -99,20 +86,9 @@ class PageAdmin(MPTTModelAdmin):
 
     )
     prepopulated_fields = {'slug': ('title',)}
-
-    if 'grappelli' in settings.INSTALLED_APPS:
-        change_list_template = 'admin/pages_change_list_grappelli.html'
-    else:
-        change_list_template = 'admin/pages_change_list.html'
+    change_list_template = 'admin/pages_change_list.html'
 
     class Media:
-
-        css = {
-            'all': (
-                'pages/css/pages_admin.css',
-            ),
-        }
-
         js = (
             'pages/js/page_admin.js',
         )
@@ -135,8 +111,7 @@ class PageAdmin(MPTTModelAdmin):
             obj.level,
             obj.lft,
             obj.rght,
-            descendents
-        )
+            descendents)
         tag += '</ost-page-node>'
         return tag
 
