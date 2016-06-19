@@ -9,8 +9,9 @@ class ContentRegister(SortedRegistry):
         template_choices = (('', '--------'),)
 
         for v in self.all():
+            verbose_app_name = v._meta.app_label.replace('_', ' ')
             content_type = '%s.%s' % (v._meta.app_label, v.__name__)
-            verbose_name = '%s | %s' % (v._meta.app_label, v._meta.verbose_name)
+            verbose_name = '%s | %s' % (verbose_app_name, v._meta.verbose_name)
             template_choices += ((content_type.lower(), verbose_name.title()), )
 
         return template_choices
@@ -33,3 +34,4 @@ class ContentRegister(SortedRegistry):
 
 
 page_content = ContentRegister()
+

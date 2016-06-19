@@ -1,0 +1,9 @@
+{% extends 'pages/base.html' %}
+{% load content_filters %}
+
+{% block content %}
+<article>
+    <h1>{{ page.title }}</h1>
+    {{ page.contents.content|linebreaksbr|modify|safe }}
+</article>
+{% endblock %}

@@ -4,8 +4,7 @@ python:
 
 install:
     - pip install --upgrade setuptools
-    - python demoproject/bootstrap.py -c demoproject/travis.cfg
-    - demoproject/bin/buildout -c demoproject/travis.cfg
+    - pip install -r demo/requirements.txt
 
 script:
-    - demoproject/bin/test
+    - ./runtests.py

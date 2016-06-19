@@ -1,9 +1,8 @@
-from django.conf.urls import patterns, url
-
+from django.conf.urls import url
 from ostinato.pages.views import page_dispatch, PageReorderView, PageDuplicateView
 
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', page_dispatch, name='ostinato_page_home'),
 
     url(r'^page_reorder/$', PageReorderView.as_view(),
@@ -14,4 +13,5 @@ urlpatterns = patterns('',
 
     # This must be last
     url(r'^(?P<path>.*)/$', page_dispatch, name='ostinato_page_view'),
-)
+]
+

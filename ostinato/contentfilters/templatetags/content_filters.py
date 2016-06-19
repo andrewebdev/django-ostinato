@@ -5,8 +5,8 @@ from django import template
 register = template.Library()
 
 
-## ContentModifiers and related examples
-class ContentMod(object):
+# ContentModifiers and related examples
+class ContentFilter(object):
     """
     Special class to register render functions that will manipulate
     text content in some way. These functions are accessed by the
@@ -57,7 +57,7 @@ def modify(content, mods=None):
         {{ content|modify:"!snip,youtube" }}
 
     """
-    cm = ContentMod()
+    cm = ContentFilter()
     if mods:
         if mods[0] == "!":
             # Exclusion List
@@ -106,6 +106,7 @@ def hide_snip(content):
     return content.replace('{{{snip}}}', '')
 
 
-ContentMod.register('youtube', youtube)
-ContentMod.register('snip', snip)
-ContentMod.register('hide_snip', hide_snip)
+ContentFilter.register('youtube', youtube)
+ContentFilter.register('snip', snip)
+ContentFilter.register('hide_snip', hide_snip)
+

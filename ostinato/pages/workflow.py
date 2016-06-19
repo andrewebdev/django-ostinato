@@ -1,41 +1,32 @@
 from django.conf import settings
 from django.utils import timezone
 
-from ostinato.statemachine import State, IntegerStateMachine
+from ostinato.statemachine import State, StateMachine
 
 
-DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 5)
+DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 'public')
 
 
 class Private(State):
     verbose_name = 'Private'
-    transitions = {'publish': 5}
-
-    def publish(self, **kwargs):
-        if self.instance and not self.instance.publish_date:
-            self.instance.publish_date = timezone.now()
+    transitions = {'make_public': 'public'}
 
 
-class Published(State):
-    verbose_name = 'Published'
-    transitions = {'retract': 1, 'archive': 10}
+class Public(State):
+    verbose_name = 'Public'
+    transitions = {'make_private': 'private'}
 
 
-class Archived(State):
-    verbose_name = 'Archived'
-    transitions = {'retract': 1}
-
-
-class PageWorkflow(IntegerStateMachine):
-    state_map = {1: Private, 5: Published, 10: Archived}
+class PageWorkflow(StateMachine):
+    state_map = {'private': Private, 'public': Public}
     initial_state = DEFAULT_STATE
 
 
 def get_workflow():
     """
     This is a helper function that returns the correct workflow to be used.
-    This is required since we provide a setting that allows the developer
-    to change the statemachine that should manage Pages.
+    A developer can change the default workflow behaviour using the
+    ``OSTINATO_PAGES_WORKFLOW_CLASS`` setting.
     """
     custom_workflow = getattr(settings, 'OSTINATO_PAGES_WORKFLOW_CLASS', None)
     if custom_workflow:

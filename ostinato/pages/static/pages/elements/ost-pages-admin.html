@@ -1,0 +1,282 @@
+<!-- Import dependencies -->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-signals/iron-signals.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+
+
+<dom-module id="ost-pages-controller">
+    <template>
+        <form id="actionForm" action="{{_action}}" method="post" accept-charset="utf-8">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{csrfToken}}"/>
+            <input type="hidden" name="node" value="{{node}}"/>
+            <input type="hidden" name="target" value="{{target}}"/>
+            <input type="hidden" name="position" value="{{position}}"/>
+        </form>
+    </template>
+</dom-module>
+<script>
+    (function() {
+        'use strict';
+
+        Polymer({
+            is: 'ost-pages-controller',
+
+            properties: {
+                pageAddUrl: String,
+                moveAction: String,
+                copyAction: String,
+                csrfToken: String,
+
+                node: Number,
+                target: Number,
+                position: Number,
+            },
+
+            ready: function() {
+                this.reset();
+            },
+
+            reset: function() {
+                this.node = null;
+                this._action = "";
+                this.fire('iron-signal', {
+                    name: 'page-action',
+                    data: {action: 'cancel', node: null}
+                });
+            },
+
+            startAction: function(action, node) {
+                this.node = node;
+                if (action == 'move') {
+                    this._action = this.moveAction;
+                } else if (action == 'copy') {
+                    this._action = this.copyAction;
+                }
+                this.fire('iron-signal', {
+                    name: 'page-action',
+                    data: {action: action, node: node}
+                });
+            },
+
+            commitAction: function(target, position) {
+                if (this.node && this._action) {
+                    this.target = target;
+                    this.position = position;
+                    this.$.actionForm.submit();
+                }
+            }
+
+        });
+
+    })();
+</script>
+
+
+<dom-module id="ost-pages-actions">
+    <style>
+        :host {
+            @apply(--layout-horizontal);
+            @apply(--layout-center-justified);
+        }
+        paper-icon-button { width: 35px; }
+    </style>
+    <template>
+        <iron-signals on-iron-signal-page-action="_handleControllerAction"></iron-signals>
+
+        <template is="dom-if" if="{{!_actionNode}}">
+            <paper-icon-button title="move page"
+                            icon="open-with"
+                            on-click="_handleMove"></paper-icon-button>
+
+            <paper-icon-button title="create copy"
+                            icon="content-copy"
+                            on-click="_handleCopy"></paper-icon-button>
+
+            <paper-icon-button title="create child-page"
+                            icon="add-box"
+                            on-click="_handleAddChild"></paper-icon-button>
+        </template>
+
+        <template is="dom-if" if="{{showCancel(nodeId,_actionNode)}}">
+            <paper-icon-button title="cancel"
+                            icon="cancel"
+                            on-click="_handleCancel"></paper-icon-button>
+        </template>
+
+        <template is="dom-if" if="{{showTargets(nodeId,_actionNode)}}">
+            <paper-icon-button title="above this page"
+                            icon="arrow-upward"
+                            on-click="_handleMoveAbove"></paper-icon-button>
+
+            <paper-icon-button title="below this page"
+                            icon="arrow-downward"
+                            on-click="_handleMoveBelow"></paper-icon-button>
+
+            <paper-icon-button title="as child page"
+                            icon="subdirectory-arrow-right"
+                            on-click="_handleMoveChild"></paper-icon-button>
+        </template>
+
+    </template>
+</dom-module>
+<script>
+    (function() {
+        'use strict';
+
+        Polymer({
+            is: 'ost-pages-actions',
+            properties: {
+                nodeId: Number
+            },
+
+            ready: function() {
+                // Get the ost-pages-action-controller
+                this._pagesController = document.querySelector('ost-pages-controller');
+                this._actionNode = null;
+            },
+
+            showCancel: function(nodeId, actionNode) {
+                return nodeId == actionNode;
+            },
+
+            showTargets: function(nodeId, actionNode) {
+                // TODO: Node cannot be child of one of it's descendents
+                return actionNode && actionNode != nodeId;
+            },
+
+            _handleControllerAction: function(ev, data) {
+                if (data.action == 'cancel') {
+                    this._actionNode = null;
+                } else {
+                    this._actionNode = data.node;
+                }
+            },
+
+            _handleAddChild: function() {
+                var baseUrl = this._pagesController.pageAddUrl; 
+                window.location = baseUrl + "?parent=" + this.nodeId;
+            },
+
+            _handleMove: function() {
+                this._pagesController.startAction('move', this.nodeId);
+            },
+
+            _handleCopy: function() {
+                this._pagesController.startAction('copy', this.nodeId);
+            },
+
+            _handleMoveAbove: function() {
+                this._pagesController.commitAction(this.nodeId, 'left');
+            },
+
+            _handleMoveBelow: function() {
+                this._pagesController.commitAction(this.nodeId, 'right');
+            },
+
+            _handleMoveChild: function() {
+                this._pagesController.commitAction(this.nodeId, 'last-child');
+            },
+
+            _handleCancel: function() {
+                this._pagesController.reset();
+            }
+        });
+    })();
+</script>
+
+
+<dom-module id="ost-page-node">
+    <style>
+        :host {
+            display: inline-block;
+            width: 35px;
+        }
+        paper-icon-button {
+            width: 35px;
+            height: 35px;
+        }
+    </style>
+    <template>
+        <template is="dom-if" if="{{descendents}}">
+            <paper-icon-button icon="{{icon}}" on-click="_handleToggleClick"></paper-icon-button>
+        </template>
+    </template>
+</dom-module>
+<script>
+    (function() {
+        'use strict';
+
+        Polymer({
+            is: 'ost-page-node',
+            properties: {
+                treeId: String,
+                level: Number,
+                lft: String,
+                rght: String,
+                descendents: {
+                    type: Boolean,
+                    value: false
+                },
+                open: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+
+            attached: function() {
+                this._toggleDescendents();
+                this.style = "padding-left: " + this.level * 12 + "px;";
+            },
+
+            _handleToggleClick: function(ev) {
+                ev.preventDefault();
+                this.open = !this.open;
+                this._toggleDescendents();
+            },
+
+            _toggleDescendents: function() {
+                var desc = document.querySelectorAll('ost-page-node[tree-id="' + this.treeId + '"]');
+
+                if (this.open) {
+                    this.icon = 'remove-circle';
+                } else {
+                    this.icon = 'add-circle';
+                }
+
+                for (var i=0; i < desc.length; i++) {
+                    var node = desc[i];
+                    var row = node.parentNode.parentNode.parentNode;
+
+                    if (node.level == this.level + 1) {
+                        if (this.open) {
+                            row.style = "display: row;";
+                        } else {
+                            row.style = "display: none;";
+                        }
+                    }
+                }
+            }
+        });
+
+    })();
+</script>
+
+
+<dom-module id="ost-page-detail-controller">
+    <style>
+    </style>
+    <template>
+    </template>
+</dom-module>
+<script>
+    (function() {
+        'use strict';
+
+        Polymer({
+            is: 'ost-page-detail-controller'
+        });
+
+    })();
+</script>
+

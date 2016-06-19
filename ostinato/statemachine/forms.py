@@ -1,13 +1,11 @@
 import new
-
 from django import forms
-
 from ostinato.statemachine import InvalidTransition
 
 
 def sm_form_factory(sm_class, state_field='state'):
     """
-    A factory function to manufacture a custom StateMachineModelForm class
+    A factory to create a custom StateMachineModelForm class
     """
     class StateMachineModelForm(forms.ModelForm):
 
@@ -24,8 +22,6 @@ def sm_form_factory(sm_class, state_field='state'):
             self.fields[state_field] = forms.ChoiceField(
                 choices=actions, label="State/Actions", required=False)
 
-            # MAGIC follows! Here be Dragons... <3 Python
-            #
             # We need a custom clean method for the state_field. Since
             # django expects this method to be called ``clean_<field_name>``
             # we will have to dynamically generate it here
@@ -40,27 +36,33 @@ def sm_form_factory(sm_class, state_field='state'):
                     return sm.action_result(self._sm_action)
                 except InvalidTransition:
                     return self.old_state
-
             setattr(self, 'clean_%s' % state_field,
-                new.instancemethod(clean_action, self, None))
+                    new.instancemethod(clean_action, self, None))
 
-
-        def save(self, *args, **kwargs):
+        def take_action(self):
             """
-            Override the save method so that we can perform statemachine
-            actions.
+            This is where we pass the form values to the StateMachine
+            to do it's thing.
             """
-            # We need a new statemachine with the stored_sate
             sm = sm_class(instance=self.instance, state_field=state_field,
-                state=self.old_state)
+                          state=self.old_state)
 
             # The ``clean_<state_field>`` method stored the action in self
             if self._sm_action in sm.actions:
                 sm.take_action(self._sm_action)
 
-            # Ok, we can now save our form as normal
-            return super(StateMachineModelForm, self).save(*args, **kwargs)
+        def save(self, *args, **kwargs):
+            """
+            Override the save method so that we can perform statemachine
+            actions.
 
+            For most simple cases this is all that is required. If however
+            you want to do more advanced processing based on the state/action,
+            then you should override the save method and call ``take_action()``
+            when you are ready.
+            """
+            self.take_action()
+            return super(StateMachineModelForm, self).save(*args, **kwargs)
 
     return StateMachineModelForm
 

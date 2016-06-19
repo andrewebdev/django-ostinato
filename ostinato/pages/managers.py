@@ -1,4 +1,4 @@
-from django.core.cache import get_cache
+from django.core.cache import caches
 from django.utils import timezone
 from django.conf import settings
 
@@ -9,8 +9,8 @@ from ostinato.pages import PAGES_SETTINGS
 class PageManager(TreeManager):
 
     def published(self):
-        return self.get_query_set().filter(
-            publish_date__lte=timezone.now(), state=5)
+        return self.get_queryset().filter(
+            publish_date__lte=timezone.now(), state='public')
 
     def get_navbar(self, for_page=None, clear_cache=False):
         """
@@ -21,7 +21,7 @@ class PageManager(TreeManager):
         """
         PAGES_SITE_TREEID = getattr(settings, 'OSTINATO_PAGES_SITE_TREEID', None)
 
-        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
+        cache = caches[PAGES_SETTINGS['CACHE_NAME']]
         if for_page:
             cache_key = 'ostinato:pages:page:%s:navbar' % for_page.id
         else:
@@ -64,7 +64,7 @@ class PageManager(TreeManager):
         Returns a list of all the parents, plus the current page. Each item
         in the list contains a short title and url.
         """
-        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
+        cache = caches[PAGES_SETTINGS['CACHE_NAME']]
         cache_key = 'ostinato:pages:page:%s:crumbs' % for_page.id
 
         if clear_cache:
@@ -94,7 +94,7 @@ class PageManager(TreeManager):
 
     def get_from_path(self, url_path, clear_cache=False):
         """ Returns a page object, base on the url path. """
-        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
+        cache = caches[PAGES_SETTINGS['CACHE_NAME']]
         cache_key = 'ostinato:pages:page_for_path:%s' % url_path
 
         if clear_cache:
@@ -109,7 +109,7 @@ class PageManager(TreeManager):
             for node in path:
                 try:
                     if node:
-                        page = self.get_query_set().get(slug=node)
+                        page = self.get_queryset().get(slug=node)
                         cache.set(cache_key, page, 60 * 60 * 24 * 7 * 4)
                         break
                 except:
@@ -118,12 +118,12 @@ class PageManager(TreeManager):
         return page
 
     def generate_url_cache(self):
-        for page in self.get_query_set().all():
+        for page in self.get_queryset().all():
             page.get_absolute_url()
 
     def clear_url_cache(self):
-        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
-        pages = self.get_query_set()
+        cache = caches[PAGES_SETTINGS['CACHE_NAME']]
+        pages = self.get_queryset()
         page_ids = list(pages.values_list('id', flat=True))
         # We must clear the page_for_path cache before the normal url cache
         # since get_absolute_url() will create a cache if it doesn't exist
@@ -131,14 +131,14 @@ class PageManager(TreeManager):
         cache.delete_many(['ostinato:pages:page:%s:url' % i for i in page_ids])
 
     def clear_navbar_cache(self):
-        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
-        page_ids = list(self.get_query_set().values_list('id', flat=True))
+        cache = caches[PAGES_SETTINGS['CACHE_NAME']]
+        page_ids = list(self.get_queryset().values_list('id', flat=True))
         cache.delete('ostinato:pages:page:root:navbar')
         cache.delete_many(
             ['ostinato:pages:page:%s:navbar' % i for i in page_ids])
 
     def clear_breadcrumbs_cache(self):
-        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
-        page_ids = list(self.get_query_set().values_list('id', flat=True))
+        cache = caches[PAGES_SETTINGS['CACHE_NAME']]
+        page_ids = list(self.get_queryset().values_list('id', flat=True))
         cache.delete_many(
             ['ostinato:pages:page:%s:crumbs' % i for i in page_ids])

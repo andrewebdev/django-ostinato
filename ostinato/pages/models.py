@@ -3,7 +3,7 @@ import re
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.core.cache import get_cache
+from django.core.cache import caches
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
@@ -24,7 +24,13 @@ class ContentError(Exception):
         return self.value
 
 
-## Models
+def _clear_cache():
+    Page.objects.clear_url_cache()
+    Page.objects.clear_navbar_cache()
+    Page.objects.clear_breadcrumbs_cache()
+
+
+# Models
 class Page(MPTTModel):
     """ A basic page model """
     title = models.CharField(_("Title"), max_length=150)
@@ -46,9 +52,10 @@ class Page(MPTTModel):
     show_in_nav = models.BooleanField(_("Show in nav"), default=True)
     show_in_sitemap = models.BooleanField(_("Show in sitemap"), default=True)
 
-    state = models.IntegerField(
-        _("State"), default=PAGES_SETTINGS['DEFAULT_STATE'],
-        choices=get_workflow().get_choices())
+    state = models.CharField(_("State"),
+                             max_length=20,
+                             default=PAGES_SETTINGS['DEFAULT_STATE'],
+                             choices=get_workflow().get_choices())
 
     created_date = models.DateTimeField(_("Created date"), null=True, blank=True)
     modified_date = models.DateTimeField(_("Modified date"), null=True, blank=True)
@@ -58,10 +65,10 @@ class Page(MPTTModel):
         'self', verbose_name=_("Parent"),
         null=True, blank=True, related_name='page_children')
 
-    ## Managers
+    # Managers
     objects = PageManager()
 
-    ## Required for caching some objects
+    # Required for caching some objects
     _contents = None
     _content_model = None
 
@@ -81,7 +88,7 @@ class Page(MPTTModel):
 
             # since it's created the first time, and we want it
             # published by default, we need to set the date now.
-            if self.state == 5:
+            if self.state == 'public':
                 self.publish_date = now
 
         self.modified_date = now
@@ -89,10 +96,16 @@ class Page(MPTTModel):
         page = super(Page, self).save(*args, **kwargs)
 
         # Make sure to clear the url, navbar and breadcrumbs cache
-        Page.objects.clear_url_cache()
-        Page.objects.clear_navbar_cache()
-        Page.objects.clear_breadcrumbs_cache()
+        _clear_cache()
         return page
+
+    def delete(self, *args, **kwargs):
+        """
+        When a page is deleted we need to remove it's items from the
+        url and navbar cache.
+        """
+        _clear_cache()
+        super(Page, self).delete(*args, **kwargs)
 
     def get_short_title(self):
         if self.short_title:
@@ -107,7 +120,7 @@ class Page(MPTTModel):
 
     def get_absolute_url(self, clear_cache=False):
         """ Cycle through the parents and generate the path """
-        cache = get_cache(PAGES_SETTINGS['CACHE_NAME'])
+        cache = caches[PAGES_SETTINGS['CACHE_NAME']]
         cache_key = 'ostinato:pages:page:%s:url' % self.id
 
         if clear_cache:
@@ -168,7 +181,7 @@ class Page(MPTTModel):
         return self.get_content_model().get_template()
 
 
-## Page Templates
+# Page Templates
 class PageContent(models.Model):
     """
     Our base PageContent model. All other content models need to subclass
@@ -201,3 +214,4 @@ class PageContent(models.Model):
             template = 'pages/%s.html' % '_'.join([i.lower() for i in cls_name])
 
         return template
+

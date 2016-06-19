@@ -1,2 +1,2 @@
-from templatetags.content_filters import ContentMod
+from templatetags.content_filters import ContentFilter
 

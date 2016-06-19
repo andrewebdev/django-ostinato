@@ -5,8 +5,11 @@
 *.egg-info
 .*.cfg
 *.db
+*.sqlite3
+*.sublime-workspace
 .children
 .project
+.ropeproject
 bin
 develop-eggs
 eggs
@@ -15,4 +18,4 @@ MANIFEST
 dist/
 demoproject/src/*
 demoproject/config.rb
-*.sublime-workspace
+venv/

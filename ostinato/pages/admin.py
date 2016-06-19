@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.contrib.admin.util import unquote
+from django.contrib.admin.utils import unquote
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
@@ -11,19 +11,6 @@ from ostinato.statemachine.forms import sm_form_factory
 from ostinato.pages.models import Page
 from ostinato.pages.workflow import get_workflow
 from ostinato.pages.registry import page_content
-
-
-# Some helpers to get the icons
-def staticurl(p):
-    staticurl = settings.STATIC_URL
-    if staticurl[-1] == '/':
-        return '%s%s' % (staticurl, p)
-    else:
-        return '%s/%s' % (staticurl, p)
-
-
-def geticon(action):
-    return '<img src="%s" />' % staticurl('pages/img/%s.png' % action)
 
 
 def content_inline_factory(page):
@@ -38,7 +25,7 @@ def content_inline_factory(page):
         classes = ('grp-collapse grp-open',)
         inline_classes = ('grp-collapse grp-open',)
 
-        ## Check for a custom form and try to load it
+        # Check for a custom form and try to load it
         content_form = getattr(content_model.ContentOptions, 'form', None)
         if content_form:
             module_path, form_class = content_form.rsplit('.', 1)
@@ -50,7 +37,7 @@ def content_inline_factory(page):
     return PageContentInline
 
 
-## Admin Models
+# Admin Models
 class PageAdminForm(sm_form_factory(sm_class=get_workflow())):  # <3 python
 
     template = forms.ChoiceField()
@@ -58,9 +45,17 @@ class PageAdminForm(sm_form_factory(sm_class=get_workflow())):  # <3 python
     def __init__(self, *args, **kwargs):
         super(PageAdminForm, self).__init__(*args, **kwargs)
         self.fields['template'].choices = page_content.get_template_choices()
+        self.fields['parent'].widget.can_add_related = False
+        self.fields['parent'].widget.can_change_related = False
+        if self.instance:
+            self.fields['parent'].queryset = Page.objects.exclude(
+                    id=self.instance.id)
 
     class Meta:
         model = Page
+        fields = ('title', 'short_title', 'slug', 'template', 'redirect',
+                  'parent', 'show_in_nav', 'show_in_sitemap', 'state',
+                  'publish_date')
 
 
 class PageAdmin(MPTTModelAdmin):
@@ -68,13 +63,12 @@ class PageAdmin(MPTTModelAdmin):
     form = PageAdminForm
 
     list_display = (
-        'tree_node', 'get_title', 'page_actions', 'slug',
+        'get_title', 'page_actions', 'slug',
         'template_name', 'page_state', 'show_in_nav', 'show_in_sitemap')
     list_display_links = ('get_title',)
     list_filter = ('show_in_nav', 'show_in_sitemap', 'state')
 
     search_fields = ('title', 'short_title', 'slug',)
-    date_hierarchy = 'publish_date'
     inlines = ()
 
     fieldsets = (
@@ -92,25 +86,14 @@ class PageAdmin(MPTTModelAdmin):
 
     )
     prepopulated_fields = {'slug': ('title',)}
-
-    if 'grappelli' in settings.INSTALLED_APPS:
-        change_list_template = 'admin/pages_change_list_grappelli.html'
-    else:
-        change_list_template = 'admin/pages_change_list.html'
+    change_list_template = 'admin/pages_change_list.html'
 
     class Media:
-
-        css = {
-            'all': (
-                'pages/css/pages_admin.css',
-            ),
-        }
-
         js = (
             'pages/js/page_admin.js',
         )
 
-    def tree_node(self, obj):
+    def get_node_tag(self, obj):
         """
         A custom title for the list display that will be indented based on
         the level of the node, as well as display a expand/collapse icon
@@ -119,19 +102,22 @@ class PageAdmin(MPTTModelAdmin):
         This node will also have some information for the row, like the
         level etc.
         """
-        content = '<span id="tid_%s_%s_%s_%s" class="tree_node closed">' % (
-            obj.tree_id, obj.level, obj.lft, obj.rght)
         if obj.get_descendant_count() > 0:
-            content += '<a class="toggle_children" href="#">%s</a>' % geticon('tree_closed')
-        content += '</span>'
-        return content
-    tree_node.short_description = ''
-    tree_node.allow_tags = True
+            descendents = 'descendents="true"'
+        else:
+            descendents = ''
+        tag = '<ost-page-node tree-id="%s" level="%s" lft="%s" rght="%s" %s>' % (
+            obj.tree_id,
+            obj.level,
+            obj.lft,
+            obj.rght,
+            descendents)
+        tag += '</ost-page-node>'
+        return tag
 
     def get_title(self, obj):
         PAGES_SITE_TREEID = getattr(settings, 'OSTINATO_PAGES_SITE_TREEID', None)
-        PAGES_INDENT = getattr(settings, 'OSTINATO_PAGES_ADMIN_INDENT', 4 * '&nbsp;')
-
+        node_tag = self.get_node_tag(obj)
         title = obj.get_short_title()
 
         if PAGES_SITE_TREEID:
@@ -139,12 +125,18 @@ class PageAdmin(MPTTModelAdmin):
                 try:
                     tree_site = Site.objects.get(id=obj.tree_id)
                 except:
-                    return '%s (No Site)' % title
-                return '%s (%s)' % (title, tree_site.name)
+                    return '%s %s (No Site)' % (node_tag, title)
+                return '%s %s (%s)' % (node_tag, title, tree_site.name)
 
-        return '%s%s' % (PAGES_INDENT * obj.level, title)
+        return '%s%s' % (node_tag, title)
     get_title.short_description = _("Title")
     get_title.allow_tags = True
+
+    def page_actions(self, obj):
+        """ A List view item that shows the movement actions """
+        return '<ost-pages-actions node-id="%s"></ost-pages-actions>' % obj.id
+    page_actions.short_description = _("Actions")
+    page_actions.allow_tags = True
 
     def page_state(self, obj):
         sm = get_workflow()(instance=obj)
@@ -154,12 +146,6 @@ class PageAdmin(MPTTModelAdmin):
     def template_name(self, obj):
         return page_content.get_template_name(obj.template)
     template_name.short_description = _("Template")
-
-    def page_actions(self, obj):
-        """ A List view item that shows the movement actions """
-        return render_to_string('admin/pages_actions.html', {'obj': obj})
-    page_actions.short_description = _("Actions")
-    page_actions.allow_tags = True
 
     def add_view(self, request, form_url='', extra_context=None):
         # We need to clear the inlines. Django keeps it cached somewhere
@@ -191,18 +177,22 @@ class PageAdmin(MPTTModelAdmin):
 
                     try:
                         module_path, inline_class = inline_str.rsplit('.', 1)
-                        inline = __import__(module_path, locals(), globals(),
-                            [inline_class], -1).__dict__[inline_class]
+                        inline = __import__(
+                            module_path, locals(), globals(),
+                            [inline_class], -1
+                        ).__dict__[inline_class]
 
                     except KeyError:
-                        raise Exception('"%s" could not be imported from, '\
-                            '"%s". Please check the import path for the page '\
+                        raise Exception(
+                            '"%s" could not be imported from, '
+                            '"%s". Please check the import path for the page '
                             'inlines' % (inline_class, module_path))
 
                     except AttributeError:
-                        raise Exception('Incorrect import path for page '\
-                            'content inlines. Expected a string containing the'\
-                            ' full import path.')
+                        raise Exception(
+                            'Incorrect import path for page '
+                            'content inlines. Expected a string containing the '
+                            'full import path.')
 
                     self.inlines += (inline,)
 
@@ -211,3 +201,4 @@ class PageAdmin(MPTTModelAdmin):
 
 
 admin.site.register(Page, PageAdmin)
+
