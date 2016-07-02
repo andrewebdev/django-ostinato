@@ -1,0 +1,12 @@
+
+{% for page in item_list %}
+<cb-item browser="{{ browser }}" item="{{ page.id }}" field-name="{{ field_name }}">
+    {{ page.title }}
+
+<textarea name="renderTemplate">
+<a href="{{ page.get_absolute_url }}">{{ page.title }}</a>
+</textarea>
+
+</cb-item>
+{% endfor %}
+

@@ -1,0 +1,20 @@
+{% load static %}
+<link rel="import" href="{% static 'contentbrowser/ostinato-content-browser.html' %}">
+
+
+{% comment %}
+    You should createe the javascript file below and add your custom actions
+    in the cbInsertAction function.
+{% endcomment %}
+<script src="{{ actions_script }}"></script>
+
+
+<ostinato-cb-browser id="_cb{{ widget_id }}" field-name="{{ field_name }}">
+    {% for browser in browsers %}
+    <ostinato-cb-category widget="{{ widget_id }}"
+                          url="{% url 'ostinato_contentbrowser_browser' browser.browser_id %}"
+                          title="{{ browser.title }}"
+                          description="{{ browser.description }}"></ostinato-cb-category>
+    {% endfor %}
+</ostinato-cb-browser>
+

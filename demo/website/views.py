@@ -1,6 +1,11 @@
 from django import http
+
 from ostinato.pages.views import PageView
+from ostinato.pages.models import Page
+from ostinato.contentbrowser.views import BrowserView
+
 from website.forms import ContactForm
+from blog.models import Entry
 
 
 class TopLevelListPageView(PageView):
@@ -67,3 +72,29 @@ class ContactPageView(PageView):
 
         c['form'] = form
         return self.render_to_response(c)
+
+
+# Browser Views
+class PageSummary(BrowserView):
+    """
+    This is a simple item that will render a pretty Call to action
+    summary link for the selected page.
+    """
+    browser_id = 'pages'
+    title = 'Links to Pages'
+    description = 'Call to Action to a Specific Page'
+    template_name = 'browsers/_pages.html'
+
+    def get_items(self, request):
+        return Page.objects.published()
+
+
+class EntrySummary(BrowserView):
+    browser_id = 'blog_entries'
+    title = "Blog Entries"
+    description = "Insert a blog entry link"
+    template_name = "browsers/_blogentries.html"
+
+    def get_items(self, request):
+        return Entry.objects.published()
+

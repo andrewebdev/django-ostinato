@@ -17,6 +17,7 @@ if __name__ == '__main__':
         'ostinato.tests.statemachine',
         'ostinato.tests.blog',
         'ostinato.tests.contentfilters',
+        'ostinato.tests.contentbrowser',
     ])
 
     sys.exit(bool(failures))

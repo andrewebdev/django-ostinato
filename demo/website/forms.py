@@ -1,5 +1,7 @@
 from django import forms
 
+from ostinato.contentbrowser.widgets import CBWidgetMixin
+
 from tinymce.widgets import TinyMCE
 from website.models import HomePage, GenericPage, CaseStudyPage, ContactPage
 from website.utils import Emailer
@@ -24,9 +26,14 @@ class ContactForm(forms.Form):
         email.send()
 
 
+class ContentAreaWidget(CBWidgetMixin, TinyMCE):
+    class Media:
+        html = ('contentbrowser/ostinato-content-browser.html')
+
+
 # Pages Admin Forms
 class HomePageForm(forms.ModelForm):
-    content = forms.CharField(widget=TinyMCE())
+    content = forms.CharField(widget=ContentAreaWidget())
 
     class Meta:
         model = HomePage

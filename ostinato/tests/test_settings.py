@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'ostinato.pages',
     'ostinato.tests.blog',
     'ostinato.contentfilters',
+    # 'ostinato.contentbrowser',
     # 'ostinato.statemachine',
 
     # Other dependencies
@@ -38,5 +39,14 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ':memory:',
     }
+}
+
+STATIC_URL = '/static/'
+
+# ContentBrowser Settings
+OSTINATO_CONTENTBROWSER = {
+    'browsers': [
+        'ostinato.tests.contentbrowser.views.SampleBrowser',
+    ],
 }
 

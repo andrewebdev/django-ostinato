@@ -5,9 +5,11 @@
     {% for entry in latest_entries %}
     <article>
         <h2>{{ entry.title }}</h2>
-        {{ entry.content|safe }}
+        {{ entry.content|linebreaks }}
         <p><a href="{{ entry.get_absolute_url }}">More</a></p>
     </article>
+    {% empty %}
+    <p>No articles at this time.</p>
     {% endfor %}
 {% endblock %}
 

@@ -6,7 +6,7 @@
 {% block content %}
     <article>
         <h2>{{ entry.title }}</h2>
-        {{ entry.content|safe }}
+        {{ entry.content|linebreaks }}
     </article>
 {% endblock %}
 

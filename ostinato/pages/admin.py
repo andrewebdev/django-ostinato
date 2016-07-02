@@ -147,6 +147,9 @@ class PageAdmin(MPTTModelAdmin):
         return page_content.get_template_name(obj.template)
     template_name.short_description = _("Template")
 
+    def get_ordering(self, obj):
+        return None
+
     def add_view(self, request, form_url='', extra_context=None):
         # We need to clear the inlines. Django keeps it cached somewhere
         self.inlines = ()

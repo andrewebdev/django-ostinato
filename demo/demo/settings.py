@@ -16,6 +16,7 @@ import ostinato.polyprep
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+basedir = lambda *p: os.path.join(BASE_DIR, *p)
 
 
 # Quick-start development settings - unsuitable for production
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'ostinato',
     'ostinato.pages',
     'ostinato.contentfilters',
+    'ostinato.contentbrowser',
 
     # Other dependencies
     'mptt',
@@ -130,9 +132,18 @@ STATIC_URL = '/static/'
 # Send emails to the console
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+
 # Ostinato settings
 SITE_ID = 1
 OSTINATO_PAGES_SITE_TREEID = 1
+
+OSTINATO_CONTENTBROWSER = {
+    'browsers': [
+        'website.views.PageSummary',
+        'website.views.EntrySummary',
+    ],
+}
+
 
 # Third party app config
 TINYMCE_DEFAULT_CONFIG = {
