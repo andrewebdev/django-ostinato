@@ -21,8 +21,15 @@ HTMLTextAreaElement.prototype.insertAtCaret = function (text) {
 };
 
 
+function insertIntoEditor(editor, content) {
+    tinyMCE.execCommand('mceFocus', false, editor);
+    tinymce.activeEditor.execCommand('mceInsertContent', false, content);
+}
+
+
 function cbInsertAction(browser, fieldName, content) {
-    var field = document.querySelector('#id_' + fieldName);
-    field.insertAtCaret(content);
+    // var field = document.querySelector('#id_' + fieldName);
+    // field.insertAtCaret(content);
+    insertIntoEditor('id_' + fieldName, content);
 }
 

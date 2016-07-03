@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'ostinato.contentbrowser',
 
     # Other dependencies
+    'tinymce',
     'mptt',
     'taggit',
     # 'taggit_templatetags',
