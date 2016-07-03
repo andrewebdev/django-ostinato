@@ -1,9 +1,14 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
+
+<link rel="import" href="bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="bower_components/iron-overlay-behavior/iron-overlay-behavior.html">
 <link rel="import" href="bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 
 
 <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
@@ -118,16 +123,20 @@
 <dom-module id="ostinato-cb-browser">
     <style include="iron-flex iron-flex-alignment">
         :host {
-            margin: 1em;
-            display: block;
-            position: relative;
             @apply(--layout-vertical);
             background-color: white;
             border: 1px solid #e8e8e8;
-            max-width: 960px;
+            width: 800px;
+            height: 50%;
+        }
+        app-toolbar {
+            background-color: #79AEC8;
+            color: white;
+            --paper-icon-button-ink-color: white;
         }
         #browser {
             @apply(--layout-horizontal);
+            @apply(--layout-flex);
         }
         #browserList {
             @apply(--layout-vertical);
@@ -140,8 +149,7 @@
             @apply(--layout-flex);
             @apply(--layout-horizontal);
             @apply(--layout-wrap);
-
-            min-height: 150px;
+            height: 100%;
         }
         p.info {
             margin: 2em;
@@ -157,7 +165,11 @@
                    on-response="_handleResponse"
                    on-error="_handleError"></iron-ajax>
 
-        <h2>Content Browser</h2>
+        <app-toolbar>
+            <div title>Content Browser</div>
+            <paper-icon-button on-click="_handleClose" icon="close"></paper-icon-button>
+        </app-toolbar>
+
         <div id="browser">
 
             <div id="browserList">
@@ -178,6 +190,9 @@
 
         Polymer({
             is: 'ostinato-cb-browser',
+            behaviors: [
+                Polymer.IronOverlayBehavior
+            ],
 
             properties: {
                 fieldName: String
@@ -190,6 +205,10 @@
                 this.$.browserXHR.generateRequest();
             },
 
+            _handleClose: function(e) {
+                this.close();
+            },
+
             _handleResponse: function(e, data) {
                 var resp = this.$.browserXHR.lastResponse;
                 this.$.items.innerHTML = resp;
@@ -199,4 +218,3 @@
 
     })();
 </script>
-

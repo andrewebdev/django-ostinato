@@ -27,8 +27,7 @@ class ContactForm(forms.Form):
 
 
 class ContentAreaWidget(CBWidgetMixin, TinyMCE):
-    class Media:
-        html = ('contentbrowser/ostinato-content-browser.html')
+    pass
 
 
 # Pages Admin Forms
@@ -41,7 +40,7 @@ class HomePageForm(forms.ModelForm):
 
 
 class GenericPageForm(forms.ModelForm):
-    content = forms.CharField(widget=TinyMCE())
+    content = forms.CharField(widget=ContentAreaWidget())
 
     class Meta:
         model = GenericPage
@@ -49,7 +48,7 @@ class GenericPageForm(forms.ModelForm):
 
 
 class CaseStudyPageForm(forms.ModelForm):
-    content = forms.CharField(widget=TinyMCE())
+    content = forms.CharField(widget=ContentAreaWidget())
 
     class Meta:
         model = CaseStudyPage
@@ -57,9 +56,8 @@ class CaseStudyPageForm(forms.ModelForm):
 
 
 class ContactPageForm(forms.ModelForm):
-    content = forms.CharField(widget=TinyMCE())
+    content = forms.CharField(widget=ContentAreaWidget())
 
     class Meta:
         model = ContactPage
         fields = ('content', 'recipients', 'email_subject', 'success_page')
-

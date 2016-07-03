@@ -6,6 +6,15 @@ from . import CONTENTBROWSER
 from .core import get_browsers
 
 
+# TODO:
+# Expand this widget mixin to accept configuration params
+# This can allow a couple of things such as:
+#
+# 1. Limiting which browsers are available
+# 2. different actions script to use (Browser should not always do the same
+# thing on every field)
+
+
 class CBWidgetMixin(object):
 
     def render(self, name, value, attrs=None, **kwargs):

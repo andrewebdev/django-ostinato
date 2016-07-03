@@ -1,15 +1,12 @@
 {% load static %}
+<script src="{{ actions_script }}"></script>
 <link rel="import" href="{% static 'contentbrowser/ostinato-content-browser.html' %}">
 
+<paper-icon-button id="_open{{ widget_id }}" icon="view-module"></paper-icon-button>
 
-{% comment %}
-    You should createe the javascript file below and add your custom actions
-    in the cbInsertAction function.
-{% endcomment %}
-<script src="{{ actions_script }}"></script>
-
-
-<ostinato-cb-browser id="_cb{{ widget_id }}" field-name="{{ field_name }}">
+<ostinato-cb-browser id="_cb{{ widget_id }}"
+                     field-name="{{ field_name }}"
+                     with-backdrop>
     {% for browser in browsers %}
     <ostinato-cb-category widget="{{ widget_id }}"
                           url="{% url 'ostinato_contentbrowser_browser' browser.browser_id %}"
@@ -18,3 +15,12 @@
     {% endfor %}
 </ostinato-cb-browser>
 
+<script>
+    (function() {
+        var cb = document.querySelector('#_cb{{ widget_id }}'),
+            btn = document.querySelector('#_open{{ widget_id }}');
+        btn.addEventListener('click', function() {
+            cb.open();
+        });
+    })();
+</script>
