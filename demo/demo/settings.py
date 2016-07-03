@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 import sys
-import ostinato.polyprep
+from ostinato.polyprep import force_variable_tag_spaces
+
+force_variable_tag_spaces()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

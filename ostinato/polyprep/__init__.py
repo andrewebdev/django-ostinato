@@ -1,6 +1,3 @@
-import re
-from django.template import base
-
 """
     The following prepares the django template tags to explicitly
     require a space in the start and end template variable tags.
@@ -17,14 +14,20 @@ from django.template import base
 
     To use this app just add the following to your settings.py
 
-    ``import ostinato.polyprep``
+    ``from ostinato.polyprep import force_variable_tag_spaces``
+    ``
 """
+import re
+from django.template import base
 
-base.VARIABLE_TAG_START = '{{ '
-base.VARIABLE_TAG_END = ' }}'
-base.tag_re = (re.compile('(%s.*?%s|%s.*?%s|%s.*?%s)' % (
-    re.escape(base.BLOCK_TAG_START), re.escape(base.BLOCK_TAG_END),
-    re.escape(base.VARIABLE_TAG_START), re.escape(base.VARIABLE_TAG_END),
-    re.escape(base.COMMENT_TAG_START), re.escape(base.COMMENT_TAG_END)
-)))
+__all__ = ['force_variable_tag_spaces']
 
+
+def force_variable_tag_spaces():
+    base.VARIABLE_TAG_START = '{{ '
+    base.VARIABLE_TAG_END = ' }}'
+    base.tag_re = (re.compile('(%s.*?%s|%s.*?%s|%s.*?%s)' % (
+        re.escape(base.BLOCK_TAG_START), re.escape(base.BLOCK_TAG_END),
+        re.escape(base.VARIABLE_TAG_START), re.escape(base.VARIABLE_TAG_END),
+        re.escape(base.COMMENT_TAG_START), re.escape(base.COMMENT_TAG_END)
+    )))
