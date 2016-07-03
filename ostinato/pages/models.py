@@ -1,12 +1,11 @@
 import re
 
 from django.db import models
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.cache import caches
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
 
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -67,10 +66,6 @@ class Page(MPTTModel):
 
     # Managers
     objects = PageManager()
-
-    # Required for caching some objects
-    _contents = None
-    _content_model = None
 
     class Meta:
         permissions = get_workflow().get_permissions('page', 'Page')
@@ -157,25 +152,22 @@ class Page(MPTTModel):
         """
         A shortcut to load the content model from the ContentRegister
         """
-        # FIXME: I dont like the import in here, but this is a requirement
+        # TODO: I dont like the import in here, but this is a requirement
         # right now, since importing this outside causes circular imports.
         # This is probably due to a limitation in the appregister code.
         from ostinato.pages.registry import page_content
         return page_content.get_content_model(self.template)
 
-    def get_content(self):
+    @cached_property
+    def contents(self):
         """
         Returns the content for this page or None if it doesn't exist.
         """
-        if not self._contents:
-            obj_model = self.get_content_model()
-            try:
-                self._contents = obj_model.objects.get(page=self.id)
-            except obj_model.DoesNotExist:
-                self._contents = 'empty'
-        return self._contents
-
-    contents = property(get_content)
+        obj_model = self.get_content_model()
+        try:
+            return obj_model.objects.get(page=self.id)
+        except obj_model.DoesNotExist:
+            return 'empty'
 
     def get_template(self):
         return self.get_content_model().get_template()
