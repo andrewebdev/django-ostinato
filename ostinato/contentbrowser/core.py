@@ -1,3 +1,4 @@
+from importlib import import_module
 from . import CONTENTBROWSER
 
 
@@ -20,12 +21,9 @@ def get_browsers(browser_id=None):
 
     for import_string in CONTENTBROWSER['browsers']:
         module_path, browser_class = import_string.rsplit('.', 1)
-        browser = __import__(module_path, locals(), globals(),
-                             [browser_class], -1).__dict__[browser_class]
-
+        browser = getattr(import_module(module_path), browser_class)
         if browser_id is not None and browser.browser_id == browser_id:
             return browser
-
         browsers.append(browser)
 
     if browser_id is not None:

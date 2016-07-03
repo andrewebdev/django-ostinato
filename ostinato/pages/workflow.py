@@ -1,6 +1,5 @@
+from importlib import import_module
 from django.conf import settings
-from django.utils import timezone
-
 from ostinato.statemachine import State, StateMachine
 
 
@@ -31,8 +30,6 @@ def get_workflow():
     custom_workflow = getattr(settings, 'OSTINATO_PAGES_WORKFLOW_CLASS', None)
     if custom_workflow:
         import_path, statemachine = custom_workflow.rsplit('.', 1)
-        cl = __import__(import_path, locals(), globals(), [statemachine], -1)\
-            .__dict__[statemachine]
-        return cl
+        return getattr(import_module(import_path), statemachine)
     else:
         return PageWorkflow

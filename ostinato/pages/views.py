@@ -1,3 +1,5 @@
+from importlib import import_module
+
 from django.views.generic import View, TemplateView
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -21,7 +23,7 @@ def page_dispatch(request, *args, **kwargs):
     """
     PAGES_SITE_TREEID = getattr(settings, 'OSTINATO_PAGES_SITE_TREEID', None)
 
-    ## Some basic page checking and authorization
+    # Some basic page checking and authorization
     if 'path' in kwargs:
         if kwargs['path'][-1] == '/':
             path = kwargs['path'][:-1].split('/')
@@ -29,12 +31,14 @@ def page_dispatch(request, *args, **kwargs):
             path = kwargs['path'].split('/')
 
         if PAGES_SITE_TREEID:
-            page = get_object_or_404(Page, slug=path[-1], tree_id=PAGES_SITE_TREEID)
+            page = get_object_or_404(Page, slug=path[-1],
+                                     tree_id=PAGES_SITE_TREEID)
         else:
             page = get_object_or_404(Page, slug=path[-1])
 
     else:
-        # If we are looking at the root path, show the root page for the current site
+        # If we are looking at the root path, show the root page for the
+        # current site
         if PAGES_SITE_TREEID:
             page = get_object_or_404(Page, tree_id=PAGES_SITE_TREEID, level=0)
         else:
@@ -47,14 +51,14 @@ def page_dispatch(request, *args, **kwargs):
 
     content = page.get_content_model()
 
-    ## Check if the page has a custom view
+    # Check if the page has a custom view
     if hasattr(content.ContentOptions, 'view'):
         module_path, view_class = content.ContentOptions.view.rsplit('.', 1)
 
         # Import our custom view
-        v = __import__(module_path, locals(), globals(), [view_class], -1)\
-            .__dict__[view_class]
+        v = getattr(import_module(module_path), view_class)
 
+        # Delegate to class based or function based view
         if hasattr(v, 'as_view'):
             return v.as_view(page=page)(request, *args, **kwargs)
         else:

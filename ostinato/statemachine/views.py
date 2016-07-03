@@ -1,10 +1,9 @@
 import json
+from importlib import import_module
 
 from django import http
 from django.views.generic import View
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.decorators import method_decorator
 
 from ostinato.views import JsonResponseMixin
 from ostinato.statemachine import InvalidTransition
@@ -40,14 +39,13 @@ class StateActionView(JsonResponseMixin, View):
         # Based on the action we need to check the permissions and act
         # accordingly
         perm_codename = "can_%s_%s" % (data['action'], kwargs['model'])
-        if not self.request.user.has_perm('%s.%s' % (kwargs['app_label'], perm_codename)):
+        if not self.request.user.has_perm('%s.%s' % (kwargs['app_label'],
+                                                     perm_codename)):
             return http.HttpResponseForbidden()
 
         # Import the statemachine
         module_path, sm_class = data['statemachine'].rsplit('.', 1)
-        StateMachine = __import__(
-            module_path, locals(), globals(), [sm_class], -1
-        ).__dict__[sm_class]
+        StateMachine = getattr(import_module(module_path), sm_class)
 
         # Get the object model instance
         model_type = ContentType.objects.get(
@@ -58,7 +56,7 @@ class StateActionView(JsonResponseMixin, View):
         state_before = sm.state
         try:
             sm.take_action(data['action'], **action_kwargs)
-        except InvalidTransition, e:
+        except InvalidTransition as e:
             return http.HttpResponseForbidden(e)
         state_after = sm.state
         obj.save()
