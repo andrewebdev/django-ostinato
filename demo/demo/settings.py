@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'ostinato.pages',
     'ostinato.contentfilters',
     'ostinato.contentbrowser',
+    'ostinato.medialib',
 
     # Other dependencies
     'tinymce',

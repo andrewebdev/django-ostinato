@@ -1,9 +1,11 @@
 from django import forms
+from django.contrib.contenttypes.admin import GenericTabularInline
 
 from ostinato.contentbrowser.widgets import CBWidgetMixin
 
 from tinymce.widgets import TinyMCE
-from website.models import HomePage, GenericPage, CaseStudyPage, ContactPage
+from website.models import (HomePage, GenericPage, CaseStudyPage, ContactPage,
+                            Image, Video)
 from website.utils import Emailer
 
 
@@ -28,6 +30,16 @@ class ContactForm(forms.Form):
 
 class ContentAreaWidget(CBWidgetMixin, TinyMCE):
     pass
+
+
+class ImageInline(GenericTabularInline):
+    extra = 0
+    model = Image
+
+
+class VideoInline(GenericTabularInline):
+    extra = 0
+    model = Video
 
 
 # Pages Admin Forms

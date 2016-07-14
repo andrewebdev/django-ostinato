@@ -1,10 +1,29 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericRelation
 
 from mptt.fields import TreeForeignKey
 from ostinato.pages.models import Page, PageContent
 from ostinato.pages.registry import page_content
 
+from ostinato.medialib.models import MediaItem
 
+
+# Page Media
+class Image(MediaItem):
+    image = models.ImageField(upload_to="uploads/")
+
+    def __unicode__(self):
+        return "Image - %s" % self.title
+
+
+class Video(MediaItem):
+    video_url = models.URLField()
+
+    def __unicode__(self):
+        return "Video - %s" % self.title
+
+
+# Page Templates
 class SEOPage(PageContent):
     meta_keywords = models.CharField(max_length=250, null=True, blank=True)
     meta_description = models.TextField(null=True, blank=True)
@@ -39,8 +58,14 @@ class SEOPage(PageContent):
 class HomePage(SEOPage):
     content = models.TextField()
 
+    # Media
+    images = GenericRelation(Image)
+    videos = GenericRelation(Video)
+
     class ContentOptions:
         form = 'website.forms.HomePageForm'
+        admin_inlines = ['website.forms.ImageInline',
+                         'website.forms.VideoInline']
 
 
 @page_content.register

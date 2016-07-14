@@ -23,6 +23,7 @@ def content_inline_factory(page):
         max_num = 1
         can_delete = False
         fk_name = 'page'
+        # TODO: Can remove this because we will drop grappelli support
         classes = ('grp-collapse grp-open',)
         inline_classes = ('grp-collapse grp-open',)
 

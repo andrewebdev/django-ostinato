@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'ostinato.pages',
     'ostinato.tests.blog',
     'ostinato.contentfilters',
+    'ostinato.medialib',
     # 'ostinato.contentbrowser',
     # 'ostinato.statemachine',
 

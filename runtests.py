@@ -18,7 +18,7 @@ if __name__ == '__main__':
         'ostinato.tests.blog',
         'ostinato.tests.contentfilters',
         'ostinato.tests.contentbrowser',
+        'ostinato.tests.medialib',
     ])
 
     sys.exit(bool(failures))
-
