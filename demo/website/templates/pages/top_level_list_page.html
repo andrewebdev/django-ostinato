@@ -1,11 +1,11 @@
 {% extends 'pages/base.html' %}
-{% load pages_tags %}
+{% load content_filters %}
+
 
 {% block content %}
     {% for p in children %}
     <article>
-        <h2>{{ p.title }}</h2>
-        {{ p.contents.content|safe }}
+        {{ p.contents.content|modify|safe }}
 
         {% if p.template == "website.contactpage" %}
             <form action="." method="post" accept-charset="utf-8">{% csrf_token %}
