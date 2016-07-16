@@ -80,7 +80,7 @@ def youtube(content):
     Looks for any youtube url patterns in content, and replaces it with
     the youtube video
     """
-    regex = re.compile(r"(http://)?(www\.)?((youtu\.be/)|(youtube\.com/watch\?v=))(?P<id>[A-Za-z0-9\-=_]{11})")
+    regex = re.compile(r"(http://|https://)?(www\.)?((youtu\.be/)|(youtube\.com/watch\?v=))(?P<id>[A-Za-z0-9\-=_]{11})")
     return regex.sub('''
         <iframe width="480" height="390"
             src="http://www.youtube.com/embed/\g<id>" frameborder="0"
