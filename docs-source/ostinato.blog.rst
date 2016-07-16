@@ -15,8 +15,9 @@ own blog, and this is what ``ostinato.blog`` does.
 How to use ``ostinago.blog``
 ----------------------------
 
-Start by creating your own blogging application, and within it your
-own ``BlogEntry`` model.
+Start by creating your own blogging application, and with your
+own model for the blog entries. This model should subclass
+``ostinato.blog.models.BlogEntryBase``.
 
 
 .. code-block:: python
@@ -35,7 +36,7 @@ own ``BlogEntry`` model.
     title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
     content = models.TextField()
-    state = models.IntegerField(default=1)
+    state = models.CharFiield(default='private')
     author = models.ForeignKey(User)
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True, null=True, blank=True)
@@ -45,7 +46,7 @@ own ``BlogEntry`` model.
     allow_comments = models.BooleanField(default=True)
 
 
-Those are the most basic fields that any blog might require, but of course
+Those are the most basic fields that any blog entry might require, but of course
 you can extend this to include any other fields that you may require.
 
 
@@ -54,7 +55,6 @@ you can extend this to include any other fields that you may require.
     from ostinato.blog.models import BlogEntryBase
 
     class Entry(BlogEntryBase):
-
         contributors = models.ManyToManyField(User, null=True, blank=True)
         preview_image = models.Imagefield(upload_to='uploads', null=True, blank=True)
 
@@ -65,7 +65,8 @@ So now you have a blog entry with two extra fields.
 Using the custom manager
 ------------------------
 
-``published()`` - Returns a queryset containing published blog entries
+``Entry.objects.published()`` - Returns a queryset containing published blog
+entries
 
 
 Wrapping up

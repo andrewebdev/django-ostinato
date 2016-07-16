@@ -17,8 +17,8 @@ Welcome to django-ostinato's documentation!
 Requirements
 ============
 
-  - django >= 1.4.2
-  - django-mptt == 0.6.0
+  - django >= 1.9
+  - django-mptt == 0.3.3
   - django-appregister == 0.3.1
 
 
@@ -30,7 +30,8 @@ some of the most common features expected from a CMS.
 
 Every feature is contained within a single ostinato app. This helps us to keep
 functionality focussed on the single feature/task that the app is meant to
-provide
+provide. Many apps or features depends on one another, like ``pages`` or
+``blog`` which both uses the ``statemachine`` app.
 
 
 .. toctree::
@@ -41,6 +42,7 @@ provide
    ostinato.statemachine
    ostinato.blog
    ostinato.contentfilters
+   ostinato.contentbrowser
 
 
 

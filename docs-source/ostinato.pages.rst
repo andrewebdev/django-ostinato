@@ -67,14 +67,6 @@ That's it, you now have a basic Pages app. We cannot do anything with it yet,
 since we first need to create actual templates and content. We'll do this
 in the next section.
 
-.. note::
-
-    **Publication and Timezones**
-
-    Django 1.4 changed how timezones are treated. So if you mark a page as
-    published, please remember that it is published, relative to the timezone
-    you specified in your settings.py.
-
 
 Creating and registering page content
 -------------------------------------

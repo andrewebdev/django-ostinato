@@ -2,38 +2,40 @@ The Demo Project
 ================
 
 Ostinato comes with a demo project that you can use to play around with the app.
-The test project uses zc.buildout, which lets you install and run the entire
-demo, including all dependencies, in an isolated environment.
+The test project uses ``docker`` and ``docker-compose``, which lets you install
+and run the entire demo, including all dependencies, in an isolated environment.
 
 
-Setting up the demo project
+If you have both docker and docker-compose installed you can just run:
+
+``docker-compose up``
+
+
+Running management commands
 ---------------------------
 
-After checking out or downloading the source, you will see the ``demoproject``
-folder. There should be two files in that folder ``bootstrap.py`` and
-``buildout.cfg``. The actual django project is in ``demoproject/src/odemo``.
+Any management commands will need to be run through docker-compose as well.
+To run syncdb for example just run: ``docker-compose run demo python manage.py
+syncdb``. Familiarity with docker and docker-compose will be really helpful.
 
-Lets build the project. To do so you bootstrap it using the python version of
-your choice.
 
-``python bootstrap.py`` or you could do, ``python2.6 bootstrap.py``. Just
-remember that ostinato have not been tested with versions lower than 2.6.
+What's provided in the Demo Site
+--------------------------------
 
-Ok, after the bootstrap, you will see there should now be a ``bin`` folder.
+Very basic examples of how to use various ostinato apps is included in the
+demo site. This includes the following:
 
-Now run: ``./bin/buildout``
+* Examples of how to create your own pages template models and register them
+* Various uses of the pages app template tags, custom views, admin inlines etc.
+* A example of how to use the blog application to create a custom blog for the
+  site. Included is a example of how a custom page template can be registered
+  for a blog landing page, with custom settings for said page.
+* A example of how to create custom content browsers, register them and how to
+  use these in the admin.
+* Content filters are used in the demo as well.
+* Media library usage and implementation in the pages.
 
-This will start to download django, mptt, an any other dependecies required
-for the project to run.
-
-Running the demo project
-------------------------
-
-Once the buildout has been created, and is finished. A new file will be in the
-``bin`` folder called ``odemo``. This is basically a wrapper for ``manage.py``
-that ensures that the project is run within buildout, and not in the system.
-
-So lets sync the database: ``./bin/odemo syncdb``
-
-After the sync we can run the dev server: ``./bin/odemo runserver``
-
+Since this is just a demo, we've not bothered with fancy styling for
+the demo site since we felt that people might think that certain design features
+used in the demo are included with ostinato, and we wanted to avoid this
+confusion.
