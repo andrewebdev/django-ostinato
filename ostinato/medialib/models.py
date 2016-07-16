@@ -7,6 +7,12 @@ from django.contrib.contenttypes.models import ContentType
 conf = apps.get_app_config('ostinato_medialib')
 
 
+class MediaItemManager(models.Manager):
+
+    def visible(self):
+        return self.get_queryset().filter(is_visible=True)
+
+
 class MediaItem(models.Model):
     """
     A single abstract media item which can belong to multiple libraries.
@@ -21,6 +27,8 @@ class MediaItem(models.Model):
     caption = models.CharField(max_length=500, null=True, blank=True)
     order = models.PositiveIntegerField(default=0)
     is_visible = models.BooleanField(default=False)
+
+    objects = MediaItemManager()
 
     class Meta:
         abstract = True

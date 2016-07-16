@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.contenttypes.fields import GenericRelation
 
 from mptt.fields import TreeForeignKey
 from ostinato.pages.models import Page, PageContent
@@ -21,6 +20,23 @@ class Video(MediaItem):
 
     def __unicode__(self):
         return "Video - %s" % self.title
+
+
+# Page content mixin that allows easy access to page media
+class PageMediaMixin(object):
+
+    def get_media(self, model):
+        return model.objects.filter(content_type__app_label='ostinato_pages',
+                                    content_type__model='page',
+                                    object_id=self.page.id)
+
+    @property
+    def images(self):
+        return self.get_media(Image).filter(is_visible=True)
+
+    @property
+    def videos(self):
+        return self.get_media(Video).filter(is_visible=True)
 
 
 # Page Templates
@@ -55,12 +71,8 @@ class SEOPage(PageContent):
 
 
 @page_content.register
-class HomePage(SEOPage):
+class HomePage(PageMediaMixin, SEOPage):
     content = models.TextField()
-
-    # Media
-    images = GenericRelation(Image)
-    videos = GenericRelation(Video)
 
     class ContentOptions:
         form = 'website.forms.HomePageForm'
