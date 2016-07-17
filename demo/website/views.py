@@ -4,6 +4,7 @@ from ostinato.pages.views import PageView
 from ostinato.pages.models import Page
 from ostinato.contentbrowser.views import BrowserView
 
+from website.models import Video, Image
 from website.forms import ContactForm
 from blog.models import Entry
 
@@ -98,3 +99,22 @@ class EntrySummary(BrowserView):
     def get_items(self, request):
         return Entry.objects.published()
 
+
+class VideoBrowser(BrowserView):
+    browser_id = 'videos'
+    title = 'Videos'
+    description = "Insert a video from the media library"
+    template_name = "browsers/videos.html"
+
+    def get_items(self, request):
+        return Video.objects.all()
+
+
+class ImageBrowser(BrowserView):
+    browser_id = "images"
+    title = 'Images'
+    description = "Insert a Image"
+    template_name = "browsers/images.html"
+
+    def get_items(self, request):
+        return Image.objects.all()

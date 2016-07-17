@@ -1,11 +1,11 @@
 {% for entry in item_list %}
-<cb-item browser="{{ browser }}" item="{{ entry.id }}" field-name="{{ field_name }}">
-    {{ entry.title }}
-
+<cb-item browser="{{ browser }}"
+         item="{{ entry.id }}"
+         field-name="{{ field_name }}"
+         title="{{ entry.title }}">
 <textarea name="renderTemplate">
 <h3><a href="{{ entry.get_absolute_url }}">{{ entry.title }}</a></h3>
 <p class="byline">published on {{ entry.publish_date|date:"d M Y" }}</p>
 </textarea>
-
 </cb-item>
 {% endfor %}

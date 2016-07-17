@@ -1,0 +1,12 @@
+{% load content_filters %}
+
+{% for video in item_list %}
+<cb-item browser="{{ browser }}"
+         item="{{ video.id }}"
+         field-name="{{ field_name }}"
+         title="{{ video.title }}">
+<textarea name="renderTemplate">
+{{ video.video_url|modify:"youtube" }}
+</textarea>
+</cb-item>
+{% endfor %}

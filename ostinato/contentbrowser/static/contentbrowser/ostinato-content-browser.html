@@ -37,6 +37,7 @@
     </style>
     <template>
         <content></content>
+        <span>{{title}}</span>
     </template>
 </dom-module>
 <script>
@@ -55,7 +56,8 @@
             properties: {
                 browser: String,
                 item: String,
-                fieldName: String
+                fieldName: String,
+                title: String
             },
 
             listeners: {

@@ -1,0 +1,11 @@
+{% for image in item_list %}
+<cb-item browser="{{ browser }}"
+         item="{{ image.id }}"
+         field-name="{{ field_name }}"
+         title="{{ image.title }}">
+<img src="{{ image.image.url }}" alt="" width="100%">
+<textarea name="renderTemplate">
+<img src="{{ image.image.url }}" alt="{{ image.title }}" width="480">
+</textarea>
+</cb-item>
+{% endfor %}

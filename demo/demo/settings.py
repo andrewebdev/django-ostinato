@@ -146,6 +146,8 @@ OSTINATO_CONTENTBROWSER = {
     'browsers': [
         'website.views.PageSummary',
         'website.views.EntrySummary',
+        'website.views.VideoBrowser',
+        'website.views.ImageBrowser',
     ],
 }
 
