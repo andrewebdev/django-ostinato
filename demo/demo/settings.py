@@ -159,6 +159,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'relative_urls': False,
     # 'remove_script_host': False,
     # 'document_base_url': '',
+    'content_css': "%scss/tinymce_content.css" % STATIC_URL,
 
     'theme_advanced_buttons1' : "bold,italic,|,justifyleft,justifycenter,justifyright,justifyfull,bullist,numlist,|,undo,redo,|,link,unlink,code,image,|,formatselect,|,pastetext,",
     'theme_advanced_buttons2' : "",

@@ -16,14 +16,14 @@ class TopLevelListPageView(PageView):
 
         # We convert the queryset to a list so that we can manipulate
         # the model instances in the get() and post() methods
-        c['children'] = list(c['page'].get_children().filter(state=5))
+        c['children'] = list(c['page'].get_children().filter(state='public'))
 
         return c
 
     """
     We override the get() and post() methods so that we can cycle through
     the page children, and if the page is a ``ContactPage`` we should
-    add the contact form to that page.
+    add the contact form to the template as well.
 
     This allows us to have multiple different types of "contat pages", which
     all should behave in a different manner, but still allows us to put them
@@ -107,7 +107,7 @@ class VideoBrowser(BrowserView):
     template_name = "browsers/videos.html"
 
     def get_items(self, request):
-        return Video.objects.all()
+        return Video.objects.visible()
 
 
 class ImageBrowser(BrowserView):
@@ -117,4 +117,4 @@ class ImageBrowser(BrowserView):
     template_name = "browsers/images.html"
 
     def get_items(self, request):
-        return Image.objects.all()
+        return Image.objects.visible()
