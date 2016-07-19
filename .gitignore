@@ -19,3 +19,4 @@ dist/
 demoproject/src/*
 demoproject/config.rb
 venv/
+build/

@@ -11,7 +11,6 @@ factory_boy==2.6.1
 # setup.py file
 
 django-mptt==0.8.3
-
 # django-appregister==0.3.1
 git+http://github.com/andrewebdev/django-appregister.git#egg=django-appregister
 

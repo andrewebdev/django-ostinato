@@ -1,52 +1,7 @@
-import os
-from distutils.core import setup
-from distutils.command.install import INSTALL_SCHEMES
+from setuptools import find_packages, setup
 
 
 version = '.'.join([str(i) for i in __import__('ostinato').VERSION])
-
-
-### Snippets borrowed from django setup.py ...
-def fullsplit(path, result=None):
-    """
-    Split a pathname into components (the opposite of os.path.join) in a
-    platform-neutral way.
-    """
-    if result is None:
-        result = []
-    head, tail = os.path.split(path)
-    if head == '':
-        return [tail] + result
-    if head == path:
-        return result
-    return fullsplit(head, [tail] + result)
-
-
-# Tell distutils not to put the data_files in platform-specific installation
-# locations. See here for an explanation:
-# http://groups.google.com/group/comp.lang.python/browse_thread/thread/35ec7b2fed36eaec/2105ee4d9e8042cb
-for scheme in INSTALL_SCHEMES.values():
-    scheme['data'] = scheme['purelib']
-
-
-# Compile the list of packages available, because distutils doesn't have
-# an easy way to do this.
-packages, data_files = [], []
-root_dir = os.path.dirname(__file__)
-if root_dir != '':
-    os.chdir(root_dir)
-ostinato_dir = 'ostinato'
-
-for dirpath, dirnames, filenames in os.walk(ostinato_dir):
-    # Ignore dirnames that start with '.'
-    for i, dirname in enumerate(dirnames):
-        if dirname.startswith('.'): del dirnames[i]
-    if '__init__.py' in filenames:
-        packages.append('.'.join(fullsplit(dirpath)))
-    elif filenames:
-        data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
-
-### End Snippets borrowed from django
 
 
 # Now our setup
@@ -59,14 +14,15 @@ setup(
     author_email='andre@tehnode.co.uk',
     license='MIT',
     download_url='https://github.com/andrewebdev/django-ostinato/tarball/master',
-    packages=packages,
-    data_files=data_files,
-    keywords=['django', 'cms', 'ostinato', 'statemachine', 'pages', 'blog'],
+    packages=find_packages(),
+    include_package_data=True,
+    zip_safe=False,
     install_requires=[
         'setuptools',
         'django-mptt == 0.8.3',
         'django-appregister == 0.3.1',
     ],
+    keywords=['django', 'cms', 'ostinato', 'statemachine', 'pages', 'blog'],
     classifiers=[
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
@@ -76,16 +32,4 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
     ],
-    long_description="""\
-Introduction
-============
-
-Django-ostinato is a collection of applications that aims to bring together
-some of the most common features expected from a CMS.
-
-Please feel free to log any issues on the `Github issue tracker <https://github.com/andrewebdev/django-ostinato/issues>`_.
-
-For more detailed information `read the documentation <http://django-ostinato.readthedocs.org/en/latest/index.html>`_.
-"""
 )
-
