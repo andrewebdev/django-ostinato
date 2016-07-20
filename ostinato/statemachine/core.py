@@ -184,7 +184,7 @@ class StateMachine(object):
         """
         perms = ()
 
-        for k, v in cls.state_map.iteritems():
+        for k, v in cls.state_map.items():
             for perm in v.permissions:
                 # permission codename format: "<state>_<action>_<prefix>"
 
