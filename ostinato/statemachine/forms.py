@@ -1,4 +1,4 @@
-import new
+import types
 from django import forms
 from ostinato.statemachine import InvalidTransition
 
@@ -37,7 +37,7 @@ def sm_form_factory(sm_class, state_field='state'):
                 except InvalidTransition:
                     return self.old_state
             setattr(self, 'clean_%s' % state_field,
-                    new.instancemethod(clean_action, self, None))
+                    types.MethodType(clean_action, self))
 
         def take_action(self):
             """
