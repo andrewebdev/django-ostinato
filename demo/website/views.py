@@ -9,7 +9,34 @@ from website.forms import ContactForm
 from blog.models import Entry
 
 
-class TopLevelListPageView(PageView):
+class XHRView(PageView):
+    """
+    Even though our xhr javascript handler automatically fetches the
+    content node it requires, this view can be used to return only that
+    portion of content so that we can reduce the request size.
+    Most of the time however this shouldn't be neccesary.
+    """
+    def get_template_names(self, **kwargs):
+        if self.request.is_ajax():
+            return self.xhr_template_name
+        else:
+            return self.page.get_template()
+
+
+class HomePageView(PageView):
+    xhr_template_name = 'pages/home_page_xhr.html'
+
+
+class GenericPageView(XHRView):
+    xhr_template_name = 'pages/generic_page_xhr.html'
+
+
+class CaseStudyPageView(XHRView):
+    xhr_template_name = 'pages/case_study_page_xhr.html'
+
+
+class TopLevelListPageView(XHRView):
+    xhr_template_name = 'pages/top_level_list_page_xhr.html'
 
     def get_context_data(self, **kwargs):
         c = super(TopLevelListPageView, self).get_context_data(**kwargs)
@@ -55,7 +82,8 @@ class TopLevelListPageView(PageView):
         return self.render_to_response(c)
 
 
-class ContactPageView(PageView):
+class ContactPageView(XHRView):
+    xhr_template_name = 'pages/contact_page_xhr.html'
 
     def get(self, *args, **kwargs):
         c = self.get_context_data(**kwargs)

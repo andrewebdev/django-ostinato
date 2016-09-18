@@ -1,20 +1,6 @@
 {% extends 'pages/base.html' %}
-{% load content_filters %}
 
 
 {% block content %}
-    {% for p in children %}
-    <article>
-        {{ p.contents.content|modify|safe }}
-
-        {% if p.template == "website.contactpage" %}
-            <form action="." method="post" accept-charset="utf-8">{% csrf_token %}
-                <input type="hidden" name="page_id" value="{{ p.slug }}">
-                {{ p.form.as_p }}
-                <p><input type="submit" value="Send"></p>
-            </form>
-        {% endif %}
-
-    </article>
-    {% endfor %}
+    {% include 'pages/top_level_list_page_xhr.html' %}
 {% endblock %}

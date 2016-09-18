@@ -20,3 +20,4 @@ demoproject/src/*
 demoproject/config.rb
 venv/
 build/
+bower_components/

@@ -1,14 +1,5 @@
 {% extends 'pages/base.html' %}
-{% load content_filters %}
 
 {% block content %}
-    <article>
-        {{ page.contents.content|modify|safe }}
-
-        <form action="." method="post" accept-charset="utf-8">{% csrf_token %}
-            {{ form.as_p }}
-            <p><input type="submit" value="Send"></p>
-        </form>
-
-    </article>
+    {% include 'pages/contact_page_xhr.html' %}
 {% endblock %}

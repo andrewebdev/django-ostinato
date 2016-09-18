@@ -76,6 +76,7 @@ class HomePage(PageMediaMixin, SEOPage):
 
     class ContentOptions:
         form = 'website.forms.HomePageForm'
+        view = 'website.views.HomePageView'
         admin_inlines = ['website.forms.ImageInline',
                          'website.forms.VideoInline']
 
@@ -86,6 +87,7 @@ class GenericPage(SEOPage):
 
     class ContentOptions:
         form = 'website.forms.GenericPageForm'
+        view = 'website.views.GenericPageView'
 
 
 @page_content.register
@@ -100,6 +102,7 @@ class CaseStudyPage(SEOPage):
 
     class ContentOptions:
         form = 'website.forms.GenericPageForm'
+        view = 'website.views.CaseStudyPageView'
 
 
 @page_content.register

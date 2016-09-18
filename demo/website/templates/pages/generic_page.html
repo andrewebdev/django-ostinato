@@ -1,10 +1,5 @@
 {% extends 'pages/base.html' %}
-{% load content_filters %}
-
-{% block title %}{{ page.content }}{% endblock %}
 
 {% block content %}
-<article>
-    {{ page.contents.content|modify|safe }}
-</article>
+    {% include 'pages/generic_page_xhr.html' %}
 {% endblock %}

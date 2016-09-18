@@ -1,15 +1,7 @@
 {% extends 'pages/base.html' %}
-{% load content_filters %}
 
 
 {% block content %}
-    {% for entry in latest_entries %}
-    <article>
-        {{ entry.content|modify|safe|truncatewords_html:"50" }}
-        <p><a href="{{ entry.get_absolute_url }}">More</a></p>
-    </article>
-    {% empty %}
-    <p>No articles at this time.</p>
-    {% endfor %}
+    {% include 'blog/landing_page_xhr.html' %}
 {% endblock %}
 

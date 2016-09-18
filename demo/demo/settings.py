@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
 
+    'website',
+
     'ostinato',
     'ostinato.pages',
     'ostinato.contentfilters',
@@ -57,7 +59,6 @@ INSTALLED_APPS = [
 
     # Our Website Custom apps
     'demo',
-    'website',
     'blog'
 ]
 
