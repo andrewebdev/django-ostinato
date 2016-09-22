@@ -1,12 +1,12 @@
+{% extends 'xhr_base.html' %}
 {% load content_filters %}
 
-<article>
-    {{ page.contents.content|modify|safe }}
-
-    <form action="." method="post" accept-charset="utf-8">{% csrf_token %}
-        {{ form.as_p }}
-        <p><input type="submit" value="Send"></p>
-    </form>
-
-</article>
-
+{% block xhr_content %}
+    <article>
+        {{ page.contents.content|modify|safe }}
+        <form action="." method="post" accept-charset="utf-8">{% csrf_token %}
+            {{ form.as_p }}
+            <p><input type="submit" value="Send"></p>
+        </form>
+    </article>
+{% endblock %}

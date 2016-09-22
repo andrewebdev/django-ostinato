@@ -1,39 +1,13 @@
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
+<!-- Import the base theme -->
+<link rel="import" href="../elements/classical/classical.html">
 
 <style is="custom-style" include="iron-flex iron-flex-alingment">
     :root {
-        --color-orange: #f05932;
-        --color-gray0: #333;
-
-        --color-yellow1: #ffd200;
-        --color-yellow2: #ceb74a;
-        --color-yellow3: #ada47a;
-        --color-green: #8cd83a;
-        --color-red: #C91300;
-
-        --color-gold: #E8AD29;
-        --color-silver: #D4D2CA;
-        --color-bronze: #CD7F32;
-
-        --color-primary: var(--color-orange);
-        --color-secondary: var(--color-gray);
-
-        --font-family: 'Lato', sans-serif;
-        --primary-text-fg: var(--color-secondary);
-        --primary-text-bg: white;
-
-        --menu-link-fg: var(--primary-text-fg);
-
         --gutter: 24px;
-
-        --paper-fab-background: var(--color-primary);
-
-        --container: {
-            padding: 16px;
-            margin: var(--gutter);
-        };
+        --trim: 12px;
 
         --card: {
             box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
@@ -41,30 +15,64 @@
             color: var(--color-secondary);
         };
     }
+
+    app-drawer {
+        @apply(--brand-drawers);
+    }
+
+    app-toolbar {
+        background-color: var(--app-toolbar-background);
+        color: var(--app-toolbar-color);
+    }
+
+    #mainDrawer iron-selector a {
+        display: block;
+        box-sizing: border-box;
+        padding: var(--trim);
+        text-decoration: none;
+        @apply(--brand-drawer-nav-item);
+    }
+    #mainDrawer iron-selector a:hover,
+    #mainDrawer iron-selector a.iron-selected {
+        font-weight: bold;
+        @apply(--brand-drawer-nav-item-selected);
+    }
+
+    #page {
+        @apply(--layout-vertical);
+    }
+
+    ostinato-crumbs {
+        margin: var(--gutter);
+    }
+
+    #content {
+        margin: var(--gutter);
+    }
+
+    #content h1 {
+        margin-top: 0;
+    }
+
+    article {
+        padding: var(--trim);
+        @apply(--card);
+    }
+
+    footer {
+        margin: var(--gutter);
+        text-align: center;
+    }
 </style>
 
-
-<dom-module id="branding">
-    <style>
-        h2, h3 { margin-top: 0; }
-        h1, .card {
-            @apply(--card);
-            @apply(--container);
-        }
-
-        .actionbar {
-            @apply(--container);
-        }
-
-        .actionbar paper-button {
-            background-color: white;
-        }
-
-        paper-fab { color: white; }
-        paper-button.primary {
-            background-color: var(--color-primary);
-            color: white;
-        }
-    </style>
+<dom-module id="branding-typography">
+    <template>
+        <style>
+            a {
+                text-decoration: none;
+                color: var(--default-primary-color);
+                @apply(--typography-links);
+            }
+        </style>
+    </template>
 </dom-module>
-

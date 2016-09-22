@@ -1,16 +1,24 @@
+{% extends 'xhr_base.html' %}
 {% load content_filters %}
 
-{% for p in children %}
-<article>
-    {{ p.contents.content|modify|safe }}
+{% block xhr_content %}
+    {% for child_page in children %}
+        <article>
+            {{ child_page.contents.content|safe }}
 
-    {% if p.template == "website.contactpage" %}
-        <form action="." method="post" accept-charset="utf-8">{% csrf_token %}
-            <input type="hidden" name="page_id" value="{{ p.slug }}">
-            {{ p.form.as_p }}
-            <p><input type="submit" value="Send"></p>
-        </form>
-    {% endif %}
-
-</article>
-{% endfor %}
+            {% if child_page.template == "website.contactpage" %}
+                <form action="." method="post" accept-charset="utf-8">
+                    {% csrf_token %}
+                    <input type="hidden" name="page_id" value="{{ child_page.slug }}">
+                    {% for field in child_page.form %}
+                        <paper-input-container always-float-label="true">
+                            {{ field.label_tag }}
+                            {{ field }}
+                        </paper-input-container>
+                    {% endfor %}
+                    <p><input type="submit" value="Send"></p>
+                </form>
+            {% endif %}
+        </article>
+    {% endfor %}
+{% endblock %}

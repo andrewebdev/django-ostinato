@@ -1,8 +1,12 @@
+{% extends 'xhr_base.html' %}
 {% load content_filters %}
 
+{% block xhr_content %}
 <article>
     {{ page.contents.content|modify|safe }}
+</article>
 
+<div class="media">
     {% with page.contents.images as images %}
     {% if images %}
     <div class="images">
@@ -24,4 +28,5 @@
     </div>
     {% endif %}
     {% endwith %}
-</article>
+</div>
+{% endblock %}

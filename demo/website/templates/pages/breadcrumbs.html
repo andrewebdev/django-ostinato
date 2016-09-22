@@ -1,7 +1,7 @@
 <p>
 {% for node in breadcrumbs %}
     {% if not forloop.last %}
-        <a href="{{ node.url }}">{{ node.title }}</a> &raquo;
+        <a is="xhr-link" href="{{ node.url }}">{{ node.title }}</a> &raquo;
     {% else %}
         <strong>{{ node.title }}</strong>
     {% endif %}

@@ -10,8 +10,7 @@
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
-
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input-container.html">
 
 <!-- Other scripts -->
 <script src="../bower_components/history.js/scripts/bundled/html5/native.history.js"></script>
@@ -54,13 +53,6 @@
                 this.updateTitle();
             },
 
-            getData: function() {
-                return {
-                    pageTitle: this.pageTitle,
-                    other: this.other
-                }
-            },
-
             updateTitle: function() {
                 if (this.pageTitle) document.title = this.pageTitle;
             }
@@ -101,7 +93,7 @@
                     this.currentUrl = window.location.pathname;
                     History.Adapter.bind(window, 'statechange', function() {
                         var state = History.getState();
-                        // Here we can take extra actions if required.
+                        this.loadContent(state.url);
                     }.bind(this));
                 }
             },
@@ -133,14 +125,12 @@
                 }
 
                 // Now that the content was updated, update the history also
-                if (this.updateHistory && content) {
-                    var context = this._getContext(content),
-                        data = null,
-                        title = null;
+                if (this.updateHistory) {
+                    var context, data = null, title = null;
 
-                    if (context) {
-                        title = context.pageTitle;
-                        data = context.getData();
+                    if (content) {
+                        context = this._getContext(content);
+                        if (context) { title = context.pageTitle; }
                     }
                     History.pushState(data, title, this.$.xhr.url);
                 }
