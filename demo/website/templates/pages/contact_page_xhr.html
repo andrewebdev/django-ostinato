@@ -4,9 +4,20 @@
 {% block xhr_content %}
     <article>
         {{ page.contents.content|modify|safe }}
-        <form action="." method="post" accept-charset="utf-8">{% csrf_token %}
-            {{ form.as_p }}
-            <p><input type="submit" value="Send"></p>
-        </form>
     </article>
+
+    <div class="formContent">
+        <form action="." method="post" accept-charset="utf-8" is="ostinato-xhr-form" target-selector=".formContent">
+            {% csrf_token %}
+            {% for field in form %}
+                {{ field.errors }}
+                <paper-input-container always-float-label="true">
+                    {{ field.label_tag }}
+                    {{ field }}
+                </paper-input-container>
+            {% endfor %}
+
+            <paper-button confirm>Submit <iron-icon icon="send"></iron-icon></paper-button>
+        </form>
+    </div>
 {% endblock %}

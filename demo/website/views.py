@@ -47,40 +47,6 @@ class TopLevelListPageView(XHRView):
 
         return c
 
-    """
-    We override the get() and post() methods so that we can cycle through
-    the page children, and if the page is a ``ContactPage`` we should
-    add the contact form to the template as well.
-
-    This allows us to have multiple different types of "contat pages", which
-    all should behave in a different manner, but still allows us to put them
-    all on the same list page.
-    """
-    def get(self, *args, **kwargs):
-        c = self.get_context_data(**kwargs)
-        for p in c['children']:
-            if p.template == "website.contactpage":
-                p.form = ContactForm()
-        return self.render_to_response(c)
-
-    def post(self, *args, **kwargs):
-        c = self.get_context_data(**kwargs)
-
-        for p in c['children']:
-            if p.template == "website.contactpage":
-                if p.slug == self.request.POST.get("page_id"):
-                    p.form = ContactForm(self.request.POST)
-
-                    if p.form.is_valid():
-                        next = p.contents.get_next_url()
-                        p.form.save(p.contents.get_recipients())
-                        return http.HttpResponseRedirect(next)
-
-                else:
-                    p.form = ContactForm()
-
-        return self.render_to_response(c)
-
 
 class ContactPageView(XHRView):
     xhr_template_name = 'pages/contact_page_xhr.html'

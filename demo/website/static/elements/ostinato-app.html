@@ -11,6 +11,7 @@
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <!-- Other scripts -->
 <script src="../bower_components/history.js/scripts/bundled/html5/native.history.js"></script>
@@ -29,7 +30,7 @@
             var loader = document.querySelector('ostinato-xhr');
             if (loader) {
                 e.preventDefault();
-                loader.loadContent(this.pathname);
+                loader.generateRequest(this.pathname);
             }
         }
     });
@@ -65,9 +66,10 @@
     <template>
         <iron-ajax
             id="xhr"
-            method="get"
+            method="[[method]]"
             handle-as="text/html"
             headers='{"X-Requested-With": "XMLHttpRequest"}'
+            content-type="[[contentType]]"
             on-response="_handleResponse"
             on-error="_handleError"></iron-ajax>
     </template>
@@ -77,6 +79,16 @@
 
             properties: {
                 targetSelector: String,
+
+                method: {
+                    type: String,
+                    value: 'get'
+                },
+
+                contentType: {
+                    type: String,
+                    value: null
+                },
 
                 /**
                  * Whether or not to update the browser history when this
@@ -93,13 +105,14 @@
                     this.currentUrl = window.location.pathname;
                     History.Adapter.bind(window, 'statechange', function() {
                         var state = History.getState();
-                        this.loadContent(state.url);
+                        this.generateRequest(state.url);
                     }.bind(this));
                 }
             },
 
-            loadContent: function(url) {
+            generateRequest: function(url, data) {
                 this.debounce(url, function() {
+                    if (data) { this.$.xhr.body = data; }
                     this.$.xhr.url = url;
                     this.$.xhr.generateRequest();
                 });
@@ -111,7 +124,7 @@
 
             _getTargetContent: function(html) {
                 var doc = new DOMParser().parseFromString(html, "text/html");
-                return doc.querySelector('#content');
+                return doc.querySelector(this.targetSelector);
             },
 
             _handleResponse: function() {
@@ -138,6 +151,60 @@
 
             _handleError: function() {
                 console.log('TODO: Handle error response');
+            }
+        });
+    </script>
+</dom-module>
+
+
+<dom-module id="ostinato-xhr-form">
+    <script>
+        Polymer({
+            /**
+             * This element will extend the form so that it will submit via
+             * ajax. This is a full ostinato-xhr post, so the expected response
+             * should be html.
+             *
+             * Normal submit buttons in the form will still submit it
+             * normally. If you want to have it submitted via ajax, you need
+             * to include a element with the [confirm] attribute.
+             *
+             * A [cancel] element can be specified in the same way.
+             *
+             */
+            is: 'ostinato-xhr-form',
+            extends: 'form',
+
+            properties: {
+                /**
+                 * The target selector for the container to replace the form
+                 * content with the response.
+                 */
+                targetSelector: String,
+            },
+
+            attached: function() {
+                this.xhr = document.createElement('ostinato-xhr');
+                this.xhr.contentType = "application/x-www-form-urlencoded";
+                this.xhr.method = this.method;
+                this.xhr.targetSelector = this.targetSelector;
+                this.xhr.url = this.action;
+
+                this.confirm = Polymer.dom(this).querySelector('[confirm]');
+                this.cancel = Polymer.dom(this).querySelector('[cancel]');
+
+                this.confirm.addEventListener('click', function() {
+                    var json = this.serialize();
+                    this.xhr.generateRequest(this.action, json);
+                }.bind(this));
+            },
+
+            serialize: function() {
+                var json = {};
+                for (var i=0; i < this.elements.length; i++) {
+                    json[this.elements[i].name] = this.elements[i].value;
+                }
+                return json;
             }
         });
     </script>
