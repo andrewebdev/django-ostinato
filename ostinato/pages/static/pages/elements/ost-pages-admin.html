@@ -144,9 +144,9 @@
                 return nodeId == actionNode;
             },
 
-            showTargets: function(nodeId, actionNode) {
-                // TODO: Node cannot be child of one of it's descendents
-                return actionNode && actionNode != nodeId;
+            showTargets: function(targetNodeId, actionNodeId) {
+                // TODO: Node cannot be child of one of it's descendants
+                return actionNodeId && actionNodeId != targetNodeId;
             },
 
             _handleControllerAction: function(ev, data) {
@@ -200,9 +200,13 @@
             width: 35px;
             height: 35px;
         }
+        iron-icon {
+            width: 35px;
+            height: 15px;
+        }
     </style>
     <template>
-        <template is="dom-if" if="{{descendents}}">
+        <template is="dom-if" if="{{descendants}}">
             <paper-icon-button icon="{{icon}}" on-click="_handleToggleClick"></paper-icon-button>
         </template>
     </template>
@@ -214,49 +218,75 @@
         Polymer({
             is: 'ost-page-node',
             properties: {
-                treeId: String,
+                nodeId: Number,
+                treeId: Number,
                 level: Number,
-                lft: String,
-                rght: String,
-                descendents: {
+                lft: Number,
+                rght: Number,
+                descendants: {
                     type: Boolean,
                     value: false
                 },
                 open: {
                     type: Boolean,
-                    value: false
+                    value: true
                 }
             },
 
             attached: function() {
-                this._toggleDescendents();
-                this.style = "padding-left: " + this.level * 12 + "px;";
+                this.style = "padding-left: " + (this.level * 20) + "px;";
+                this._updateIcon();
             },
 
             _handleToggleClick: function(ev) {
                 ev.preventDefault();
-                this.open = !this.open;
-                this._toggleDescendents();
+                this._toggleDescendants();
             },
 
-            _toggleDescendents: function() {
-                var desc = document.querySelectorAll('ost-page-node[tree-id="' + this.treeId + '"]');
-
-                if (this.open) {
-                    this.icon = 'remove-circle';
+            _updateIcon: function() {
+                if (this.descendants) {
+                    if (this.open) this.icon = 'expand-more';
+                    else this.icon = 'chevron-right';
                 } else {
-                    this.icon = 'add-circle';
+                    this.icon = '';
                 }
+            },
 
-                for (var i=0; i < desc.length; i++) {
-                    var node = desc[i];
-                    var row = node.parentNode.parentNode.parentNode;
+            isDescendentOf: function(node) {
+                ((this.lft > node.lft) && (this.rght < node.rght));
+            },
 
-                    if (node.level == this.level + 1) {
+            hide: function() {
+                this.parentNode.parentNode.parentNode.style = "display: none";
+                this._updateIcon();
+            },
+
+            show: function() {
+                this.parentNode.parentNode.parentNode.style = "display: row;";
+                this._updateIcon();
+            },
+
+            _toggleDescendants: function() {
+                var treeNodes = document.querySelectorAll('ost-page-node[tree-id="' + this.treeId + '"]');
+
+                // Update our node state
+                this.open = !this.open;
+                this._updateIcon();
+
+                // Now update the descenants
+                for (var i=0; i < treeNodes.length; i++) {
+                    var node = treeNodes[i];
+                    var is_descendant = ((node.lft > this.lft) && (node.rght < this.rght));
+                    if (is_descendant) {
                         if (this.open) {
-                            row.style = "display: row;";
+                            // When showing, only show immediate descendants
+                            if (node.level == this.level + 1) {
+                                node.open = false;
+                                node.show();
+                            }
                         } else {
-                            row.style = "display: none;";
+                            // All descendants should be collapsed
+                            node.hide();
                         }
                     }
                 }

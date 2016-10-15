@@ -65,9 +65,6 @@ class PageAdmin(MPTTModelAdmin):
         'get_title', 'page_actions', 'slug',
         'template_name', 'page_state', 'show_in_nav', 'show_in_sitemap')
     list_display_links = ('get_title',)
-    list_filter = ('show_in_nav', 'show_in_sitemap', 'state')
-
-    search_fields = ('title', 'short_title', 'slug',)
     inlines = ()
 
     fieldsets = (
@@ -102,15 +99,16 @@ class PageAdmin(MPTTModelAdmin):
         level etc.
         """
         if obj.get_descendant_count() > 0:
-            descendents = 'descendents="true"'
+            descendants = 'descendants="true"'
         else:
-            descendents = ''
-        tag = '<ost-page-node tree-id="%s" level="%s" lft="%s" rght="%s" %s>' % (
+            descendants = ''
+        tag = '<ost-page-node node-id="%s" tree-id="%s" level="%s" lft="%s" rght="%s" %s>' % (
+            obj.id,
             obj.tree_id,
             obj.level,
             obj.lft,
             obj.rght,
-            descendents)
+            descendants)
         tag += '</ost-page-node>'
         return tag
 
@@ -127,7 +125,7 @@ class PageAdmin(MPTTModelAdmin):
                     return '%s %s (No Site)' % (node_tag, title)
                 return '%s %s (%s)' % (node_tag, title, tree_site.name)
 
-        return '%s%s' % (node_tag, title)
+        return '%s %s' % (node_tag, title)
     get_title.short_description = _("Title")
     get_title.allow_tags = True
 
