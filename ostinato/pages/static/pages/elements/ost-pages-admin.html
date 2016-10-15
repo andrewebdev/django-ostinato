@@ -65,9 +65,18 @@
 
             commitAction: function(target, position) {
                 if (this.node && this._action) {
-                    this.target = target;
-                    this.position = position;
-                    this.$.actionForm.submit();
+                    var nodeEl = document.querySelector('ost-page-node[node-id="' + this.node + '"]');
+                    var targetEl = document.querySelector('ost-page-node[node-id="' + target + '"]');
+
+                    // Node cannot be made descendant of one of it's descendants
+                    if (targetEl.isDescendentOf(nodeEl)) {
+                        alert("Page cannot be made a child or sibling of one of it's descendants");
+                        return;
+                    } else {
+                        this.target = target;
+                        this.position = position;
+                        this.$.actionForm.submit();
+                    }
                 }
             }
 
@@ -253,7 +262,7 @@
             },
 
             isDescendentOf: function(node) {
-                ((this.lft > node.lft) && (this.rght < node.rght));
+                return ((this.lft > node.lft) && (this.rght < node.rght));
             },
 
             hide: function() {
