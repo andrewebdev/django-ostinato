@@ -65,7 +65,9 @@ setup(
     install_requires=[
         'setuptools',
         'django-mptt == 0.5.2',
-        'django-appregister == 0.3.1',
+        # Version on pypi is old and raises errors
+        # Manually install our forked version
+        # 'django-appregister == 0.3.1',
     ],
     classifiers=[
         'Programming Language :: Python',
