@@ -19,13 +19,12 @@ setup(
     zip_safe=False,
     install_requires=[
         'setuptools',
-        'django-mptt == 0.8.3',
-        'django-appregister == 0.3.1',
+        'django-mptt == 0.9.1',
     ],
     keywords=['django', 'cms', 'ostinato', 'statemachine', 'pages', 'blog'],
     classifiers=[
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Development Status :: 4 - Beta',
         'Framework :: Django',
         'Intended Audience :: Developers',

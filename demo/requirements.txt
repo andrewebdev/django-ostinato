@@ -1,16 +1,16 @@
-pillow==3.1.1
-django==1.9.4
-django-tinymce==2.3.0
-django-taggit==0.18.1
-django-taggit-templatetags==0.4.6dev
-coverage==4.0.3
+pillow==5.4.1
+django==2.1.5
+django-tinymce==2.8.0
+django-taggit==0.23.0
+django-taggit-templatetags==0.2.5
+coverage==4.5.2
 django-coverage==1.2.4
-factory_boy==2.6.1
+factory_boy==2.11.1
 
 # packages required by ostinato, should be same versions as in ostinato
 # setup.py file
+# We install these manually, because we won't be installing ostinato with pip
+# into our environment. This is so that we can work on it and do live updates
+# withou needing to run pip etc if we make changes.
 
-django-mptt==0.8.3
-# django-appregister==0.3.1
-git+http://github.com/andrewebdev/django-appregister.git#egg=django-appregister
-
+django-mptt==0.9.1

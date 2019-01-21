@@ -1,12 +1,14 @@
-FROM python:2.7
+FROM python:3
 ENV PYTHONBUFFERRED 1
 RUN pip install --upgrade pip
 
-RUN mkdir /demo
+RUN mkdir /src
 
-WORKDIR /demo/
-ADD demo/requirements.txt /demo/requirements.txt
-RUN pip install -r requirements.txt
+WORKDIR /src/
+ADD . /src/
 
-ADD demo /demo/
+WORKDIR /src/
+RUN pip install -r demo/requirements.txt
 
+WORKDIR /src/demo/
+RUN python manage.py migrate

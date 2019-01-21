@@ -1,7 +1,9 @@
-from .factories import *
+from .factories import (
+    PageFactory,
+    LandingPageFactory,
+)
 
 
-# Now some helper functions to create preset content
 def create_pages():
     p = PageFactory.create(
         title="Page 1",
@@ -34,4 +36,3 @@ def create_pages():
         intro='Page 1 Introduction',
         content='Page 1 Content'
     )
-
