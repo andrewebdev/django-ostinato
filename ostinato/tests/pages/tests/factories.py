@@ -8,16 +8,8 @@ from ostinato.tests.pages.models import (
     LandingPage,
     BasicPage,
     BasicPageFunc,
-    OtherPage)
-
-
-__all__ = [
-    'PageFactory',
-    'LandingPageFactory',
-    'BasicPageFactory',
-    'BasicPageFuncFactory',
-    'OtherPageFactory',
-]
+    OtherPage,
+)
 
 now = timezone.now()
 
@@ -27,7 +19,6 @@ class PageFactory(DjangoModelFactory):
 
     title = factory.Sequence(lambda n: "Page {0} Title".format(n))
     slug = factory.Sequence(lambda n: "page-{0}-slug".format(n))
-    show_in_nav = True
     created_date = now
     modified_date = now
     template = "ostinato_pages.basicpage"

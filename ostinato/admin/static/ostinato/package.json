@@ -1,0 +1,20 @@
+{
+  "name": "django-ostinato-admin",
+  "version": "1.0.0",
+  "description": "Various components required by django ostinato admin to function",
+  "scripts": {
+    "rollup": "rollup",
+    "build": "rollup -c rollup.config.js",
+    "watch": "rollup -c rollup.config.js --watch"
+  },
+  "author": "Andre Engelbrecht <andre@tehnode.co.uk>",
+  "license": "MIT",
+  "dependencies": {
+    "lit-element": "^2.0.0-rc.3",
+    "lit-html": "^1.0.0-rc.2"
+  },
+  "devDependencies": {
+    "rollup": "^1.1.0",
+    "rollup-plugin-node-resolve": "^4.0.0"
+  }
+}

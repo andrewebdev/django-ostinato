@@ -1,6 +1,5 @@
 from django.test import TestCase
-from django.template import Context, Template
-from django.template.response import SimpleTemplateResponse
+from django.template import Context
 
 from ostinato.pages.models import Page
 from ostinato.pages.templatetags.pages_tags import (
@@ -9,19 +8,7 @@ from ostinato.pages.templatetags.pages_tags import (
     breadcrumbs,
 )
 
-from .utils import *
-
-
-class NavBarTemplateTagTestCase(TestCase):
-
-    def setUp(self):
-        create_pages()
-
-    def test_navbar_renders(self):
-        t = Template('{% load pages_tags %}{% navbar %}')
-        self.response = SimpleTemplateResponse(t)
-        self.response.render()
-        self.assertTrue(self.response.is_rendered)
+from .utils import create_pages
 
 
 class GetPageTemplateTagTestCase(TestCase):
@@ -33,30 +20,6 @@ class GetPageTemplateTagTestCase(TestCase):
         p = get_page(slug="page-1")
         self.assertEqual("Page 1", p.title)
 
-    def test_tag_returns_page_with_sites_enabled(self):
-        create_pages()
-        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
-            p = get_page(slug="page-1")
-            self.assertEqual("Page 1", p.title)
-
-    def test_tag_returns_none_for_different_site_page(self):
-        create_pages()
-        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
-            p = get_page(slug='page-2')
-            self.assertEqual(None, p)
-
-    def test_tag_returns_page_ignore_sites(self):
-        create_pages()
-        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
-            p = get_page(slug='page-2', ignore_sites=True)
-            self.assertEqual('page-2', p.slug)
-
-    def test_tag_renders(self):
-        t = Template('{% load pages_tags %}{% get_page slug="page-1" as somepage %}{{ somepage.title }}')
-        response = SimpleTemplateResponse(t)
-        response.render()
-        self.assertTrue(response.is_rendered)
-
 
 class FilterPageTemplateTagTestCase(TestCase):
 
@@ -64,24 +27,6 @@ class FilterPageTemplateTagTestCase(TestCase):
         create_pages()
         pages = filter_pages(template='pages.basicpage')
         self.assertEqual(2, len(pages))
-
-    def test_tag_returns_queryset_with_sites_enabled(self):
-        create_pages()
-        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
-            pages = filter_pages(template='pages.basicpage')
-            self.assertEqual(1, len(pages))
-
-    def test_tag_returns_queryset_ignore_sites(self):
-        create_pages()
-        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
-            pages = filter_pages(template='pages.basicpage', ignore_sites=True)
-            self.assertEqual(2, len(pages))
-
-    def test_tag_renders(self):
-        t = Template('{% load pages_tags %}{% get_page template="pages.basicpage" as page_list %}')
-        response = SimpleTemplateResponse(t)
-        response.render()
-        self.assertTrue(response.is_rendered)
 
 
 class BreadCrumbsTempalteTagTestCase(TestCase):
@@ -98,7 +43,7 @@ class BreadCrumbsTempalteTagTestCase(TestCase):
         }, {
             'slug': u'page-3',
             'title': u'Page 3',
-            'url': '/page-1/page-3/',
+            'url': '/page-1/page-3',
         }]
 
         self.assertEqual(expected_crumbs, crumbs["breadcrumbs"])
@@ -115,7 +60,7 @@ class BreadCrumbsTempalteTagTestCase(TestCase):
         }, {
             'slug': u'page-3',
             'title': u'Page 3',
-            'url': '/page-1/page-3/',
+            'url': '/page-1/page-3',
         }]
 
         self.assertEqual(expected_crumbs, crumbs['breadcrumbs'])
@@ -137,18 +82,10 @@ class BreadCrumbsTempalteTagTestCase(TestCase):
         }, {
             'slug': u'page-3',
             'title': u'Page 3',
-            'url': '/page-1/page-3/',
+            'url': '/page-1/page-3',
         }, {
             'title': u'Page 1',
             'url': u'/'
         }]
 
         self.assertEqual(expected_crumbs, crumbs['breadcrumbs'])
-
-    def test_tag_renders(self):
-        create_pages()
-        t = Template('{% load pages_tags %}{% get_page slug="page-3" as page %}{% breadcrumbs %}')
-        response = SimpleTemplateResponse(t)
-        response.render()
-        self.assertTrue(response.is_rendered)
-

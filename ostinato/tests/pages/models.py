@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib import admin
 
 from ostinato.pages.models import Page, PageContent
-from ostinato.pages.registry import page_content
 
 
 # Create some extra models to be used by some page content
@@ -11,17 +10,24 @@ class Photo(models.Model):
 
 
 class Contributor(models.Model):
-    page = models.ForeignKey(Page, related_name='testing')
+    page = models.ForeignKey(
+        Page,
+        related_name='testing',
+        on_delete=models.CASCADE,
+    )
     name = models.CharField(max_length=50)
 
-    ## Required to test the inlines with through model
+    # Required to test the inlines with through model
     photos = models.ManyToManyField(
-        Photo, through='ContributorPhotos', null=True, blank=True)
+        Photo,
+        through='ContributorPhotos',
+        blank=True,
+    )
 
 
 class ContributorPhotos(models.Model):
-    contributor = models.ForeignKey(Contributor)
-    photo = models.ForeignKey(Photo)
+    contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
     order = models.IntegerField(default=1)
 
 
@@ -45,7 +51,6 @@ class ContentMixin(models.Model):
         abstract = True  # Required for mixins
 
 
-@page_content.register
 class LandingPage(ContentMixin, PageContent):
     intro = models.TextField()
 
@@ -53,7 +58,6 @@ class LandingPage(ContentMixin, PageContent):
         template = 'pages/landing_page.html'
 
 
-@page_content.register
 class BasicPage(ContentMixin, PageContent):
 
     class ContentOptions:
@@ -64,7 +68,6 @@ class BasicPage(ContentMixin, PageContent):
         ]
 
 
-@page_content.register
 class BasicPageFunc(ContentMixin, PageContent):
     """
     A page that makes use of the old school function based views.
@@ -74,7 +77,6 @@ class BasicPageFunc(ContentMixin, PageContent):
         view = 'ostinato.tests.pages.views.functionview'
 
 
-@page_content.register
 class OtherPage(ContentMixin, PageContent):
     """ Test content that doesn't have a template specified """
 

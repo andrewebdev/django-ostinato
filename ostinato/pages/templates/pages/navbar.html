@@ -1,8 +1,0 @@
-{% if navbar %}
-<ul>
-    {% for p in navbar %}
-    <li {% if p.slug == page.slug %}class="active"{% endif %}>
-        <a href="{{ p.url }}">{{ p.title }}</a></li>
-    {% endfor %}
-</ul>
-{% endif %}

@@ -3,30 +3,27 @@
 
 
 {% block extrahead %}
-    {{ block.super }}
-    <!-- Import webcomponents polyfills and poilymer lib -->
-    <script src="{% static 'pages/bower_components/webcomponentsjs/webcomponents-lite.min.js' %}"></script>
-    <link rel="import" href="{% static 'pages/elements/ost-pages-admin.html' %}">
-
-    <style>
-        #result_list td, #result_list th { vertical-align: middle; }
-    </style>
+  {{ block.super }}
+  <script type="module" src="{% static 'ostinato/dist/pages-admin.js' %}"></script>
+  <style>
+    #result_list td, #result_list th { vertical-align: middle; }
+  </style>
 {% endblock %}
 
 
 {% block object-tools %}
-    <ost-pages-controller csrf-token="{{ csrf_token }}"
-                          page-add-url="{% url 'admin:ostinato_pages_page_add' %}"
-                          move-action="{% url 'ostinato_page_reorder' %}"
-                          copy-action="{% url 'ostinato_page_duplicate' %}"></ost-pages-controller>
-    {{ block.super }}
+  <ost-pages-controller
+    csrfToken="{{ csrf_token }}"
+    addPageUrl="{% url 'admin:ostinato_pages_page_add' %}"
+    moveAction="{% url 'ostinato_page_reorder' %}"
+    copyAction="{% url 'ostinato_page_duplicate' %}">
+  </ost-pages-controller>
+  {{ block.super }}
 {% endblock %}
 
 
 {% block result_list %}
-    {% if action_form and actions_on_top and cl.full_result_count %}{% admin_actions %}{% endif %}
-
-    {% result_list cl %}
-
-    {% if action_form and actions_on_bottom and cl.full_result_count %}{% admin_actions %}{% endif %}
+  {% if action_form and actions_on_top and cl.full_result_count %}{% admin_actions %}{% endif %}
+  {% result_list cl %}
+  {% if action_form and actions_on_bottom and cl.full_result_count %}{% admin_actions %}{% endif %}
 {% endblock %}

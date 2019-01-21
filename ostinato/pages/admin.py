@@ -2,20 +2,20 @@ from importlib import import_module
 
 from django.contrib import admin
 from django.contrib.admin.utils import unquote
-from django.contrib.sites.models import Site
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 from django import forms
 from django.conf import settings
 
 from mptt.admin import MPTTModelAdmin
 from ostinato.statemachine.forms import sm_form_factory
-from ostinato.pages.models import Page
+from ostinato.pages.models import Page, get_content_model
 from ostinato.pages.workflow import get_workflow
-from ostinato.pages.registry import page_content
 
 
 def content_inline_factory(page):
-    content_model = page.get_content_model()
+    content_model = get_content_model(page.template)
 
     class PageContentInline(admin.StackedInline):
         model = content_model
@@ -43,7 +43,10 @@ class PageAdminForm(sm_form_factory(sm_class=get_workflow())):  # <3 python
 
     def __init__(self, *args, **kwargs):
         super(PageAdminForm, self).__init__(*args, **kwargs)
-        self.fields['template'].choices = page_content.get_template_choices()
+
+        templates = getattr(settings, 'OSTINATO_PAGES')['templates']
+        self.fields['template'].choices = templates
+
         self.fields['parent'].widget.can_add_related = False
         self.fields['parent'].widget.can_change_related = False
         if self.instance:
@@ -52,9 +55,17 @@ class PageAdminForm(sm_form_factory(sm_class=get_workflow())):  # <3 python
 
     class Meta:
         model = Page
-        fields = ('title', 'short_title', 'slug', 'template', 'redirect',
-                  'parent', 'show_in_nav', 'show_in_sitemap', 'state',
-                  'publish_date')
+        fields = (
+            'title',
+            'short_title',
+            'slug',
+            'template',
+            'redirect',
+            'parent',
+            'show_in_sitemap',
+            'state',
+            'publish_date',
+        )
 
 
 class PageAdmin(MPTTModelAdmin):
@@ -62,8 +73,19 @@ class PageAdmin(MPTTModelAdmin):
     form = PageAdminForm
 
     list_display = (
-        'get_title', 'page_actions', 'slug',
-        'template_name', 'page_state', 'show_in_nav', 'show_in_sitemap')
+        'get_title',
+        'template_name',
+        'page_state',
+        'show_in_sitemap',
+    )
+
+    list_filter = (
+        'state',
+        'show_in_sitemap',
+    )
+
+    search_fields = ('title', 'short_title', 'slug')
+
     list_display_links = ('get_title',)
     inlines = ()
 
@@ -71,8 +93,11 @@ class PageAdmin(MPTTModelAdmin):
         (None, {
             'fields': (
                 ('title', 'short_title'),
-                'slug', 'template', 'redirect', 'parent',
-                ('show_in_nav', 'show_in_sitemap'),
+                'slug',
+                'template',
+                'redirect',
+                'parent',
+                'show_in_sitemap',
             ),
         }),
 
@@ -89,51 +114,34 @@ class PageAdmin(MPTTModelAdmin):
             'pages/js/page_admin.js',
         )
 
-    def get_node_tag(self, obj):
-        """
-        A custom title for the list display that will be indented based on
-        the level of the node, as well as display a expand/collapse icon
-        if the node has any children.
-
-        This node will also have some information for the row, like the
-        level etc.
-        """
-        if obj.get_descendant_count() > 0:
-            descendants = 'descendants="true"'
-        else:
-            descendants = ''
-        tag = '<ost-page-node node-id="%s" tree-id="%s" level="%s" lft="%s" rght="%s" %s>' % (
-            obj.id,
-            obj.tree_id,
-            obj.level,
-            obj.lft,
-            obj.rght,
-            descendants)
-        tag += '</ost-page-node>'
-        return tag
-
     def get_title(self, obj):
-        PAGES_SITE_TREEID = getattr(settings, 'OSTINATO_PAGES_SITE_TREEID', None)
-        node_tag = self.get_node_tag(obj)
+        """
+        Provide the node and tree id's so that we can use this information
+        in the javascript functions to manipulate page positions etc.
+        """
         title = obj.get_short_title()
+        if len(title) > 20:
+            title = '{0} ...'.format(title[:20])
 
-        if PAGES_SITE_TREEID:
-            if obj.level == 0:
-                try:
-                    tree_site = Site.objects.get(id=obj.tree_id)
-                except:
-                    return '%s %s (No Site)' % (node_tag, title)
-                return '%s %s (%s)' % (node_tag, title, tree_site.name)
-
-        return '%s %s' % (node_tag, title)
+        return mark_safe('''
+            <ost-page-node
+                editUrl="{edit_url}"
+                nodeId="{id}"
+                treeId="{tree_id}"
+                level="{level}"
+                left="{left}"
+                right="{right}">
+                <span slot="title">{title}</span>
+            </ost-page-node>'''.format(
+                edit_url=reverse('admin:ostinato_pages_page_change', args=(obj.id,)),
+                id=obj.id,
+                tree_id=obj.tree_id,
+                level=obj.level,
+                left=obj.lft,
+                right=obj.rght,
+                title=title
+            ))
     get_title.short_description = _("Title")
-    get_title.allow_tags = True
-
-    def page_actions(self, obj):
-        """ A List view item that shows the movement actions """
-        return '<ost-pages-actions node-id="%s"></ost-pages-actions>' % obj.id
-    page_actions.short_description = _("Actions")
-    page_actions.allow_tags = True
 
     def page_state(self, obj):
         sm = get_workflow()(instance=obj)
@@ -141,7 +149,10 @@ class PageAdmin(MPTTModelAdmin):
     page_state.short_description = _("State")
 
     def template_name(self, obj):
-        return page_content.get_template_name(obj.template)
+        templates = getattr(settings, 'OSTINATO_PAGES')['templates']
+        for t in templates:
+            if t[0] == obj.template:
+                return t[1]
     template_name.short_description = _("Template")
 
     def get_ordering(self, obj):
@@ -150,7 +161,11 @@ class PageAdmin(MPTTModelAdmin):
     def add_view(self, request, form_url='', extra_context=None):
         # We need to clear the inlines. Django keeps it cached somewhere
         self.inlines = ()
-        return super(PageAdmin, self).add_view(request, form_url, extra_context)
+        return super(PageAdmin, self).add_view(
+            request,
+            form_url,
+            extra_context
+        )
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """
@@ -165,12 +180,12 @@ class PageAdmin(MPTTModelAdmin):
             if page.template:
                 self.inlines = (content_inline_factory(page),)
 
-            content_model = page.get_content_model()
+            content_model = get_content_model(page.template)
             if hasattr(content_model.ContentOptions, 'admin_inlines'):
                 for inline_def in content_model.ContentOptions.admin_inlines:
                     through = None
 
-                    if isinstance(inline_def, (str, unicode)):
+                    if isinstance(inline_def, (bytes, str)):
                         inline_str = inline_def
                     else:
                         inline_str, through = inline_def

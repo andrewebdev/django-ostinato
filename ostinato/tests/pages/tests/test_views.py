@@ -1,7 +1,7 @@
 from django.test import TestCase, TransactionTestCase
 from django.test.client import RequestFactory
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.auth.models import User, AnonymousUser
 from django.template.response import TemplateResponse
 
@@ -13,8 +13,9 @@ from ostinato.pages.views import (
     PageDuplicateView,
 )
 from ostinato.pages.forms import DuplicatePageForm
-from .utils import *
-from .factories import *
+
+from .utils import create_pages
+from .factories import BasicPageFactory
 
 
 class PageViewTestCase(TestCase):
@@ -31,13 +32,14 @@ class PageViewTestCase(TestCase):
     def test_reverse_lookup(self):
         self.assertEqual('/', reverse('ostinato_page_home'))
         self.assertEqual(
-            '/page-1/', reverse('ostinato_page_view', args=['page-1']))
+            '/page-1',
+            reverse('ostinato_page_view', args=['page-1'])
+        )
 
     def test_view_response(self):
         response = self.client.get('/page-1/')
         self.assertEqual(200, response.status_code)
-        self.assertEqual('pages/landing_page.html',
-                         response.templates[0].name)
+        self.assertEqual('pages/landing_page.html', response.templates[0].name)
 
     def test_view_context(self):
         response = self.client.get('/page-1/')
@@ -45,7 +47,7 @@ class PageViewTestCase(TestCase):
 
     def test_view_content(self):
         response = self.client.get('/page-1/')
-        self.assertIn('Page 1 Content', response.content)
+        self.assertIn(b'Page 1 Content', response.content)
 
     def test_function_based_view(self):
         response = self.client.get('/func-page/')
@@ -78,36 +80,6 @@ class PageViewTestCase(TestCase):
         self.client.login(username='not_an_author', password='secret')
         response = self.client.get('/page-1/')
         self.assertEqual(200, response.status_code)
-
-
-class SitesEnabledPageViewTestCase(TestCase):
-
-    def setUp(self):
-        create_pages()
-
-    def test_view_respsponse(self):
-        response = self.client.get('/page-1/')
-
-        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
-            self.assertEqual(200, response.status_code)
-            self.assertEqual(
-                'pages/landing_page.html', response.templates[0].name)
-
-    def test_different_site_page_returns_404(self):
-        # Without sites enabled, respond as normal
-        response = self.client.get('/page-2/')
-        self.assertEqual(200, response.status_code)
-
-        # With sites enabled this should raise 404
-        with self.settings(OSTINATO_PAGES_SITE_TREEID=1):
-            response = self.client.get('/page-2/')
-            self.assertEqual(404, response.status_code)
-
-    def test_root_page_for_site(self):
-        with self.settings(OSTINATO_PAGES_SITE_TREEID=2, DEBUG=True):
-            response = self.client.get('/')
-            self.assertEqual(200, response.status_code)
-            self.assertEqual('page-2', response.context['page'].slug)
 
 
 class ViewDispatcherTestCase(TestCase):
@@ -165,15 +137,17 @@ class PageReorderViewTestCase(TransactionTestCase):
             'target': p.id,         # ... node id 1
         }
         response = self.client.post('/page_reorder/', data)
-
         # FIXME: This isn't a proper test
         self.assertEqual(302, response.status_code)
-        # self.assertIn('value="Log in"', response.content)
 
     def test_post_response(self):
         # We need a logged in user
         u = User.objects.create(
-            username='tester', password='', email='test@example.com')
+            username='tester',
+            password='',
+            email='test@example.com'
+        )
+
         u.is_staff = True
         u.set_password('secret')
         u.save()
@@ -209,7 +183,10 @@ class PageDuplicateViewTestCase(TransactionTestCase):
         PageDuplicateView
 
     def test_reverse_lookup(self):
-        self.assertEqual('/page_duplicate/', reverse('ostinato_page_duplicate'))
+        self.assertEqual(
+            '/page_duplicate/',
+            reverse('ostinato_page_duplicate')
+        )
 
     def test_get_response_not_allowed(self):
         response = self.client.get('/page_duplicate/')
@@ -224,13 +201,17 @@ class PageDuplicateViewTestCase(TransactionTestCase):
             'target': p.id,         # ... node id 1
         }
         response = self.client.post('/page_duplicate/', data)
+
         # FIXME: This isn't a proper test
         self.assertEqual(302, response.status_code)
-        # self.assertIn('value="Log in"', response.content)
 
     def test_post_response(self):
         u = User.objects.create(
-            username='tester', password='', email='test@example.com')
+            username='tester',
+            password='',
+            email='test@example.com'
+        )
+
         u.is_staff = True
         u.set_password('secret')
         u.save()
@@ -260,7 +241,11 @@ class PageDuplicateViewTestCase(TransactionTestCase):
 
     def test_page_content_is_also_duplicated(self):
         u = User.objects.create(
-            username='tester', password='', email='test@example.com')
+            username='tester',
+            password='',
+            email='test@example.com'
+        )
+
         u.is_staff = True
         u.set_password('secret')
         u.save()
@@ -268,7 +253,6 @@ class PageDuplicateViewTestCase(TransactionTestCase):
         login = self.client.login(username='tester', password='secret')
         self.assertTrue(login)
 
-        p = Page.objects.get(slug='page-1')
         p2 = Page.objects.get(slug='page-2')
         BasicPageFactory.create(page=p2)
 
@@ -282,6 +266,4 @@ class PageDuplicateViewTestCase(TransactionTestCase):
             form.save()
 
         p3 = Page.objects.get(slug='page-2-copy')
-        self.assertEqual(
-            'Some content for the page', p3.contents.content)
-
+        self.assertEqual('Some content for the page', p3.contents.content)
