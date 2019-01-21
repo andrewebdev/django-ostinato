@@ -7,7 +7,13 @@ from ostinato.statemachine import (
     InvalidTransition,
     InvalidStateMachine)
 
-from ..workflow import *
+from ..workflow import (
+    Private,
+    TestStateMachine,
+    InvalidSM,
+    ErrorSM,
+    TestIntegerStateMachine,
+)
 from ..models import TestModel
 
 
@@ -137,7 +143,7 @@ class StateMachineTestCase(TestCase):
     def test_verify_statemachine(self):
         temp = TestModel.objects.create(name='Test Model 1', state='invalid')
 
-        re = """"invalid" is not a valid state for InvalidSM. Valid states are \\['public', 'private', 'error'\\]"""
+        re = """"invalid" is not a valid state for InvalidSM. Valid states are \\['(private|error|public)', '(private|error|public)', '(private|error|public)'\\]"""
         with self.assertRaisesRegexp(InvalidStateMachine, re):
             InvalidSM(instance=temp)
 
@@ -198,4 +204,3 @@ class NumberedStateMachineTestCase(TestCase):
 
         self.assertEqual(2, temp.state_num)
         self.assertEqual('Object made public', temp.message)
-

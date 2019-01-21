@@ -12,4 +12,3 @@ class TestModel(models.Model):
 
     class Meta:
         permissions = TestStateMachine.get_permissions('testmodel', 'Test')
-
