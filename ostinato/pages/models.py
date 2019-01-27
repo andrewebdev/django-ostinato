@@ -1,5 +1,3 @@
-import re
-
 from django.db import models
 from django.urls import reverse
 from django.core.cache import caches
@@ -36,6 +34,10 @@ def get_content_model(app_model):
         model=model
     )
     return ct.model_class()
+
+
+def get_template_options(template_id):
+    return PAGES_SETTINGS['templates'].get(template_id)
 
 
 # Models
@@ -170,7 +172,8 @@ class Page(MPTTModel):
                 url = reverse('ostinato_page_home')
 
             else:
-                path = list(self.get_ancestors().values_list('slug', flat=True))
+                path = list(self.get_ancestors().values_list('slug',
+                                                             flat=True))
                 path.append(self.slug)
                 url = reverse('ostinato_page_view', kwargs={
                     'path': '/'.join(path)
@@ -199,7 +202,14 @@ class Page(MPTTModel):
             return 'empty'
 
     def get_template(self):
-        return get_content_model(self.template).get_template()
+        template_opts = get_template_options(self.template)
+        template = template_opts.get('template', None)
+
+        if not template:
+            template_name = self.template.replace('.', '_')
+            template = 'pages/{0}.html'.format(template_name)
+
+        return template
 
 
 class PageContent(models.Model):
@@ -214,26 +224,3 @@ class PageContent(models.Model):
 
     class Meta:
         abstract = True
-
-    class ContentOptions:
-        """
-        Custom Options for the Content
-        ``template`` is the template path relative the templatedirs.
-        ``view`` is a custom view that will handle the rendering for the page.
-        ``form`` a custom form to use in the admin.
-        """
-        template = None
-        view = 'ostinato.pages.views.PageView'
-        form = None
-        admin_inlines = []
-
-    @classmethod
-    def get_template(cls):
-        template = getattr(cls.ContentOptions, 'template', None)
-
-        if not template:
-            cls_name = re.findall('[A-Z][^A-Z]*', cls.__name__)
-            template_name = '_'.join([i.lower() for i in cls_name])
-            template = 'pages/{0}.html'.format(template_name)
-
-        return template

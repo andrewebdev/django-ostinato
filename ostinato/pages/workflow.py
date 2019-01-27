@@ -1,9 +1,9 @@
 from importlib import import_module
-from django.conf import settings
 from ostinato.statemachine import State, StateMachine
+from ostinato.pages import PAGES_SETTINGS
 
 
-DEFAULT_STATE = getattr(settings, 'OSTINATO_PAGES_DEFAULT_STATE', 'public')
+DEFAULT_STATE = PAGES_SETTINGS.get('default_state')
 
 
 class Private(State):
@@ -24,12 +24,9 @@ class PageWorkflow(StateMachine):
 def get_workflow():
     """
     This is a helper function that returns the correct workflow to be used.
-    A developer can change the default workflow behaviour using the
-    ``OSTINATO_PAGES_WORKFLOW_CLASS`` setting.
+    The workflow used for pages can be overridden using the `workflow_class`
+    setting in `OSTINATO_PAGES` setting.
     """
-    custom_workflow = getattr(settings, 'OSTINATO_PAGES_WORKFLOW_CLASS', None)
-    if custom_workflow:
-        import_path, statemachine = custom_workflow.rsplit('.', 1)
-        return getattr(import_module(import_path), statemachine)
-    else:
-        return PageWorkflow
+    workflow_class = PAGES_SETTINGS.get('workflow_class')
+    import_path, statemachine = workflow_class.rsplit('.', 1)
+    return getattr(import_module(import_path), statemachine)

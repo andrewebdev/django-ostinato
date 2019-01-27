@@ -6,11 +6,11 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django import forms
-from django.conf import settings
 
 from mptt.admin import MPTTModelAdmin
+from ostinato.pages import PAGES_SETTINGS
 from ostinato.statemachine.forms import sm_form_factory
-from ostinato.pages.models import Page, get_content_model
+from ostinato.pages.models import Page, get_content_model, get_template_options
 from ostinato.pages.workflow import get_workflow
 
 
@@ -23,12 +23,10 @@ def content_inline_factory(page):
         max_num = 1
         can_delete = False
         fk_name = 'page'
-        # TODO: Can remove this because we will drop grappelli support
-        classes = ('grp-collapse grp-open',)
-        inline_classes = ('grp-collapse grp-open',)
 
         # Check for a custom form and try to load it
-        content_form = getattr(content_model.ContentOptions, 'form', None)
+        template_opts = get_template_options(page.template)
+        content_form = template_opts.get('form', None)
         if content_form:
             module_path, form_class = content_form.rsplit('.', 1)
             form = getattr(import_module(module_path), form_class)
@@ -44,8 +42,13 @@ class PageAdminForm(sm_form_factory(sm_class=get_workflow())):  # <3 python
     def __init__(self, *args, **kwargs):
         super(PageAdminForm, self).__init__(*args, **kwargs)
 
-        templates = getattr(settings, 'OSTINATO_PAGES')['templates']
-        self.fields['template'].choices = templates
+        # Create the list of template options expected by ChoiceField
+        template_choices = ()
+        for template_id, template_opts in PAGES_SETTINGS['templates'].items():
+            label = template_opts.get('label', template_id)
+            template_choices += ((template_id, label),)
+
+        self.fields['template'].choices = template_choices
 
         self.fields['parent'].widget.can_add_related = False
         self.fields['parent'].widget.can_change_related = False
@@ -111,7 +114,7 @@ class PageAdmin(MPTTModelAdmin):
 
     class Media:
         js = (
-            'pages/js/page_admin.js',
+            'ostinato/dist/pages-admin.js',
         )
 
     def get_title(self, obj):
@@ -133,7 +136,10 @@ class PageAdmin(MPTTModelAdmin):
                 right="{right}">
                 <span slot="title">{title}</span>
             </ost-page-node>'''.format(
-                edit_url=reverse('admin:ostinato_pages_page_change', args=(obj.id,)),
+                edit_url=reverse(
+                    'admin:ostinato_pages_page_change',
+                    args=(obj.id,)
+                ),
                 id=obj.id,
                 tree_id=obj.tree_id,
                 level=obj.level,
@@ -149,10 +155,8 @@ class PageAdmin(MPTTModelAdmin):
     page_state.short_description = _("State")
 
     def template_name(self, obj):
-        templates = getattr(settings, 'OSTINATO_PAGES')['templates']
-        for t in templates:
-            if t[0] == obj.template:
-                return t[1]
+        template_opts = get_template_options(obj.template)
+        return template_opts.get('label', obj.template)
     template_name.short_description = _("Template")
 
     def get_ordering(self, obj):
@@ -180,9 +184,11 @@ class PageAdmin(MPTTModelAdmin):
             if page.template:
                 self.inlines = (content_inline_factory(page),)
 
-            content_model = get_content_model(page.template)
-            if hasattr(content_model.ContentOptions, 'admin_inlines'):
-                for inline_def in content_model.ContentOptions.admin_inlines:
+            template_opts = get_template_options(page.template)
+            page_inlines = template_opts.get('page_inlines', None)
+
+            if page_inlines:
+                for inline_def in page_inlines:
                     through = None
 
                     if isinstance(inline_def, (bytes, str)):

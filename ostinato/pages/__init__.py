@@ -7,6 +7,7 @@ PAGES_SETTINGS = {
     'cache_name': 'default',
     'cache_key_separator': ':',
     'default_state': 'public',
+    'workflow_class': 'ostinato.pages.workflow.PageWorkflow',
 }
 PAGES_SETTINGS.update(OSTINATO_PAGES_SETTINGS)
 

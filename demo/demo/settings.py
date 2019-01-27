@@ -145,14 +145,50 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Ostinato settings
 OSTINATO_PAGES = {
-    'templates': (
-        ('website.homepage', 'Home Page'),
-        ('website.genericpage', 'Generic Page'),
-        ('website.toplevellistpage', 'Top Level List'),
-        ('website.casestudypage', 'Case Study'),
-        ('website.contactpage', 'Contact Page'),
-        ('blog.landingpage', 'Blog Landing Page'),
-    )
+    'default_state': 'private',
+
+    'templates': {
+        'website.homepage': {
+            'label': 'Home Page',
+            'admin_form': 'website.forms.HomePageForm',
+            'template': 'pages/home_page.html',
+            'page_inlines': [
+                'website.forms.ImageInline',
+                'website.forms.VideoInline'
+            ],
+        },
+
+        'website.genericpage': {
+            'label': 'Generic Page',
+            'template': 'pages/generic_page.html',
+            'admin_form': 'website.forms.GenericPageForm'
+        },
+
+        'website.toplevellistpage': {
+            'label': 'Top Level List',
+            'template': 'pages/top_level_list_page.html',
+            'view': 'website.views.TopLevelListPageView'
+        },
+
+        'website.casestudypage': {
+            'label': 'Case Study',
+            'template': 'pages/case_study_page.html',
+            'admin_form': 'website.forms.GenericPageForm',
+        },
+
+        'website.contactpage': {
+            'label': 'Contact Page',
+            'template': 'pages/contact_page.html',
+            'admin_form': 'website.forms.ContactPageForm',
+            'view': 'website.views.ContactPageView',
+        },
+
+        'blog.landingpage': {
+            'label': 'Blog Landing Page',
+            'template': 'blog/landing_page.html',
+            'view': 'blog.views.LandingPageView',
+        },
+    },
 }
 
 OSTINATO_CONTENTBROWSER = {

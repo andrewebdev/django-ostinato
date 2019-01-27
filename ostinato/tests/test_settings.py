@@ -63,12 +63,32 @@ TEMPLATES = [
 STATIC_URL = '/static/'
 
 OSTINATO_PAGES = {
-    'templates': (
-        ('pages.landingpage', 'Landing Page'),
-        ('pages.basicpage', 'Basic Page'),
-        ('pages.basicpagefunc', 'Basic Page Func'),
-        ('pages.otherpage', 'Some Other Page'),
-    )
+    'templates': {
+        'pages.landingpage': {
+            'label': 'Landing Page',
+            'template': 'pages/landing_page.html',
+        },
+
+        'pages.basicpage': {
+            'label': 'Basic Page',
+            'template': 'pages/basic_page.html',
+            'view': 'ostinato.tests.pages.views.CustomView',
+            'admin_form': 'ostinato.tests.pages.admin.BasicPageAdminForm',
+            'page_inlines': [
+                'ostinato.tests.pages.models.ContributorInline',
+            ]
+        },
+
+        'pages.basicpagefunc': {
+            'label': 'Basic Page Func',
+            'template': 'pages/basic_page.html',
+            'view': 'ostinato.tests.pages.views.functionview'
+        },
+
+        'pages.otherpage': {
+            'label': 'Some Other Page',
+        },
+    }
 }
 
 OSTINATO_CONTENTBROWSER = {

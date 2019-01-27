@@ -27,6 +27,11 @@ def create_pages():
         slug="func-page",
         template='pages.basicpagefunc')
 
+    PageFactory.create(
+        title="Other page",
+        slug="other-page",
+        template='pages.otherpage')
+
     # Create some content
     LandingPageFactory.create(
         page=p,

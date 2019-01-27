@@ -14,7 +14,7 @@ class PageManagerTestCase(TestCase):
 
     def test_published(self):
         self.assertEqual(
-            [1, 3, 2, 4],
+            [1, 3, 2, 4, 5],
             list(Page.objects.published().values_list('id', flat=True)))
 
     def test_get_breadcrumbs(self):

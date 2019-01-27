@@ -40,7 +40,7 @@ class PhotoInline(admin.StackedInline):
 
 
 # Create and register the Page Content models
-class ContentMixin(models.Model):
+class ContentBase(PageContent):
     """
     An example of how you would do mixins. A mixin must be an abstract
     model.
@@ -51,35 +51,23 @@ class ContentMixin(models.Model):
         abstract = True  # Required for mixins
 
 
-class LandingPage(ContentMixin, PageContent):
+class LandingPage(ContentBase):
     intro = models.TextField()
 
-    class ContentOptions:
-        template = 'pages/landing_page.html'
+
+class BasicPage(ContentBase):
+    pass
 
 
-class BasicPage(ContentMixin, PageContent):
-
-    class ContentOptions:
-        template = 'pages/basic_page.html'
-        view = 'ostinato.tests.pages.views.CustomView'
-        admin_inlines = [
-            'ostinato.tests.pages.models.ContributorInline',
-        ]
-
-
-class BasicPageFunc(ContentMixin, PageContent):
+class BasicPageFunc(ContentBase):
     """
     A page that makes use of the old school function based views.
     """
-    class ContentOptions:
-        template = 'pages/basic_page.html'
-        view = 'ostinato.tests.pages.views.functionview'
+    pass
 
 
-class OtherPage(ContentMixin, PageContent):
+class OtherPage(ContentBase):
     """ Test content that doesn't have a template specified """
-
     class Meta:
         verbose_name = 'Some Other Page'
 

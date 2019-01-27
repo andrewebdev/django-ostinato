@@ -9,7 +9,7 @@ from django.conf import settings
 from django import http
 
 from ostinato.pages import PAGES_SETTINGS
-from ostinato.pages.models import Page, get_content_model
+from ostinato.pages.models import Page, get_content_model, get_template_options
 from ostinato.pages.forms import MovePageForm, DuplicatePageForm
 
 
@@ -38,11 +38,12 @@ def page_dispatch(request, *args, **kwargs):
             and not has_perm:
         return http.HttpResponseForbidden()
 
-    content = get_content_model(page.template)
+    template_opts = get_template_options(page.template)
 
     # Check if the page has a custom view
-    if hasattr(content.ContentOptions, 'view'):
-        module_path, view_class = content.ContentOptions.view.rsplit('.', 1)
+    custom_view = template_opts.get('view', None)
+    if custom_view:
+        module_path, view_class = custom_view.rsplit('.', 1)
 
         # Import our custom view
         v = getattr(import_module(module_path), view_class)

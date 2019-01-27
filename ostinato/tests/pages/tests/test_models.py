@@ -1,13 +1,15 @@
 from django.test import TestCase
 from django.core.cache import caches
 
-from ostinato.pages.models import get_content_model, Page, PageContent
-
-from ostinato.tests.pages.models import (
-    LandingPage,
-    OtherPage,
-    Contributor,
+from ostinato.pages.models import (
+    get_content_model,
+    get_template_options,
+    Page,
+    PageContent
 )
+
+from ostinato.tests.pages.models import LandingPage, Contributor
+
 from .utils import create_pages
 
 
@@ -17,6 +19,18 @@ class TemplateRegistryTestCase(TestCase):
     def test_get_content_model(self):
         content_model = get_content_model('pages.landingpage')
         self.assertEqual(LandingPage, content_model)
+
+    def test_get_template_options(self):
+        opts = get_template_options('pages.basicpage')
+        self.assertEqual(opts, {
+            'label': 'Basic Page',
+            'template': 'pages/basic_page.html',
+            'view': 'ostinato.tests.pages.views.CustomView',
+            'admin_form': 'ostinato.tests.pages.admin.BasicPageAdminForm',
+            'page_inlines': [
+                'ostinato.tests.pages.models.ContributorInline',
+            ]
+        })
 
 
 class PageModelTestCase(TestCase):
@@ -65,12 +79,12 @@ class PageModelTestCase(TestCase):
         crumbs_key = 'ostinato:pages:page:3:crumbs'
 
         # create some dummy cache values
-        cache.set(url_key, 'URL Cache Value', 60 * 60 * 24 * 7 * 4)
-        cache.set(crumbs_key, 'Crumbs Cache Value', 60 * 60 * 24 * 7 * 4)
+        cache.set(url_key, 'URL-Cache-Value', 60 * 60 * 24 * 7 * 4)
+        cache.set(crumbs_key, 'Crumbs-Cache-Value', 60 * 60 * 24 * 7 * 4)
 
         # Lets make sure that this url wasn't previously cached
-        self.assertEqual('URL Cache Value', cache.get(url_key))
-        self.assertEqual('Crumbs Cache Value', cache.get(crumbs_key))
+        self.assertEqual('URL-Cache-Value', cache.get(url_key))
+        self.assertEqual('Crumbs-Cache-Value', cache.get(crumbs_key))
 
         # Delete P3
         p3.delete()
@@ -115,6 +129,10 @@ class PageModelTestCase(TestCase):
         p = Page.objects.get(slug='page-1')
         self.assertEqual('pages/landing_page.html', p.get_template())
 
+    def test_get_template_when_none(self):
+        p = Page.objects.get(slug='other-page')
+        self.assertEqual('pages/pages_otherpage.html', p.get_template())
+
     def test_page_contents(self):
         p = Page.objects.get(slug='page-1')
         c = LandingPage.objects.get(id=1)
@@ -125,17 +143,6 @@ class PageContentModelTestCase(TestCase):
 
     def test_model_is_abstract(self):
         self.assertTrue(PageContent._meta.abstract)
-
-    def test_content_options(self):
-        PageContent.ContentOptions
-
-    def test_get_template(self):
-        create_pages()
-        p = Page.objects.get(slug='page-1')
-        self.assertEqual('pages/landing_page.html', p.get_template())
-
-    def test_get_template_when_none(self):
-        self.assertEqual('pages/other_page.html', OtherPage.get_template())
 
     def test_inline_content_for_page(self):
         create_pages()
