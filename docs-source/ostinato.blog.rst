@@ -62,6 +62,15 @@ you can extend this to include any other fields that you may require.
 So now you have a blog entry with two extra fields.
 
 
+Blog Entry Workflows and Statemachine
+-------------------------------------
+
+The blog entries use the statemachine in
+`ostinato.blog.workflow.BlogEntryWorkflow`. This is a standard publication
+statemachine that has the option for a editor to review a entry before it's
+published.
+
+
 Using the custom manager
 ------------------------
 
