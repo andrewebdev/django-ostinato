@@ -1,4 +1,5 @@
 from django import http
+from django.views.generic import TemplateView
 
 from ostinato.pages.views import PageView
 from ostinato.pages.models import Page
@@ -9,33 +10,22 @@ from website.forms import ContactForm
 from blog.models import Entry
 
 
-class XHRView(PageView):
+class ServiceWorkerView(TemplateView):
     """
-    Even though our xhr javascript handler automatically fetches the
-    content node it requires, this view can be used to return only that
-    portion of content so that we can reduce the request size.
-    Most of the time however this shouldn't be neccesary.
+    Returns dynamically generated javascript file
     """
-    def get_template_names(self, **kwargs):
-        if self.request.is_ajax():
-            return self.xhr_template_name
-        else:
-            return self.page.get_template()
+    template_name = "service-worker.js"
+    content_type = "application/javascript"
+
+    def get_context_data(self, **kwargs):
+        c = super(ServiceWorkerView, self).get_context_data(**kwargs)
+        # Create a flat list of pages which we want to cached
+        c['pages'] = Page.objects.published()
+        c['latest_entry'] = Entry.objects.filter(state='published').latest('publish_date')
+        return c
 
 
-class HomePageView(PageView):
-    xhr_template_name = 'pages/home_page_xhr.html'
-
-
-class GenericPageView(XHRView):
-    xhr_template_name = 'pages/generic_page_xhr.html'
-
-
-class CaseStudyPageView(XHRView):
-    xhr_template_name = 'pages/case_study_page_xhr.html'
-
-
-class TopLevelListPageView(XHRView):
+class TopLevelListPageView(PageView):
     xhr_template_name = 'pages/top_level_list_page_xhr.html'
 
     def get_context_data(self, **kwargs):
@@ -48,7 +38,7 @@ class TopLevelListPageView(XHRView):
         return c
 
 
-class ContactPageView(XHRView):
+class ContactPageView(PageView):
     xhr_template_name = 'pages/contact_page_xhr.html'
 
     def get(self, *args, **kwargs):

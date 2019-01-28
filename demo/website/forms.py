@@ -1,11 +1,17 @@
 from django import forms
 from django.contrib.contenttypes.admin import GenericTabularInline
 
-from ostinato.contentbrowser.widgets import CBWidgetMixin
+# from ostinato.contentbrowser.widgets import CBWidgetMixin
 
 from tinymce.widgets import TinyMCE
-from website.models import (HomePage, GenericPage, CaseStudyPage, ContactPage,
-                            Image, Video)
+from website.models import (
+    HomePage,
+    GenericPage,
+    CaseStudyPage,
+    ContactPage,
+    Image,
+    Video
+)
 from website.utils import Emailer
 
 
@@ -28,7 +34,7 @@ class ContactForm(forms.Form):
         email.send()
 
 
-class ContentAreaWidget(CBWidgetMixin, TinyMCE):
+class ContentAreaWidget(TinyMCE):  #CBWidgetMixin, TinyMCE):
     pass
 
 
@@ -48,7 +54,7 @@ class HomePageForm(forms.ModelForm):
 
     class Meta:
         model = HomePage
-        fields = ('content',)
+        fields = ('content', 'cache_page')
 
 
 class GenericPageForm(forms.ModelForm):
@@ -56,7 +62,7 @@ class GenericPageForm(forms.ModelForm):
 
     class Meta:
         model = GenericPage
-        fields = ('content',)
+        fields = ('content', 'cache_page')
 
 
 class CaseStudyPageForm(forms.ModelForm):
@@ -64,7 +70,7 @@ class CaseStudyPageForm(forms.ModelForm):
 
     class Meta:
         model = CaseStudyPage
-        fields = ('content',)
+        fields = ('content', 'cache_page')
 
 
 class ContactPageForm(forms.ModelForm):

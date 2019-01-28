@@ -13,24 +13,41 @@ class BlogEntryBase(models.Model):
     fits the needs of a project.
     """
     title = models.CharField(_("Title"), max_length=255)
-    slug = models.SlugField(_("Slug"), unique=True,
+
+    slug = models.SlugField(
+        _("Slug"),
+        unique=True,
         help_text=_("A unique, url-friendly slug based on the title"))
+
     content = models.TextField(_("Content"))
 
     # Publication Fields
-    state = models.CharField(_("State"),
-                             max_length=20,
-                             default='private',
-                             choices=BlogEntryWorkflow.get_choices())
-    author = models.ForeignKey(User, verbose_name=_("Author"))
+    state = models.CharField(
+        _("State"),
+        max_length=20,
+        default='private',
+        choices=BlogEntryWorkflow.get_choices())
+
+    author = models.ForeignKey(
+        User,
+        verbose_name=_("Author"),
+        null=True,
+        on_delete=models.SET_NULL)
 
     created_date = models.DateTimeField(_("Created date"), auto_now_add=True)
-    modified_date = models.DateTimeField(_("Modified date"), auto_now=True,
-        null=True, blank=True)
-    publish_date = models.DateTimeField(_("Publish date"),
-        null=True, blank=True)
-    archived_date = models.DateTimeField(_("Archived date"),
-        null=True, blank=True)
+    modified_date = models.DateTimeField(
+        _("Modified date"),
+        auto_now=True,
+        null=True,
+        blank=True)
+    publish_date = models.DateTimeField(
+        _("Publish date"),
+        null=True,
+        blank=True)
+    archived_date = models.DateTimeField(
+        _("Archived date"),
+        null=True,
+        blank=True)
 
     allow_comments = models.BooleanField(_("Allow comments"), default=True)
 
@@ -42,6 +59,6 @@ class BlogEntryBase(models.Model):
         get_latest_by = 'publish_date'
         permissions = BlogEntryWorkflow.get_permissions('blog', 'Blog Entry')
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s' % self.title
 

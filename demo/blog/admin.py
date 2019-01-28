@@ -15,8 +15,15 @@ class CustomEntryAdminForm(sm_form_factory(sm_class=BlogEntryWorkflow)):
 class EntryAdmin(admin.ModelAdmin):
     form = CustomEntryAdminForm
 
-    list_display = ('title', 'slug', 'author', 'entry_state', 'created_date',
-                    'publish_date')
+    list_display = (
+        'title',
+        'slug',
+        'author',
+        'entry_state',
+        'created_date',
+        'publish_date'
+    )
+
     list_filter = ('state', 'author')
 
     def entry_state(self, obj):

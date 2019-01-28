@@ -37,4 +37,3 @@ class EntryDetailView(DateDetailView):
         c = super(EntryDetailView, self).get_context_data(**kwargs)
         c['page'] = Page.objects.filter(template="blog.landingpage")[0]
         return c
-

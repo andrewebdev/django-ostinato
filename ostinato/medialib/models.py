@@ -15,16 +15,20 @@ class MediaItemManager(models.Manager):
 
 class MediaItem(models.Model):
     """
-    A single abstract media item which can belong to multiple libraries.
+    A single abstract media item which can be attached to any other
+    content type
     """
-    # Generic Relation Fields
-    content_type = models.ForeignKey(ContentType, null=True, blank=True)
+    content_type = models.ForeignKey(
+        ContentType,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey('content_type', 'object_id')
 
     # Media Item Meta fields
-    title = models.CharField(max_length=200, null=True, blank=True)
-    caption = models.CharField(max_length=500, null=True, blank=True)
+    title = models.CharField(max_length=200, blank=True)
+    caption = models.CharField(max_length=500, blank=True)
     order = models.PositiveIntegerField(default=0)
     is_visible = models.BooleanField(default=False)
 

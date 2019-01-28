@@ -1,7 +1,7 @@
-from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.conf import settings
 
 
 # TODO: This is a very handy class, should we include in ostinato?
@@ -19,7 +19,7 @@ class Emailer(object):
 
     def set_context(self, context={}):
         if 'site' not in context:
-            context['site'] = Site.objects.get_current()
+            context['site'] = getattr(settings, 'SITE')
         self._context = context
 
     context = property(get_context, set_context)

@@ -199,7 +199,7 @@ class Page(MPTTModel):
         try:
             return obj_model.objects.get(page=self.id)
         except obj_model.DoesNotExist:
-            return 'empty'
+            return None
 
     def get_template(self):
         template_opts = get_template_options(self.template)

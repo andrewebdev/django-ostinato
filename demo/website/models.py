@@ -2,7 +2,6 @@ from django.db import models
 
 from mptt.fields import TreeForeignKey
 from ostinato.pages.models import Page, PageContent
-from ostinato.pages.registry import page_content
 
 from ostinato.medialib.models import MediaItem
 
@@ -26,9 +25,10 @@ class Video(MediaItem):
 class PageMediaMixin(object):
 
     def get_media(self, model):
-        return model.objects.filter(content_type__app_label='ostinato_pages',
-                                    content_type__model='page',
-                                    object_id=self.page.id)
+        return model.objects.filter(
+            content_type__app_label='ostinato_pages',
+            content_type__model='page',
+            object_id=self.page.id)
 
     @property
     def images(self):
@@ -43,6 +43,7 @@ class PageMediaMixin(object):
 class SEOPage(PageContent):
     meta_keywords = models.CharField(max_length=250, null=True, blank=True)
     meta_description = models.TextField(null=True, blank=True)
+    cache_page = models.BooleanField(default=False)
 
     class Meta:
         abstract = True
@@ -70,42 +71,22 @@ class SEOPage(PageContent):
         return self.meta_description
 
 
-@page_content.register
 class HomePage(PageMediaMixin, SEOPage):
     content = models.TextField()
 
-    class ContentOptions:
-        form = 'website.forms.HomePageForm'
-        view = 'website.views.HomePageView'
-        admin_inlines = ['website.forms.ImageInline',
-                         'website.forms.VideoInline']
 
-
-@page_content.register
 class GenericPage(SEOPage):
     content = models.TextField()
 
-    class ContentOptions:
-        form = 'website.forms.GenericPageForm'
-        view = 'website.views.GenericPageView'
 
-
-@page_content.register
 class TopLevelListPage(SEOPage):
-    class ContentOptions:
-        view = 'website.views.TopLevelListPageView'
+    pass
 
 
-@page_content.register
 class CaseStudyPage(SEOPage):
     content = models.TextField()
 
-    class ContentOptions:
-        form = 'website.forms.GenericPageForm'
-        view = 'website.views.CaseStudyPageView'
 
-
-@page_content.register
 class ContactPage(SEOPage):
     content = models.TextField()
 
@@ -113,12 +94,10 @@ class ContactPage(SEOPage):
         help_text="A comma separated list of recipient emails")
     email_subject = models.CharField(max_length=250)
     success_page = TreeForeignKey(
-        Page, help_text="The page to show the user once the form was "
-                        "succesfully submitted")
-
-    class ContentOptions:
-        form = 'website.forms.ContactPageForm'
-        view = 'website.views.ContactPageView'
+        Page,
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="The page to show the user once the form was succesfully submitted")
 
     def get_next_url(self):
         return self.success_page.get_absolute_url()
