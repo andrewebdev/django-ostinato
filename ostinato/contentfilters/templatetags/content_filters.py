@@ -1,11 +1,10 @@
 import re
-
 from django import template
+
 
 register = template.Library()
 
 
-# ContentModifiers and related examples
 class ContentFilter(object):
     """
     Special class to register render functions that will manipulate
@@ -27,7 +26,8 @@ class ContentFilter(object):
 
     def __getitem__(self, what):
         for func in self._modifiers:
-            if func['name'] == what: return func['func']
+            if func['name'] == what:
+                return func['func']
         raise Exception('%s is not a valid Content Modifier' % what)
 
 
@@ -109,4 +109,3 @@ def hide_snip(content):
 ContentFilter.register('youtube', youtube)
 ContentFilter.register('snip', snip)
 ContentFilter.register('hide_snip', hide_snip)
-
