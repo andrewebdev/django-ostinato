@@ -21,7 +21,6 @@ INSTALLED_APPS = [
     'ostinato.contentfilters',
     'ostinato.medialib',
     'ostinato.tests.medialib_tests',
-    'ostinato.contentbrowser',
 
     # Other dependencies
     'mptt',

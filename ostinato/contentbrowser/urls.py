@@ -1,8 +1,18 @@
-from django.conf.urls import url
+from django.urls import path
+from ostinato.contentbrowser.views import browser_dispatch
+
+
+import warnings
+warnings.warn(
+    "ContentBrowser app have been deprecated and will be replaced with a "
+    "better text editor.",
+    DeprecationWarning)
 
 
 urlpatterns = [
-    url(r'^(?P<browser_id>[-\w]+)$',
-        'ostinato.contentbrowser.views.browser_dispatch',
-        name="ostinato_contentbrowser_browser"),
+    path(
+        '<str:browser_id>',
+        browser_dispatch,
+        name="ostinato_contentbrowser_browser"
+    ),
 ]

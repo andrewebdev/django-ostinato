@@ -1,8 +1,7 @@
 from importlib import import_module
 from . import CONTENTBROWSER
 
-
-__all__ = ['BrowserNotFound', 'get_browsers']
+import warnings
 
 
 class BrowserNotFound(Exception):
@@ -18,6 +17,11 @@ def get_browsers(browser_id=None):
     Returns a list of browsers, or just a single one if browser_id is supplied
     """
     browsers = []
+
+    warnings.warn(
+        "ContentBrowser app have been deprecated and will be replaced with a "
+        "better text editor.",
+        DeprecationWarning)
 
     for import_string in CONTENTBROWSER['browsers']:
         module_path, browser_class = import_string.rsplit('.', 1)
