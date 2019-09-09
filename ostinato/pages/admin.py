@@ -36,7 +36,6 @@ def content_inline_factory(page):
 
 # Admin Models
 class PageAdminForm(sm_form_factory(sm_class=get_workflow())):  # <3 python
-
     template = forms.ChoiceField()
 
     def __init__(self, *args, **kwargs):
@@ -151,7 +150,7 @@ class PageAdmin(MPTTModelAdmin):
 
     def page_state(self, obj):
         sm = get_workflow()(instance=obj)
-        return sm.state
+        return sm.state.verbose_name
     page_state.short_description = _("State")
 
     def template_name(self, obj):

@@ -28,7 +28,7 @@ class EntryAdmin(admin.ModelAdmin):
 
     def entry_state(self, obj):
         sm = BlogEntryWorkflow(instance=obj)
-        return sm.state
+        return sm.state.verbose_name
     entry_state.short_description = "State"
 
 

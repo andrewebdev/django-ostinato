@@ -57,7 +57,7 @@ class BlogEntryBase(models.Model):
         abstract = True
         ordering = ('-publish_date', '-created_date')
         get_latest_by = 'publish_date'
-        permissions = BlogEntryWorkflow.get_permissions('blog', 'Blog Entry')
+        permissions = BlogEntryWorkflow.get_permissions('blogentry')
 
     def __str__(self):
         return '%s' % self.title

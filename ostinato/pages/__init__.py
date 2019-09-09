@@ -6,8 +6,8 @@ OSTINATO_PAGES_SETTINGS = getattr(settings, 'OSTINATO_PAGES', {})
 PAGES_SETTINGS = {
     'cache_name': 'default',
     'cache_key_separator': ':',
-    'default_state': 'public',
     'workflow_class': 'ostinato.pages.workflow.PageWorkflow',
+    'default_state': 'ostinato.pages.workflow.Public',
 }
 PAGES_SETTINGS.update(OSTINATO_PAGES_SETTINGS)
 

@@ -1,4 +1,7 @@
-class SMException(Exception):
+from functools import wraps
+
+
+class StateMachineError(Exception):
     def __init__(self, value):
         self.value = value
 
@@ -6,66 +9,79 @@ class SMException(Exception):
         return self.value
 
 
-class InvalidState(SMException):
+class InvalidTransition(StateMachineError):
     pass
 
 
-class InvalidTransition(SMException):
-    pass
+def action(target_state, verbose_name=None):
+    """
+    Decorator to be used with state methods. This defines a transtion action
+    that will be available for this state.
 
+    @param target_state: The state to transition to when the action is invoked
+    @param verbose_name: A verbose name to display this action in the UI. If
+    this isn't provided we will use the capitalized method name.
+    """
+    def decorator(fn):
+        fn.target_state = target_state
+        if not verbose_name:
+            fn.verbose_name = fn.__name__.capitalize()
+        else:
+            fn.verbose_name = verbose_name
 
-class InvalidStateMachine(SMException):
-    pass
+        @wraps(fn)
+        def _make_action(self, *args, **kwargs):
+            fn(self, *args, **kwargs)
+            return self.transition(fn.target_state)
+
+        return _make_action
+    return decorator
 
 
 class State(object):
+    value = ''
     verbose_name = None
-    transitions = {}
     permissions = (
         ('view', 'Can View'),
         ('edit', 'Can Edit'),
         ('delete', 'Can Delete'),
     )
 
-    def __init__(self, instance=None, **kwargs):
-        self.instance = instance
+    def __init__(self, manager, **kwargs):
+        self.manager = manager
         self.extra_args = kwargs
 
-    def set_state(self, new_state):
+    @classmethod
+    def get_actions(cls):
+        _actions = ()
+        for attr in dir(cls):
+            _method = getattr(cls, attr)
+            if hasattr(_method, 'target_state'):
+                _actions += (
+                    (_method.__name__, _method.verbose_name),
+                )
+        return _actions
+
+    def transition(self, target):
         """
         A method that can be overridden for custom state processing.
         By default this method looks for a ``state_field`` on the instance
         and just updates that field.
         """
-
-        if self.instance:
+        # Get the new instance
+        if self.manager.instance:
             state_field = self.extra_args.get('state_field', 'state')
-            setattr(self.instance, state_field, new_state)
+            setattr(self.manager.instance, state_field, target)
 
-        return new_state
-
-    def transition(self, action, **kwargs):
-        """
-        Performs a transition based on ``action`` and returns a
-        instance for the next State
-        """
-        try:
-            new_state = self.transitions[action]
-        except KeyError:
-            raise InvalidTransition(
-                '%s is not a valid action. Valid actions are: %s' % (
-                    action, [k for k in self.transitions]))
-
-        # Try to run a custom method if it exists
-        if hasattr(self, action):
-            getattr(self, action)(**kwargs)
-
-        return self.set_state(new_state)
+        # Fetch the state from the manager
+        return self.manager.get_state_by_value(target)
 
 
 class StateMachine(object):
-    state_map = {}
-    initial_state = ''
+    states = ()
+    initial_state = None
+    instance = None
+    state = None
 
     def __init__(self, instance=None, **kwargs):
         """
@@ -77,21 +93,11 @@ class StateMachine(object):
         """
         self.instance = instance
         self.extra_args = kwargs
-        self.process_state()
-        self.verify_statemachine()
+        self.init_state()
 
-    def set_state(self, state):
-        self._state = state
-
-    def get_state(self):
-        return self.state_map[self._state].verbose_name
-
-    state = property(get_state)
-
-    def get_actions(self):
-        return [i for i in self.get_state_instance().transitions]
-
-    actions = property(get_actions)
+    @property
+    def actions(self):
+        return self.state.get_actions()
 
     @classmethod
     def get_choices(cls):
@@ -102,79 +108,59 @@ class StateMachine(object):
         This is a handy helper for using in django choices fields etc.
         """
         choices = ()
-        for k in cls.state_map:
+        for state in cls.states:
             choices += (
-                (k, cls.state_map[k].verbose_name or cls.state_map[k].__name__),
+                (state.value, state.verbose_name or state.__name__),
             )
-
         return choices
 
-    def process_state(self):
+    def get_state_by_value(self, value):
+        state = None
+        for state_cls in self.states:
+            if state_cls.value == value:
+                state = state_cls
+        return state
+
+    def init_state(self):
         """
-        Our default state processor. This method can be overridden
+        Our default state initializer. This method can be overridden
         if the state is determined by more than just a field on the
         instance.
 
         If you override this method, make sure to call set_state() to
         set the state on the instance.
         """
+        self.state = self.initial_state
+
+        # Find the correct state field for the instance we need to manage state
+        # for. We will assume a default state field name of `state` if this is
+        # not provided
         self.state_field = self.extra_args.get('state_field', 'state')
 
-        state = self.extra_args.get('state', None)
-        if not state:
-            state = getattr(self.instance, self.state_field, None) or self.initial_state
+        # Set up the current state based on the instance
+        if self.instance:
+            state_value = getattr(self.instance, self.state_field)
+            if not state_value:
+                state_value = self.initial_state.value
 
-            if state not in self.state_map:
-                state = self.initial_state
-
-        self.set_state(state)
+            # Now find and set correct state based on the instance
+            self.state = self.get_state_by_value(state_value)
 
     def get_state_instance(self):
         """ Returns a single instance for the current state """
-        return self.state_map[self._state](
-            instance=self.instance, **self.extra_args)
+        return self.state(manager=self, **self.extra_args)
 
-    def take_action(self, action, **kwargs):
-        self._state = self.get_state_instance().transition(action, **kwargs)
-
-    def action_result(self, action):
-        """
-        Determines what the resulting state for would be if ``action`` is
-        transitioned.
-        """
-        try:
-            return self.get_state_instance().transitions[action]
-        except KeyError:
-            raise InvalidTransition('%s, is not a valid action.' % action)
-
-    def verify_statemachine(self):
-        """
-        Verify that the ``initial_state`` and ``state_map`` does not
-        contain any invalid states.
-        """
-        # First verify if the initial state is a valid state
-        if self.initial_state not in self.state_map:
-            raise InvalidStateMachine(
-                '"%s" is not a valid state for %s. Valid states are %s' % (
-                    self._state, self.__class__.__name__,
-                    [i for i in self.state_map.keys()]
-                ))
-
-        # Now cycle through every state in the state_map and make sure that
-        # actions are valid and there are no "hanging states"
-        state_keys = self.state_map.keys()  # Hold on to these for testing
-        for key in self.state_map:
-            state_cl = self.state_map[key]
-            targets = state_cl.transitions.values()
-
-            for t in targets:
-                if t not in state_keys:
-                    raise InvalidState(
-                        "%s contains an invalid action target, %s." %
-                        (state_cl.__name__, t))
+    def transition(self, action, *args, **kwargs):
+        available_actions = [a[0] for a in self.state.get_actions()]
+        if self.state and action not in available_actions:
+            raise InvalidTransition('{}, is not a valid action for {}.'.format(
+                action, self.state.value))
+        state = getattr(self.get_state_instance(), action)(*args, **kwargs)
+        self.state = state
+        return self.state.value
 
     @classmethod
-    def get_permissions(cls, prefix, verbose_prefix=""):
+    def get_permissions(cls, model_name):
         """
         Returns the permissions for the different states and transitions
         as tuples, the same as what django's permission system expects.
@@ -184,27 +170,27 @@ class StateMachine(object):
         """
         perms = ()
 
-        for k, v in cls.state_map.items():
-            for perm in v.permissions:
-                # permission codename format: "<state>_<action>_<prefix>"
-
-                perms += ((
-                    '%s_%s_%s' % (v.__name__.lower(), perm[0], prefix),
-                    '[%s] %s %s' % (v.verbose_name, perm[1], verbose_prefix or prefix),
-                ),)
+        for state in cls.states:
+            for perm in state.permissions:
+                # permission codename format: "<state>_<action>_<modelname>"
+                permission = (
+                    '{}_{}_{}'.format(state.value, perm[0], model_name),
+                    '[{}] {} {}'.format(
+                        state.verbose_name,
+                        perm[1],
+                        model_name.capitalize(),
+                    )
+                )
+                if permission not in perms:
+                    perms += (permission,)
 
             # Now add the transition permissions
-            for t in v.transitions:
+            for action, verbose in state.get_actions():
                 perm = (
-                    'can_%s_%s' % (t, prefix),
-                    'Can %s %s' % (t.capitalize(), verbose_prefix or prefix),
+                    'can_{}_{}'.format(action, model_name),
+                    'Can {} {}'.format(verbose, model_name.capitalize()),
                 )
                 if perm not in perms:  # Dont add it if it already exists
                     perms += (perm,)
 
         return perms
-
-
-class IntegerStateMachine(StateMachine):
-    def set_state(self, state):
-        super(IntegerStateMachine, self).set_state(int(state))

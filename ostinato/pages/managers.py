@@ -8,8 +8,7 @@ from ostinato.pages import PAGES_SETTINGS, get_cache_key
 class PageManager(TreeManager):
 
     def published(self):
-        return self.get_queryset().filter(
-            publish_date__lte=timezone.now(), state='public')
+        return self.get_queryset().filter(state='public')
 
     def get_breadcrumbs(self, for_page, clear_cache=False):
         """

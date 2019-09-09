@@ -13,14 +13,26 @@ INSTALLED_APPS = [
     'django.contrib.sites',
 
     # Pages
-    'ostinato.tests.pages',
     'ostinato.pages',
+    'ostinato.tests.pages',
+
+    # Statemachine
     'ostinato.statemachine',
     'ostinato.tests.statemachine_tests',
+
+    # Blog
     'ostinato.tests.blog',
+
+    # ContentFitlers
     'ostinato.contentfilters',
+
+    # Medialib
     'ostinato.medialib',
     'ostinato.tests.medialib_tests',
+
+    # Menus
+    # 'ostinato.menus',
+    # 'ostinato.tests.menus_tests',
 
     # Other dependencies
     'mptt',
@@ -95,4 +107,3 @@ OSTINATO_CONTENTBROWSER = {
         'ostinato.tests.contentbrowser.views.SampleBrowser',
     ],
 }
-

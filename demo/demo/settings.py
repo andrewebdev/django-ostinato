@@ -144,7 +144,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Ostinato settings
 OSTINATO_PAGES = {
-    'default_state': 'private',
+    'default_state': 'ostinato.pages.workflow.Private',
 
     'templates': {
         'website.homepage': {

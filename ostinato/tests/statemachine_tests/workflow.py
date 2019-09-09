@@ -1,75 +1,48 @@
-from ostinato.statemachine import State, StateMachine
+from ostinato.statemachine import State, StateMachine, action
 
 
-# States
 class Private(State):
+    value = 'private'
     verbose_name = 'Private'
-    transitions = {'publish': 'public'}
 
+    @action('public')
     def publish(self, msg="Object made public"):
-        if self.instance:
-            self.instance.message = msg
+        self.manager.instance.message = msg
 
 
 class Public(State):
+    value = 'public'
     verbose_name = 'Public'
-    transitions = {'retract': 'private'}
 
+    @action('private')
     def retract(self):
-        if self.instance:
-            self.instance.message = 'Object made private'
-
-
-class ErrorState(State):
-    verbose_name = 'Error State'
-    transitions = {'invalid_action': 'invalid'}  # Target state does not exist
-
-
-class HangingState(State):
-    verbose_name = 'Hanging State'
-    transitions = {}
+        self.manager.instance.message = 'Object made private'
 
 
 class TestStateMachine(StateMachine):
-    state_map = {'private': Private, 'public': Public}
-    initial_state = 'private'
-
-
-class InvalidSM(StateMachine):
-    state_map = {'private': Private, 'error': ErrorState, 'public': Public}
-    initial_state = 'invalid'
-
-
-class ErrorSM(InvalidSM):
-    initial_state = 'private'
-
-
-class HangingSM(InvalidSM):
-    state_map = {'private': Private, 'hanging': HangingState, 'public': Public}
-    initial_state = 'private'
+    states = (Private, Public)
+    initial_state = Private
 
 
 # Create a Integer based Statemachine
 class IntPrivate(State):
+    value = 1
     verbose_name = 'Private'
-    transitions = {'publish': 2}
 
+    @action(2)
     def publish(self):
-        if self.instance:
-            self.instance.message = 'Object made public'
+        self.manager.instance.message = 'Object made public'
 
 
 class IntPublic(State):
+    value = 2
     verbose_name = 'Public'
-    transitions = {'retract': 1}
 
+    @action(1)
     def retract(self):
-        if self.instance:
-            self.instance.message = 'Object made private'
+        self.manager.instance.message = 'Object made private'
 
 
 class TestIntegerStateMachine(StateMachine):
-    state_map = {1: IntPrivate, 2: IntPublic}
-    initial_state = 1
-
-
+    states = (IntPrivate, IntPublic)
+    initial_state = IntPrivate

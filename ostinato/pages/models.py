@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from mptt.models import MPTTModel, TreeForeignKey
 
 from ostinato.pages.managers import PageManager
-from ostinato.pages.workflow import get_workflow
+from ostinato.pages.workflow import get_workflow, get_default_state
 from ostinato.pages import PAGES_SETTINGS, get_cache_key
 
 
@@ -64,6 +64,9 @@ class Page(MPTTModel):
 
     template = models.CharField(_("Template"), max_length=250)
 
+    # TODO: We'll be removing this soon
+    # Rather use a redirect app with associate middleware
+    # That way redirects can be kept in one place
     redirect = models.CharField(
         _("Redirect"),
         max_length=200,
@@ -79,7 +82,7 @@ class Page(MPTTModel):
     state = models.CharField(
         _("State"),
         max_length=20,
-        default=PAGES_SETTINGS['default_state'],
+        default=get_default_state().value,
         choices=get_workflow().get_choices(),
     )
 
@@ -87,12 +90,14 @@ class Page(MPTTModel):
         _("Created date"),
         null=True,
         blank=True,
+        auto_now_add=True,
     )
 
     modified_date = models.DateTimeField(
         _("Modified date"),
         null=True,
         blank=True,
+        auto_now=True,
     )
 
     publish_date = models.DateTimeField(
@@ -114,12 +119,12 @@ class Page(MPTTModel):
     objects = PageManager()
 
     class Meta:
-        permissions = get_workflow().get_permissions('page', 'Page')
+        permissions = get_workflow().get_permissions('page')
         verbose_name = _("Page")
         verbose_name_plural = _("Pages")
 
     def __str__(self):
-        return '%s' % self.title
+        return '{}'.format(self.title)
 
     def save(self, *args, **kwargs):
         now = timezone.now()
@@ -127,14 +132,7 @@ class Page(MPTTModel):
         if not self.id or not self.created_date:
             self.created_date = now
 
-            # since it's created the first time, and we want it
-            # published by default, we need to set the date now.
-            if self.state == 'public':
-                self.publish_date = now
-
-        self.modified_date = now
-
-        page = super(Page, self).save(*args, **kwargs)
+        page = super().save(*args, **kwargs)
 
         # Make sure to clear the url and breadcrumbs cache
         _clear_cache()

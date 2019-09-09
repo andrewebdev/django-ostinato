@@ -19,13 +19,13 @@ class BlogEntryWorkflowTestCase(TestCase):
         entry = Entry.objects.get(id=1)
         sm = BlogEntryWorkflow(instance=entry)
 
-        self.assertEqual('Private', sm.state)
+        self.assertEqual('private', sm.state.value)
         self.assertEqual(None, entry.publish_date)
 
-        sm.take_action('publish')
+        sm.transition('publish')
 
         # Now the state should be updated ...
-        self.assertEqual('Published', sm.state)
+        self.assertEqual('published', sm.state.value)
 
         # ... and the publish date should also be updated
         self.assertGreaterEqual(timezone.now(), entry.publish_date)
@@ -34,12 +34,12 @@ class BlogEntryWorkflowTestCase(TestCase):
         entry = Entry.objects.get(id=1)
         sm = BlogEntryWorkflow(instance=entry)
 
-        sm.take_action('review')
-        self.assertEqual('Review', sm.state)
+        sm.transition('review')
+        self.assertEqual('review', sm.state.value)
         self.assertIsNone(entry.publish_date)
 
-        sm.take_action('approve')
-        self.assertEqual('Published', sm.state)
+        sm.transition('approve')
+        self.assertEqual('published', sm.state.value)
         self.assertIsNotNone(entry.publish_date)
 
     def test_archive_action_method(self):
@@ -50,45 +50,44 @@ class BlogEntryWorkflowTestCase(TestCase):
         sm = BlogEntryWorkflow(instance=entry)
 
         self.assertTrue(entry.allow_comments)
-        sm.take_action('archive')
+        sm.transition('archive')
 
-        self.assertEqual('Archived', sm.state)
+        self.assertEqual('archived', sm.state.value)
         self.assertFalse(entry.allow_comments)
 
     def test_retract_from_archived_can_reset_date(self):
         entry = Entry.objects.get(id=1)
         sm = BlogEntryWorkflow(instance=entry)
-        sm.take_action('publish')
+        sm.transition('publish')
 
-        sm.take_action('archive')
-        self.assertEqual('Archived', sm.state)
+        sm.transition('archive')
+        self.assertEqual('archived', sm.state.value)
         self.assertIsNotNone(entry.publish_date)
 
-        sm.take_action('retract')
-        self.assertEqual('Private', sm.state)
+        sm.transition('retract')
+        self.assertEqual('private', sm.state.value)
         self.assertIsNotNone(entry.publish_date)
 
         # Reset the state to archived
-        sm.take_action('publish')
-        sm.take_action('archive')
+        sm.transition('publish')
+        sm.transition('archive')
 
         # Now test with the reset feature
-        sm.take_action('retract', reset_publish_date=True)
-        self.assertEqual('Private', sm.state)
+        sm.transition('retract', reset_publish_date=True)
+        self.assertEqual('private', sm.state.value)
         self.assertIsNone(entry.publish_date)
 
     def test_retract_from_published_can_reset_date(self):
         entry = Entry.objects.get(id=1)
         sm = BlogEntryWorkflow(instance=entry)
-        sm.take_action('publish')
+        sm.transition('publish')
 
-        sm.take_action('retract')
-        self.assertEqual('Private', sm.state)
+        sm.transition('retract')
+        self.assertEqual('private', sm.state.value)
         self.assertIsNotNone(entry.publish_date)
 
-        sm.take_action('publish')
+        sm.transition('publish')
         # Now test with the reset feature
-        sm.take_action('retract', reset_publish_date=True)
-        self.assertEqual('Private', sm.state)
+        sm.transition('retract', reset_publish_date=True)
+        self.assertEqual('private', sm.state.value)
         self.assertIsNone(entry.publish_date)
-

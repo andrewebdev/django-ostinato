@@ -1,5 +1,4 @@
 from django.db import models
-
 from .workflow import TestStateMachine
 
 
@@ -11,4 +10,4 @@ class TestModel(models.Model):
     message = models.CharField(max_length=250, null=True, blank=True)
 
     class Meta:
-        permissions = TestStateMachine.get_permissions('testmodel', 'Test')
+        permissions = TestStateMachine.get_permissions('testmodel')
