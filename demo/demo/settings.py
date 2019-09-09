@@ -50,9 +50,11 @@ INSTALLED_APPS = [
 
     'website',
 
+    'ostinato.siteconfig',
     'ostinato.pages',
     'ostinato.contentfilters',
     'ostinato.medialib',
+    'ostinato.menus',
 
     'mptt',
     'taggit',
@@ -143,6 +145,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 # Ostinato settings
+SITECONFIG_SETTINGS = (
+    ('site.verbose_name', 'str'),
+)
+
+
 OSTINATO_PAGES = {
     'default_state': 'ostinato.pages.workflow.Private',
 

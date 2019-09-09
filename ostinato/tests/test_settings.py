@@ -30,6 +30,10 @@ INSTALLED_APPS = [
     'ostinato.medialib',
     'ostinato.tests.medialib_tests',
 
+    # Siteconfig
+    'ostinato.siteconfig',
+    'ostinato.tests.siteconfig_tests',
+
     # Menus
     # 'ostinato.menus',
     # 'ostinato.tests.menus_tests',
@@ -101,6 +105,19 @@ OSTINATO_PAGES = {
         },
     }
 }
+
+
+OSTINATO_MENUS = {
+}
+
+
+SITECONFIG_SETTINGS = (
+    ('site.globalmessage', 'str', 'Hello'),
+    ('site.integer', 'int', '100'),
+    ('site.decimal', 'dec', '200.33'),
+    ('site.boolean', 'bool', 'yes'),
+)
+
 
 OSTINATO_CONTENTBROWSER = {
     'browsers': [
