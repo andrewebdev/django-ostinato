@@ -27,13 +27,13 @@ class StateTestCase(TestCase):
         self.assertIn('arg1', private.extra_args)
         self.assertIn('arg2', private.extra_args)
 
-    def test_transition(self):
+    def test_transition_to(self):
         manager = MockManager()
         private = Private(
             manager=manager,
             **{'arg1': 'Argument 1', 'arg2': 'Argument 2'})
 
-        self.assertEqual('test_state', private.transition('test_state'))
+        self.assertEqual('test_state', private.transition_to('test_state'))
         self.assertEqual('test_state', manager.instance.state)
 
 

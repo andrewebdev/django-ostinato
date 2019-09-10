@@ -24,6 +24,7 @@ def action(target_state, verbose_name=None):
     """
     def decorator(fn):
         fn.target_state = target_state
+        fn.is_action = True
         if not verbose_name:
             fn.verbose_name = fn.__name__.capitalize()
         else:
@@ -32,7 +33,7 @@ def action(target_state, verbose_name=None):
         @wraps(fn)
         def _make_action(self, *args, **kwargs):
             fn(self, *args, **kwargs)
-            return self.transition(fn.target_state)
+            return self.transition_to(fn.target_state)
 
         return _make_action
     return decorator
@@ -56,13 +57,13 @@ class State(object):
         _actions = ()
         for attr in dir(cls):
             _method = getattr(cls, attr)
-            if hasattr(_method, 'target_state'):
+            if getattr(_method, 'is_action', False):
                 _actions += (
                     (_method.__name__, _method.verbose_name),
                 )
         return _actions
 
-    def transition(self, target):
+    def transition_to(self, target):
         """
         A method that can be overridden for custom state processing.
         By default this method looks for a ``state_field`` on the instance
@@ -126,9 +127,6 @@ class StateMachine(object):
         Our default state initializer. This method can be overridden
         if the state is determined by more than just a field on the
         instance.
-
-        If you override this method, make sure to call set_state() to
-        set the state on the instance.
         """
         self.state = self.initial_state
 

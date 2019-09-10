@@ -40,7 +40,6 @@ class Private(State):
 class Public(State):
     value = 'public'
     verbose_name = 'Public'
-    actions = ('retract',)
 
     @action('private', verbose_name='Make private')
     def retract(self, **kwargs):
