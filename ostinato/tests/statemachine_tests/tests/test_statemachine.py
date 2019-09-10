@@ -57,6 +57,14 @@ class StateMachineTestCase(TestCase):
         self.assertEqual('public', instance.state)
         self.assertEqual('public', sm.state.value)
 
+    def test_manual_action_definition(self):
+        instance = TestModel(name='Test Model 1', state='private')
+        sm = TestStateMachine(instance=instance)
+        sm.transition('publish_manual')
+        self.assertEqual('public', instance.state)
+        self.assertEqual('public', sm.state.value)
+        self.assertEqual(instance.message, 'Manual action definition')
+
     def test_invalid_action(self):
         sm = TestStateMachine(
             instance=TestModel(name='Test Model 1', state='private'))
@@ -92,9 +100,10 @@ class StateMachineTestCase(TestCase):
     def test_get_available_actions(self):
         temp = TestModel.objects.create(name='Test Model 1', state='private')
         sm = TestStateMachine(instance=temp, state_field='other_state')
-        self.assertEqual(
-            (('publish', 'Publish'),),
-            sm.actions)
+        self.assertEqual((
+            ('publish', 'Publish'),
+            ('publish_manual', 'Publish manual')
+        ), sm.actions)
 
     def test_get_permissions(self):
         perms = TestStateMachine.get_permissions('testmodel')

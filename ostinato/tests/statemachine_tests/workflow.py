@@ -9,6 +9,12 @@ class Private(State):
     def publish(self, msg="Object made public"):
         self.manager.instance.message = msg
 
+    def publish_manual(self, msg="Manual action definition"):
+        self.manager.instance.message = msg
+        return self.transition_to('public')
+    publish_manual.is_action = True
+    publish_manual.verbose_name = 'Publish manual'
+
 
 class Public(State):
     value = 'public'

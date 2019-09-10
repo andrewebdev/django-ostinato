@@ -39,45 +39,61 @@ We start by creating our States...
 .. code-block:: python
     :linenos:
 
-    from ostinato.statemachine import State, StateMachine
+    from ostinato.statemachine import State, StateMachine, action
 
     class Private(State):
+        value = 'private'
         verbose_name = 'Private'
-        transitions = {'publish': 'public'}
+
+        @action('public', verbose_name='Make public')
+        def publish(self, **kwargs):
+            if self.manager.instance:
+                self.manager.instance.publish_date = timezone.now()
 
     class Public(State):
         verbose_name = 'Public'
-        transitions = {'retract': 'private', 'archive': 'archived'}
+
+        @action('private')
+        def retract(self, **kwargs):
+            pass
+
+        @action('archived')
+        def archive(self, **kwargs):
+            pass
 
     class Archived(State):
         verbose_name = 'Archived'
-        transitions = {}
 
 
 This is simple enough. Every state is a subclass of
 ``ostinato.statemachine.core.State`` and each of these states specifies two
 attributes.
 
+* ``value`` is the exact, unique, value that represents the state in the
+  database.
+
 * ``verbose_name`` is just a nice human readable name.
 
-* ``transitions`` is a dict where the *keys* are transition/action names, and
-    the *values* is the target state for the transition.
+We also define a couple of actions for the state. The action decorator specifies
+which target state value we should transition to after the action method was
+executed.
 
-Now we have to glue these states together into a statemachine.
+Next we create our statemachine and tell it what states to use.
 
 
 .. code-block:: python
     :linenos:
 
     class NewsWorkflow(StateMachine):
-        state_map = {'private': Private, 'public': Public, 'archived': Archived}
-        initial_state = 'private'
+        states = (Private, Public, Archived)
+        initial_state = Private
 
 
-* ``state_map`` is a dict where *keys* are unique id's/names for the states;
-    *values* are the actual ``State`` subclass
+* ``states`` is a is a tuple that lists every State class that should be used
+  with this statemachine.
 
-* ``initial_state`` is the starting state *key*
+* ``initial_state`` The state class to use as the initial state when none is
+  present.
 
 Thats all you need to set up a fully functioning statemachine.
 
@@ -85,7 +101,7 @@ Lets have a quick look at what this allows you to do:
 
 
 .. code-block:: python
-    
+
     >>> from odemo.news.models import NewsItem, NewsWorkflow
 
     # We need an instance to work with. We just get one from the db in this case
@@ -98,66 +114,62 @@ Lets have a quick look at what this allows you to do:
 
     # We can see that the statemachine automatically takes on the state of the
     # newsitem instance.
-    >>> sm.state
-    'Public'
+    >>> sm.state.value, sm.state.verbose_name
+    'public', 'Public'
 
     # We can view available actions based on the current state
     >>> sm.actions
-    ['retract', 'archive']
+    (('retract', 'Retract'), ('archive', 'Archive'))
 
     # We can tell the statemachine to take action
-    >>> sm.take_action('retract')
+    >>> sm.transition('retract')
 
-    # State is now changed in the statemachine ... 
-    >>> sm.state
-    'Private'
+    # State is now changed in the statemachine ...
+    >>> sm.state.value
+    'private'
 
     # ... and we can see that our original instance was also updated.
     >>> item.state
     'private'
+
     >>> item.save()  # Now we save our news item
 
 
-Custom Action methods
----------------------
-You can create custom *action methods* for states, which allows you to do
-extra stuff, like updating the publish_date.
+Define Actions without the decorator
+------------------------------------
 
-Our example ``NewsItem`` already has a empty ``publish_date`` field, so lets
-create a method that will update the publish date when the ``publish`` action
-is performed.
-
+You can manually create a action in a state without using the action. This can
+be handy when your action has logic that can transition to different target
+states, depening on other external factors.
 
 .. code-block:: python
     :linenos:
 
-    from django.utils import timezone
-
     class Private(State):
+        value = 'private'
         verbose_name = 'Private'
-        transitions = {'publish': 'public'}
 
         def publish(self, **kwargs):
-            if self.instance:
-                self.instance.publish_date = timezone.now()
+            if self.manager.instance:
+                self.manager.instance.publish_date = timezone.now()
 
+            if something_bad_happened:
+                return self.transition_to('review')
 
-Now, whenever the ``publish`` action is called on our statemachine, it will
-update the ``publish_date`` for the instance that was passed to the
-``StateMachine`` when it was created.
+            return self.transtion_to('public')
+        publish.is_action = True
+        publish.verbose_name = 'Make public'
+
 
 .. note::
 
-    The name of the method is important. The ``State`` class tries to look
-    for a method with the same name as the ``transition`` *key*.
+    Your manual action must always return the resulting call for
+    `self.transition_to`. The value passed to this method is the target state
+    value that you would like to transition to.
 
-    You can use the ``kwargs`` to pass extra arguments to your custom methods.
-    These arguments are passed through from the ``StateMachine.take_action()``
-    method eg.
-
-    .. code-block:: python
-
-        sm.take_action('publish', author=request.user)
+    When doing a manual declaration, you must set the `is_action` and
+    `verbose_name` properties for the related method, as seen in the example
+    above.
 
 
 Admin Integration
