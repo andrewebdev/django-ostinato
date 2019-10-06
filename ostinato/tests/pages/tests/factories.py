@@ -16,7 +16,6 @@ now = timezone.now()
 
 # Core Ostinato Page Model
 class PageFactory(DjangoModelFactory):
-
     title = factory.Sequence(lambda n: "Page {0} Title".format(n))
     slug = factory.Sequence(lambda n: "page-{0}-slug".format(n))
     created_date = now
@@ -59,4 +58,3 @@ class OtherPageFactory(DjangoModelFactory):
 
     class Meta:
         model = OtherPage
-

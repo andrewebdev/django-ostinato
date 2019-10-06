@@ -5,7 +5,7 @@ from ostinato.pages.models import (
     get_content_model,
     get_template_options,
     Page,
-    PageContent
+    PageContent,
 )
 
 from ostinato.tests.pages.models import LandingPage, Contributor
@@ -117,13 +117,6 @@ class PageModelTestCase(TestCase):
 
         p3 = Page.objects.get(slug='page-3')
         self.assertEqual('/page-1/page-2/page-3', p3.get_absolute_url())
-
-    def test_absolute_url_based_on_location(self):
-        p = Page.objects.get(slug='page-1')
-        p4 = Page.objects.create(
-            title='Page 4', slug='page-4', parent=p,
-            redirect='http://www.google.com')
-        self.assertEqual('http://www.google.com', p4.get_absolute_url())
 
     def test_get_template(self):
         p = Page.objects.get(slug='page-1')

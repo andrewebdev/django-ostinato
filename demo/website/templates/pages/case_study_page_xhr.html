@@ -1,8 +1,0 @@
-{% extends 'xhr_base.html' %}
-{% load content_filters %}
-
-{% block xhr_content %}
-<article>
-    {{ page.contents.content|modify|safe }}
-</article>
-{% endblock %}

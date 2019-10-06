@@ -1,6 +1,13 @@
 {% extends 'pages/base.html' %}
+{% load pages_tags content_filters %}
+
+
+{% block crumbs %}{% breadcrumbs page obj=entry %}{% endblock %}
+
 
 {% block content %}
-    {% include 'blog/entry_detail_xhr.html' %}
+  <article>
+    {{ entry.content|modify|safe }}
+  </article>
 {% endblock %}
 

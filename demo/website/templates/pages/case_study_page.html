@@ -1,5 +1,8 @@
 {% extends 'pages/base.html' %}
+{% load content_filters %}
 
 {% block content %}
-    {% include 'pages/case_study_page_xhr.html' %}
+  <article>
+    {{ page.contents.content|modify|safe }}
+  </article>
 {% endblock %}

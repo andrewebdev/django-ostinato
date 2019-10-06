@@ -1,5 +1,4 @@
 from django import http
-from django.views.generic import TemplateView
 
 from ostinato.pages.views import PageView
 from ostinato.pages.models import Page
@@ -10,36 +9,16 @@ from website.forms import ContactForm
 from blog.models import Entry
 
 
-class ServiceWorkerView(TemplateView):
-    """
-    Returns dynamically generated javascript file
-    """
-    template_name = "service-worker.js"
-    content_type = "application/javascript"
-
-    def get_context_data(self, **kwargs):
-        c = super(ServiceWorkerView, self).get_context_data(**kwargs)
-        # Create a flat list of pages which we want to cached
-        c['pages'] = Page.objects.published()
-        c['latest_entry'] = Entry.objects.filter(state='published').latest('publish_date')
-        return c
-
-
 class TopLevelListPageView(PageView):
-    xhr_template_name = 'pages/top_level_list_page_xhr.html'
-
     def get_context_data(self, **kwargs):
         c = super(TopLevelListPageView, self).get_context_data(**kwargs)
-
         # We convert the queryset to a list so that we can manipulate
         # the model instances in the get() and post() methods
         c['children'] = list(c['page'].get_children().filter(state='public'))
-
         return c
 
 
 class ContactPageView(PageView):
-    xhr_template_name = 'pages/contact_page_xhr.html'
 
     def get(self, *args, **kwargs):
         c = self.get_context_data(**kwargs)

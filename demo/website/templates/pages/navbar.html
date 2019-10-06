@@ -1,7 +1,9 @@
 {% if navbar %}
     {% with page.get_root as root_page %}
         {% for p in navbar %}
-        <a is="xhr-link" slug="{{ p.slug }}" href="{{ p.url }}">{{ p.title }}</a>
+        <xhr-link>
+            <a slug="{{ p.slug }}" href="{{ p.url }}">{{ p.title }}</a>
+        </xhr-link>
         {% endfor %}
     {% endwith %}
 {% endif %}
