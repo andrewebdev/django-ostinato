@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'ostinato.pages',
     'ostinato.contentfilters',
     'ostinato.medialib',
-    'ostinato.menus',
+    'ostinato.redirects',
+    # 'ostinato.menus',
 
     'mptt',
     'taggit',
@@ -70,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'ostinato.redirects.middleware.redirect_middleware',
 ]
 
 ROOT_URLCONF = 'demo.urls'

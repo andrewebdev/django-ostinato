@@ -64,19 +64,6 @@ class Page(MPTTModel):
 
     template = models.CharField(_("Template"), max_length=250)
 
-    # TODO: We'll be removing this soon
-    # Rather use a redirect app with associate middleware
-    # That way redirects can be kept in one place
-    redirect = models.CharField(
-        _("Redirect"),
-        max_length=200,
-        blank=True,
-        null=True,
-        help_text=_(
-            "Use this to point to redirect to another page or website."
-        ),
-    )
-
     show_in_sitemap = models.BooleanField(_("Show in sitemap"), default=True)
 
     state = models.CharField(
@@ -163,15 +150,12 @@ class Page(MPTTModel):
         url = cache.get(cache_key)
 
         if not url:
-            if self.redirect:
-                return self.redirect
-
             if self.is_root_node() and self == Page.objects.root_nodes()[0]:
                 url = reverse('ostinato_page_home')
 
             else:
-                path = list(self.get_ancestors().values_list('slug',
-                                                             flat=True))
+                path = list(self.get_ancestors().values_list(
+                    'slug', flat=True))
                 path.append(self.slug)
                 url = reverse('ostinato_page_view', kwargs={
                     'path': '/'.join(path)
