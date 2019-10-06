@@ -1,134 +1,30 @@
 <!doctype html>
 <html>
-{% load pages_tags static %}
+  {# load pages_tags menus_tags static #}
+  {% load pages_tags static %}
 
-<head>
+  <head>
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
     <title>{% block title %}Ostinato Demo{% endblock %}</title>
-    <meta name="description" content="My App description">
-
-    <link rel="icon" href="/images/favicon.ico">
-
-    <!-- See https://goo.gl/OOhYW5 -->
-    <link rel="manifest" href="/manifest.json">
-
-    <!-- See https://goo.gl/qRE0vM -->
-    <meta name="theme-color" content="#3f51b5">
-
-    <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="My App">
-
-    <!-- Add to homescreen for Safari on iOS -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="My App">
-
-    <!-- Homescreen icons -->
-    <link rel="apple-touch-icon" href="/images/manifest/icon-48x48.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/images/manifest/icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="96x96" href="/images/manifest/icon-96x96.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/images/manifest/icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="/images/manifest/icon-192x192.png">
-
-    <!-- Tile icon for Windows 8 (144x144 + tile color) -->
-    <meta name="msapplication-TileImage" content="/images/manifest/icon-144x144.png">
-    <meta name="msapplication-TileColor" content="#3f51b5">
-    <meta name="msapplication-tap-highlight" content="no">
-
-    <script>
-        // Setup Polymer options
-        window.Polymer = {
-            dom: 'shadow',
-            lazyRegister: true
-        };
-
-        // Load webcomponentsjs polyfill if browser does not support native Web Components
-        (function() {
-            'use strict';
-
-            var onload = function() {
-                // For native Imports, manually fire WebComponentsReady so user code
-                // can use the same code path for native and polyfill'd imports.
-                if (!window.HTMLImports) {
-                    document.dispatchEvent(
-                        new CustomEvent('WebComponentsReady', {bubbles: true})
-                    );
-                }
-            };
-
-            var webComponentsSupported = (
-                'registerElement' in document
-                && 'import' in document.createElement('link')
-                && 'content' in document.createElement('template')
-            );
-
-            if (!webComponentsSupported) {
-                var script = document.createElement('script');
-                script.async = true;
-                script.src = '/bower_components/webcomponentsjs/webcomponents-lite.min.js';
-                script.onload = onload;
-                document.head.appendChild(script);
-            } else {
-                onload();
-            }
-        })();
-
-        // Load pre-caching Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/service-worker.js');
-            });
-        }
-    </script>
-
     <link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,600,400italic,600italic' rel='stylesheet' type='text/css'>
-    <link rel="import" href="{% static 'elements/ostinato-app.html' %}">
+  </head>
 
-</head>
+  <body lang="en">
 
-<body lang="en">
-    <ostinato-xhr id="xhrContent" target-selector="#content" update-history="True"></ostinato-xhr>
+    <header>
+      <a href="/">Ostinato Demo</a>
+      {# navbar 'main-menu' #}
+    </header>
 
-    <ostinato-app>
-        <app-drawer-layout fullbleed>
-            <!-- Drawer content -->
-            <app-drawer id="mainDrawer">
-                <app-toolbar><a href="/">Ostinato Demo</a></app-toolbar>
-                <iron-selector selected="{{ page.slug }}" attr-for-selected="name" role="navigation">
-                    {% navbar %}
-                </iron-selector>
-            </app-drawer>
+    <div id="pageContent">
+      {% block content %}
+      {% endblock %}
+    </div>
 
-            <!-- Main content -->
-            <app-header-layout has-scrolling-region>
-                <app-header fixed effects="waterfall">
-                    <app-toolbar>
-                        <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-                        <div main-title>Ostinato Demo</div>
-                    </app-toolbar>
-                </app-header>
+    <footer>
+      <p>Copyright &copy; Andre Engelbrecht, 2013-{% now "Y" %}. All rights reserved.</p>
+    </footer>
 
-                <div id="page" class="main">
-                    <div id="content">
-                        {% block content %}
-                        {% endblock %}
-                    </div>
-
-                    <footer>
-                        <div class="inner">
-                            <p>Copyright &copy; Andre Engelbrecht, 2013. All rights reserved.</p>
-                        </div>
-                    </footer>
-
-                </div>
-            </app-header-layout>
-        </app-drawer-layout>
-    </ostinato-app>
-
-</body>
-
+  </body>
 </html>
