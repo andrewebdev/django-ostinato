@@ -3,7 +3,7 @@ from django import forms
 from ostinato.statemachine import InvalidTransition
 
 
-def sm_form_factory(sm_class, state_field='state'):
+def sm_form_factory(sm_class, state_field='state', **sm_kwargs):
     """
     A factory to create a custom StateMachineModelForm class
     """
@@ -11,7 +11,10 @@ def sm_form_factory(sm_class, state_field='state'):
         def __init__(self, *args, **kwargs):
             super(StateMachineModelForm, self).__init__(*args, **kwargs)
 
-            self.sm = sm_class(instance=self.instance, state_field=state_field)
+            self.sm = sm_class(
+                instance=self.instance,
+                state_field=state_field,
+                **sm_kwargs)
             self.initial_state = self.sm.state.value
 
             self.fields[state_field] = forms.ChoiceField(
@@ -30,7 +33,7 @@ def sm_form_factory(sm_class, state_field='state'):
                 """
                 # Use a temporary statemachine without instance to "simulate"
                 # a transition without modifying the instance.
-                tempsm = sm_class()
+                tempsm = sm_class(**sm_kwargs)
                 tempsm.state = self.sm.state
 
                 action = self.cleaned_data[state_field]

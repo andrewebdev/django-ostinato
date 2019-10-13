@@ -13,13 +13,13 @@ if __name__ == '__main__':
 
     test_runner = get_runner(settings)()
     failures = test_runner.run_tests([
-        'ostinato.tests.pages',
         'ostinato.tests.statemachine_tests',
+        'ostinato.tests.pages',
         'ostinato.tests.blog',
         'ostinato.tests.contentfilters',
         'ostinato.tests.medialib_tests',
-        # 'ostinato.tests.menus_tests',
         'ostinato.tests.siteconfig_tests',
+        # 'ostinato.tests.menus_tests',
     ])
 
     sys.exit(bool(failures))

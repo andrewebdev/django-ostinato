@@ -208,6 +208,13 @@ OSTINATO_CONTENTBROWSER = {
     ],
 }
 
+# OSTINATO_MENUS = {
+#     'menu_types': {
+#         'menus.urllink': {
+#             'label': 'URL',
+#             'description': 'Link to a custom internal or external URL', },
+#     },
+# }
 
 # Third party app config
 TINYMCE_DEFAULT_CONFIG = {

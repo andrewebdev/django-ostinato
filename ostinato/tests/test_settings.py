@@ -36,7 +36,6 @@ INSTALLED_APPS = [
 
     # Menus
     # 'ostinato.menus',
-    # 'ostinato.tests.menus_tests',
 
     # Other dependencies
     'mptt',
@@ -104,10 +103,6 @@ OSTINATO_PAGES = {
             'label': 'Some Other Page',
         },
     }
-}
-
-
-OSTINATO_MENUS = {
 }
 
 
