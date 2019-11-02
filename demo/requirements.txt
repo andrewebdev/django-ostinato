@@ -1,4 +1,4 @@
-pillow==3.1.1
+pillow==6.2.0
 django==1.9.4
 django-tinymce==2.3.0
 django-taggit==0.18.1
