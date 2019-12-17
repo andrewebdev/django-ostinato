@@ -16,6 +16,7 @@ eggs
 parts
 MANIFEST
 dist/
+!ostinato/admin/static/ostinato/dist/
 venv/
 build/
 node_modules/
