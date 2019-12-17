@@ -19,7 +19,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'setuptools',
-        'django-mptt == 0.9.1',
+        'django-mptt == 0.10.0',
     ],
     keywords=['django', 'cms', 'ostinato', 'statemachine', 'pages', 'blog'],
     classifiers=[
