@@ -16,7 +16,6 @@
      */
     const directives = new WeakMap();
     const isDirective = (o) => typeof o === 'function' && directives.has(o);
-    //# sourceMappingURL=directive.js.map
 
     /**
      * @license
@@ -65,7 +64,6 @@
             node = n;
         }
     };
-    //# sourceMappingURL=dom.js.map
 
     /**
      * @license
@@ -89,7 +87,6 @@
      * A sentinel value that signals a NodePart to fully clear its content.
      */
     const nothing = {};
-    //# sourceMappingURL=part.js.map
 
     /**
      * @license
@@ -279,7 +276,6 @@
      *    * (') then any non-(')
      */
     const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F \x09\x0a\x0c\x0d"'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
-    //# sourceMappingURL=template.js.map
 
     /**
      * @license
@@ -377,7 +373,6 @@
             return fragment;
         }
     }
-    //# sourceMappingURL=template-instance.js.map
 
     /**
      * @license
@@ -462,7 +457,6 @@
             return template;
         }
     }
-    //# sourceMappingURL=template-result.js.map
 
     /**
      * @license
@@ -877,7 +871,6 @@
         (eventOptionsSupported ?
             { capture: o.capture, passive: o.passive, once: o.once } :
             o.capture);
-    //# sourceMappingURL=parts.js.map
 
     /**
      * @license
@@ -929,7 +922,6 @@
         }
     }
     const defaultTemplateProcessor = new DefaultTemplateProcessor();
-    //# sourceMappingURL=default-template-processor.js.map
 
     /**
      * @license
@@ -977,7 +969,6 @@
         return template;
     }
     const templateCaches = new Map();
-    //# sourceMappingURL=template-factory.js.map
 
     /**
      * @license
@@ -1018,7 +1009,6 @@
         part.setValue(result);
         part.commit();
     };
-    //# sourceMappingURL=render.js.map
 
     /**
      * @license
@@ -1043,7 +1033,6 @@
      * render to and update a container.
      */
     const svg = (strings, ...values) => new SVGTemplateResult(strings, values, 'svg', defaultTemplateProcessor);
-    //# sourceMappingURL=lit-html.js.map
 
     /**
      * @license
@@ -1168,7 +1157,6 @@
             }
         }
     }
-    //# sourceMappingURL=modify-template.js.map
 
     /**
      * @license
@@ -1408,7 +1396,6 @@
             window.ShadyCSS.styleElement(container.host);
         }
     };
-    //# sourceMappingURL=shady-render.js.map
 
     /**
      * @license
@@ -1951,7 +1938,6 @@
      * Marks class as having finished creating properties.
      */
     UpdatingElement.finalized = true;
-    //# sourceMappingURL=updating-element.js.map
 
     /**
      * @license
@@ -1966,7 +1952,6 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    //# sourceMappingURL=decorators.js.map
 
     /**
     @license
@@ -1979,7 +1964,6 @@
     found at http://polymer.github.io/PATENTS.txt
     */
     const supportsAdoptingStyleSheets = ('adoptedStyleSheets' in Document.prototype);
-    //# sourceMappingURL=css-tag.js.map
 
     /**
      * @license
@@ -2162,7 +2146,6 @@
      * @nocollapse
      */
     LitElement.render = render$1;
-    //# sourceMappingURL=lit-element.js.map
 
     const moveIcon = svg`<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g><path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path></g></svg>`;
     const copyIcon = svg`<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"></path></g></svg>`;

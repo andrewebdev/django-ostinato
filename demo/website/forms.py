@@ -2,8 +2,8 @@ from django import forms
 from django.contrib.contenttypes.admin import GenericTabularInline
 
 # from ostinato.contentbrowser.widgets import CBWidgetMixin
+from ostinato.admin.widgets import EditorJSWidget
 
-from tinymce.widgets import TinyMCE
 from website.models import (
     HomePage,
     GenericPage,
@@ -34,7 +34,7 @@ class ContactForm(forms.Form):
         email.send()
 
 
-class ContentAreaWidget(TinyMCE):  #CBWidgetMixin, TinyMCE):
+class ContentAreaWidget(EditorJSWidget):
     pass
 
 

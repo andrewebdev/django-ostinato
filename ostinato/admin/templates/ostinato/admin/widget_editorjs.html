@@ -1,0 +1,11 @@
+{% load staticfiles %}
+
+<textarea name="{{ widget.name }}"
+  {% include "django/forms/widgets/attrs.html" %}
+  style="display: none;">{% if widget.value %}{{ widget.value }}{% endif %}</textarea>
+
+<ostinato-editor-widget
+  saveTo='[name="{{ widget.name }}"]'
+  editorConfig="{{ config_module }}"
+  editorFramePath="{% url 'ostinato_admin_editor_frame' %}">
+</ostinato-editor-widget>

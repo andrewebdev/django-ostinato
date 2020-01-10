@@ -158,7 +158,7 @@ OSTINATO_PAGES = {
     'templates': {
         'website.homepage': {
             'label': 'Home Page',
-            'admin_form': 'website.forms.HomePageForm',
+            'form': 'website.forms.HomePageForm',
             'template': 'pages/home_page.html',
             'page_inlines': [
                 'website.forms.ImageInline',
@@ -169,7 +169,7 @@ OSTINATO_PAGES = {
         'website.genericpage': {
             'label': 'Generic Page',
             'template': 'pages/generic_page.html',
-            'admin_form': 'website.forms.GenericPageForm'
+            'form': 'website.forms.GenericPageForm'
         },
 
         'website.toplevellistpage': {
@@ -181,13 +181,13 @@ OSTINATO_PAGES = {
         'website.casestudypage': {
             'label': 'Case Study',
             'template': 'pages/case_study_page.html',
-            'admin_form': 'website.forms.GenericPageForm',
+            'form': 'website.forms.GenericPageForm',
         },
 
         'website.contactpage': {
             'label': 'Contact Page',
             'template': 'pages/contact_page.html',
-            'admin_form': 'website.forms.ContactPageForm',
+            'form': 'website.forms.ContactPageForm',
             'view': 'website.views.ContactPageView',
         },
 
@@ -215,37 +215,3 @@ OSTINATO_CONTENTBROWSER = {
 #             'description': 'Link to a custom internal or external URL', },
 #     },
 # }
-
-# Third party app config
-TINYMCE_DEFAULT_CONFIG = {
-    'theme': 'advanced',
-    'plugins': "paste",
-    'relative_urls': False,
-    # 'remove_script_host': False,
-    # 'document_base_url': '',
-    'content_css': "%scss/tinymce_content.css" % STATIC_URL,
-
-    'theme_advanced_buttons1' : "bold,italic,|,justifyleft,justifycenter,justifyright,justifyfull,bullist,numlist,|,undo,redo,|,link,unlink,code,image,|,formatselect,|,pastetext,",
-    'theme_advanced_buttons2' : "",
-    'theme_advanced_buttons3' : "",
-    'theme_advanced_buttons4' : "",
-    'theme_advanced_toolbar_location' : "top",
-    'theme_advanced_toolbar_align' : "left",
-    'theme_advanced_statusbar_location' : "bottom",
-    'theme_advanced_resizing' : True,
-    'theme_advanced_blockformats' : "h1,h2,h3,p,blockquote",
-
-    'width': 760,
-    'height': 400,
-
-    'paste_strip_class_attributes': 'all',
-    'paste_auto_cleanup_on_paste' : True,
-    'paste_convert_middot_lists': False,
-    'paste_remove_styles' : True,
-    'paste_retain_style_properties': '',
-
-    'extended_valid_elements': "a[class|name|href|target|title|onclick|rel],"\
-        "script[type|src],"\
-        "iframe[src|style|width|height|scrolling|marginwidth|marginheight|frameborder],"\
-        "$elements",
-}
