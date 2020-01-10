@@ -2159,41 +2159,17 @@
     LitElement.render = render$1;
     //# sourceMappingURL=lit-element.js.map
 
-    const baseGenerators = {
-      paragraph: (data) => `<p>${data.text}</p>`,
-
-      header: (data) => `<h${data.level}>${data.text}</h${data.level}>`,
-
-      list: (data) => {
-        let tagname = data.style.charAt(0) + 'l';
-        var renderItem = (item) => { return `<li>${item}</li>`; };
-        var items = '';
-        data.items.forEach((item) => { items += renderItem(item); });
-        return `<${tagname}>${items}</${tagname}>`;
-      },
-
-      quote: (data) => {
-        return `<blockquote style="quote-${data.alignment}">
-      <p class="quote-text">${data.text}</p>
-      <p class="quote-caption">${data.caption}</p>
-    </blockquote>`;
-      },
-    };
-
-
     class HTMLEngine {
-      constructor(inputEl, templateSelector, generators) {
+      constructor(inputEl, templateSelector, editorConfig) {
         this.inputEl = inputEl;
-        this.generators = generators;
+        this.editorConfig = editorConfig;
       }
 
       read() {
         let doc = new DOMParser().parseFromString(this.inputEl.value, 'text/html');
         var dataTemplate = doc.querySelector('[data-editor-data]');
         if (dataTemplate) {
-          // Fix any escaped quotes in the json before parsing
           var jsonData = dataTemplate.dataset.editorData;
-          // var validJson = dataTemplate.innerHTML.replace(/\\"/g, '\\\"');
           return JSON.parse(jsonData);
         }
         return null;
@@ -2210,7 +2186,7 @@
       }
 
       renderBlock(block) {
-        return this.generators[block.type](block.data) + '\n';
+        return this.editorConfig.tools[block.type].HTMLGenerator(block.data) + '\n';
       }
     }
 
@@ -2234,10 +2210,14 @@
       connectedCallback() {
         super.connectedCallback();
         this.saveToEl = document.querySelector(this.saveTo);
-        this.engine = new HTMLEngine(
-          this.saveToEl,
-          '[editorjs-data]',
-          baseGenerators);
+        // Now import our editor config.
+        import(this.editorConfig).then((m) => {
+          this.config = m.editorConfig;
+          this.engine = new HTMLEngine(
+            this.saveToEl,
+            '[editorjs-data]',
+            this.config);
+        });
       }
 
       loadData() {
