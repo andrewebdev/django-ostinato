@@ -52,14 +52,6 @@ class OstinatoEditorWidget extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this.saveToEl = document.querySelector(this.saveTo);
-    // Now import our editor config.
-    import(this.editorConfig).then((m) => {
-      this.config = m.editorConfig;
-      this.engine = new HTMLEngine(
-        this.saveToEl,
-        '[editorjs-data]',
-        this.config);
-    });
   }
 
   loadData() {
@@ -99,7 +91,15 @@ class OstinatoEditorWidget extends LitElement {
   }
 
   _handleFrameLoaded() {
-    this.loadData();
+    // Now import our editor config.
+    import(this.editorConfig).then((m) => {
+      this.config = m.editorConfig;
+      this.engine = new HTMLEngine(
+        this.saveToEl,
+        '[editorjs-data]',
+        this.config);
+      this.loadData();
+    });
   }
 
   firstUpdated() {
@@ -116,7 +116,7 @@ class OstinatoEditorWidget extends LitElement {
       iframe {
         width: 100%;
         min-height: 400px;
-        box-shadow: 0 0 1px 2px #e3e3e3;
+        box-shadow: 0 0 3px 1px #d0d0d0;
       }
     `;
   }

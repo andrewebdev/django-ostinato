@@ -11,6 +11,8 @@ import '../node_modules/@editorjs/delimiter/dist/bundle.js';
 import '../node_modules/@editorjs/embed/dist/bundle.js';
 import '../node_modules/@editorjs/table/dist/bundle.js';
 
+import { FileBrowserPlugin } from './ostinato-editor-tools.js';
+
 
 export const editorConfig = {
   initialBlock: "paragraph",
@@ -113,5 +115,14 @@ export const editorConfig = {
         return '<table>' + rows + '</table>';
       }
     },
+
+    fileBrowser: {
+      class: FileBrowserPlugin,
+      HTMLGenerator: (data) => {
+        console.log('FB Plugin Generator');
+        console.log(data);
+        return `<code>${data}</code>`;
+      }
+    }
   },
 };
