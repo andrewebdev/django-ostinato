@@ -4,46 +4,6 @@
   <head>
     <meta charset="UTF-8">
     <title>Ostinato Editor</title>
-    <link href="{{ EDITOR_CSS_PATH }}" rel="stylesheet">
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        overflow: overflow-y;
-      }
-
-      #editor {
-        margin: 16px;
-        margin-bottom: 80px;
-        box-sizing: inline-block;
-        position: relative;
-        overflow: visible;
-      }
-
-      .ce-block {
-        position: relative;
-        box-sizing: border-box;
-        padding: 1px 0 0;
-      }
-
-      .ce-block::before {
-        content: "";
-        display: block;
-        position: absolute;
-        left: 0;
-        top: 4px;
-        /* top: calc(50% - 10px); */
-        /* height: 20px; */
-        bottom: 4px;
-        width: 2px;
-        background-color: #417690;
-      }
-
-      .ce-block--focused::before {
-        width: 4px;
-        background-color: #79aec8;
-      }
-    </style>
   </head>
 
   <body>
@@ -73,10 +33,16 @@
 
           editor = new EditorJS(config);
           editor.isReady.then(() => {
-            // TODO: After editor was loaded, inject our styles so that they
-            // override the editor styles.
+            let customStyles = document.createElement('link');
+            customStyles.id = "#__osEditorStyles";
+            customStyles.rel = "stylesheet";
+            customStyles.type = "text/css";
+            customStyles.href = "{{ EDITOR_CSS_PATH }}";
+            document.querySelector('head').appendChild(customStyles);
 
-            window.parent.postMessage({editorReady: true});
+            window.setTimeout(() => {
+              window.parent.postMessage({editorReady: true});
+            }, 100);
           })
 
         });

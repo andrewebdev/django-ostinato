@@ -1,0 +1,41 @@
+/*
+ * When customizing styles, be sure to at least copy the styles below as a base
+ */
+body {
+  margin: 0;
+  padding: 0;
+  overflow: overflow-y;
+}
+
+#editor {
+  margin: 16px;
+  margin-bottom: 80px;
+  box-sizing: inline-block;
+  position: relative;
+  overflow: visible;
+}
+
+.ce-block {
+  position: relative;
+  box-sizing: border-box;
+  padding: 1px 0 0;
+}
+
+.ce-block__content::before {
+  content: "";
+  display: block;
+  position: absolute;
+  left: -0.5em;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background-color: #417690;
+}
+
+.ce-block--focused .ce-block__content::before {
+  width: 5px;
+  background-color: #79aec8;
+}
+
+.ce-header { margin: 0; }
+/* End base */

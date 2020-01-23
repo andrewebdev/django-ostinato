@@ -8,6 +8,10 @@ class OstinatoEditorView(TemplateView):
     def get_context_data(self, **kwargs):
         c = super().get_context_data(**kwargs)
         # TODO: Allow for override of this import path
+        c['EDITOR_CSS_PATH'] = getattr(
+            settings,
+            'EDITOR_CSS_PATH',
+            '{}ostinato/src/ostinato-editor.css'.format(settings.STATIC_URL))
         c['editorjs_import'] = '{}ostinato/node_modules/@editorjs/editorjs/dist/editor.js'.format(
             settings.STATIC_URL)
         return c
