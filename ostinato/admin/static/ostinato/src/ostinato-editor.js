@@ -1,4 +1,3 @@
-import '@editorjs/editorjs/dist/editor.js';
 import {LitElement, html, css} from 'lit-element';
 
 
@@ -77,9 +76,26 @@ class OstinatoEditorWidget extends LitElement {
   }
 
   _handleEditorMessages(ev) {
+    // TODO - SECURITY! Make sure we verify domain here
     if (ev.data.editorSaved) {
       this.engine.write(ev.data.editorSaved);
     }
+
+    if (ev.data.editorReady || ev.data.editorSaved) {
+      this.updateFrameHeight();
+    }
+  }
+
+  updateFrameHeight() {
+    var editorContent = this.editorFrame.contentWindow.document;
+    var height = Math.max(
+      editorContent.body.scrollHeight,
+      editorContent.body.offsetHeight,
+      editorContent.documentElement.clientHeight,
+      editorContent.documentElement.scrollHeight,
+      editorContent.documentElement.offsetHeight
+    );
+    this.editorFrame.style.height = height + 4 + "px";
   }
 
   _handleFrameLoaded() {
@@ -100,7 +116,6 @@ class OstinatoEditorWidget extends LitElement {
       iframe {
         width: 100%;
         min-height: 400px;
-        height: auto;
         box-shadow: 0 0 1px 2px #e3e3e3;
       }
     `;

@@ -542,9 +542,9 @@
         }
         commit() {
             while (isDirective(this.value)) {
-                const directive$$1 = this.value;
+                const directive = this.value;
                 this.value = noChange;
-                directive$$1(this);
+                directive(this);
             }
             if (this.value === noChange) {
                 return;
@@ -602,9 +602,9 @@
         }
         commit() {
             while (isDirective(this._pendingValue)) {
-                const directive$$1 = this._pendingValue;
+                const directive = this._pendingValue;
                 this._pendingValue = noChange;
-                directive$$1(this);
+                directive(this);
             }
             const value = this._pendingValue;
             if (value === noChange) {
@@ -746,9 +746,9 @@
         }
         commit() {
             while (isDirective(this._pendingValue)) {
-                const directive$$1 = this._pendingValue;
+                const directive = this._pendingValue;
                 this._pendingValue = noChange;
-                directive$$1(this);
+                directive(this);
             }
             if (this._pendingValue === noChange) {
                 return;
@@ -830,9 +830,9 @@
         }
         commit() {
             while (isDirective(this._pendingValue)) {
-                const directive$$1 = this._pendingValue;
+                const directive = this._pendingValue;
                 this._pendingValue = noChange;
-                directive$$1(this);
+                directive(this);
             }
             if (this._pendingValue === noChange) {
                 return;
@@ -1514,7 +1514,7 @@
         /** @nocollapse */
         static _ensureClassProperties() {
             // ensure private storage for property declarations.
-            if (!this.hasOwnProperty(JSCompiler_renameProperty('_classProperties', this))) {
+            if (!this.hasOwnProperty(JSCompiler_renameProperty('_classProperties'))) {
                 this._classProperties = new Map();
                 // NOTE: Workaround IE11 not supporting Map constructor argument.
                 const superProperties = Object.getPrototypeOf(this)._classProperties;
@@ -1562,7 +1562,7 @@
          * @nocollapse
          */
         static _finalize() {
-            if (this.hasOwnProperty(JSCompiler_renameProperty('finalized', this)) &&
+            if (this.hasOwnProperty(JSCompiler_renameProperty('finalized')) &&
                 this.finalized) {
                 return;
             }
@@ -1579,7 +1579,7 @@
             // Note, only process "own" properties since this element will inherit
             // any properties defined on the superClass, and finalization ensures
             // the entire prototype chain is finalized.
-            if (this.hasOwnProperty(JSCompiler_renameProperty('properties', this))) {
+            if (this.hasOwnProperty(JSCompiler_renameProperty('properties'))) {
                 const props = this.properties;
                 // support symbols in properties (IE11 does not support this)
                 const propKeys = [
@@ -1940,20 +1940,6 @@
     UpdatingElement.finalized = true;
 
     /**
-     * @license
-     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-     * This code may only be used under the BSD style license found at
-     * http://polymer.github.io/LICENSE.txt
-     * The complete set of authors may be found at
-     * http://polymer.github.io/AUTHORS.txt
-     * The complete set of contributors may be found at
-     * http://polymer.github.io/CONTRIBUTORS.txt
-     * Code distributed by Google as part of the polymer project is also
-     * subject to an additional IP rights grant found at
-     * http://polymer.github.io/PATENTS.txt
-     */
-
-    /**
     @license
     Copyright (c) 2019 The Polymer Project Authors. All rights reserved.
     This code may only be used under the BSD style license found at
@@ -1999,9 +1985,9 @@
     const flattenStyles = (styles) => styles.flat ? styles.flat(Infinity) : arrayFlat(styles);
     class LitElement extends UpdatingElement {
         static get _uniqueStyles() {
-            if (!this.hasOwnProperty(JSCompiler_renameProperty('_styles', this))) {
+            if (!this.hasOwnProperty(JSCompiler_renameProperty('_styles'))) {
                 // Inherit styles from superclass if none have been set.
-                if (!this.hasOwnProperty(JSCompiler_renameProperty('styles', this))) {
+                if (!this.hasOwnProperty(JSCompiler_renameProperty('styles'))) {
                     this._styles = this._styles !== undefined ? this._styles : [];
                 }
                 else {

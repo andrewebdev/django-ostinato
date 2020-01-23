@@ -19,6 +19,30 @@
         position: relative;
         overflow: visible;
       }
+
+      .ce-block {
+        position: relative;
+        box-sizing: border-box;
+        padding: 1px 0 0;
+      }
+
+      .ce-block::before {
+        content: "";
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 4px;
+        /* top: calc(50% - 10px); */
+        /* height: 20px; */
+        bottom: 4px;
+        width: 2px;
+        background-color: #417690;
+      }
+
+      .ce-block--focused::before {
+        width: 4px;
+        background-color: #79aec8;
+      }
     </style>
   </head>
 
@@ -48,10 +72,18 @@
           }
 
           editor = new EditorJS(config);
+          editor.isReady.then(() => {
+            // TODO: After editor was loaded, inject our styles so that they
+            // override the editor styles.
+
+            window.parent.postMessage({editorReady: true});
+          })
+
         });
       }
 
       window.addEventListener("message", function(ev) {
+        // TODO - SECURITY! Make sure we verify domain here
         if (ev.data) {
           if (ev.data.editor) handleEditorMessages(ev.data.editor);
         }
