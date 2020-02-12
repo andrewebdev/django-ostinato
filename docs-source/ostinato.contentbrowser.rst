@@ -31,8 +31,7 @@ First we need to add the app to your ``INSTALLED_APPS``.
 
 
 Creating a browser
------------------
-
+------------------
 We need to create browser views for every resource we want to make available to
 the contentbrowser.
 
@@ -40,17 +39,18 @@ A browser is essentially just a class based view which subclasses
 ``ostinato.contentbrowser.views.BrowserView``, and renders a list of custom
 resource elements.
 
-The view has a couple of custom properties that provides some meta information
+The view has a couple of custom properties that provide some meta information
 to the contentbrowser.
 
 You have to implement a ``get_items`` method for this view. This method should
-return a iterable list of resource items for your browser view.
+return a list of resource items for your browser view.
 
 
 .. code-block:: python
 
     from django.contrib.auth.models import User
     from ostinato.contentbrowser.views import BrowserView
+
 
     class UserCard(BrowserView):
         browser_id = "user_card"
@@ -68,13 +68,13 @@ render the view above.
 
 The view passes the list of items into the template context as ``item_list``.
 
-We've also provided custom HTML elements to assist in rendering the resources.
-A textarea is used to specify the actual render template that you want to use
-for the actual resource on the front-end of your site.
+.. We've also provided custom HTML elements to assist in rendering the resources.
+   A textarea is used to specify the actual render template that you want to use
+   for the actual resource on the front-end of your site.
 
-.. note::
-    This will most probably change in future to use ``<template>`` but in this
-    initial version this is sufficient and works.
+  .. note::
+      This will most probably change in future to use ``<template>`` but in this
+      initial version this is sufficient and works.
 
 
 .. code-block:: html

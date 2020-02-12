@@ -1,9 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.admin import GenericTabularInline
 
-# from ostinato.contentbrowser.widgets import CBWidgetMixin
-from ostinato.admin.widgets import EditorJSWidget
-
 from website.models import (
     HomePage,
     GenericPage,
@@ -34,10 +31,6 @@ class ContactForm(forms.Form):
         email.send()
 
 
-class ContentAreaWidget(EditorJSWidget):
-    pass
-
-
 class ImageInline(GenericTabularInline):
     extra = 0
     model = Image
@@ -48,34 +41,30 @@ class VideoInline(GenericTabularInline):
     model = Video
 
 
-# Pages Admin Forms
-class HomePageForm(forms.ModelForm):
-    content = forms.CharField(widget=ContentAreaWidget())
+class _ContentForm(forms.ModelForm):
+    content = forms.CharField(widget=forms.Textarea())
 
+
+# Pages Admin Forms
+class HomePageForm(_ContentForm):
     class Meta:
         model = HomePage
         fields = ('content', 'cache_page')
 
 
-class GenericPageForm(forms.ModelForm):
-    content = forms.CharField(widget=ContentAreaWidget())
-
+class GenericPageForm(_ContentForm):
     class Meta:
         model = GenericPage
         fields = ('content', 'cache_page')
 
 
-class CaseStudyPageForm(forms.ModelForm):
-    content = forms.CharField(widget=ContentAreaWidget())
-
+class CaseStudyPageForm(_ContentForm):
     class Meta:
         model = CaseStudyPage
         fields = ('content', 'cache_page')
 
 
-class ContactPageForm(forms.ModelForm):
-    content = forms.CharField(widget=ContentAreaWidget())
-
+class ContactPageForm(_ContentForm):
     class Meta:
         model = ContactPage
         fields = ('content', 'recipients', 'email_subject', 'success_page')

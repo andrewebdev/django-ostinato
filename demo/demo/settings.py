@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'ostinato.contentfilters',
     'ostinato.medialib',
     'ostinato.redirects',
+    # 'ostinato.contentbrowser',
     # 'ostinato.menus',
 
     'mptt',
@@ -201,10 +202,10 @@ OSTINATO_PAGES = {
 
 OSTINATO_CONTENTBROWSER = {
     'browsers': [
-        'website.views.PageSummary',
-        'website.views.EntrySummary',
-        'website.views.VideoBrowser',
-        'website.views.ImageBrowser',
+        'ostinato.contentbrowser.browsers.PageBrowser',
+        # 'website.views.EntrySummary',
+        # 'website.views.VideoBrowser',
+        # 'website.views.ImageBrowser',
     ],
 }
 

@@ -24,7 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('ostinato/', include('ostinato.admin.urls')),
     path('tinymce/', include('tinymce.urls')),
-    path('browse/', include('ostinato.contentbrowser.urls')),
+    # path('browse/', include('ostinato.contentbrowser.urls')),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
