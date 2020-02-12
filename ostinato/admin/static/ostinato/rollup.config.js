@@ -16,9 +16,9 @@ export default [
   },
 
   {
-    input: 'src/ostinato-editor.js',
+    input: 'src/content-browser.js',
     output: {
-      file: 'dist/ostinato-editor.js',
+      file: 'dist/content-browser.js',
       format: 'iife',
     },
     plugins: [
@@ -27,5 +27,4 @@ export default [
       }),
     ],
   },
-
 ];
