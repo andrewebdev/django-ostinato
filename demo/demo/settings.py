@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     # 'ostinato.contentbrowser',
     # 'ostinato.menus',
 
+    'ckeditor',
     'mptt',
     'taggit',
 
@@ -216,3 +217,68 @@ OSTINATO_CONTENTBROWSER = {
 #             'description': 'Link to a custom internal or external URL', },
 #     },
 # }
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Basic',
+    }
+}
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar_Basic': [
+            ['Source', '-', 'Bold', 'Italic']
+        ],
+
+        'toolbar_ostinato': [
+            {'name': 'basicstyles', 'items': [
+                'Format',
+                'Bold',
+                'Italic',
+                'Underline',
+                '-',
+                'RemoveFormat',
+            ]},
+
+            {'name': 'paragraph', 'items': [
+                'NumberedList',
+                'BulletedList',
+                '-',
+                'Outdent',
+                'Indent',
+                '-',
+                'Blockquote',
+                'CreateDiv',
+                '-',
+                'JustifyLeft',
+                'JustifyCenter',
+                'JustifyRight',
+                'JustifyBlock',
+            ]},
+
+            {'name': 'links', 'items': [
+                'Link',
+                'Unlink',
+                'Anchor',
+            ]},
+
+            {'name': 'insert', 'items': [
+                'HorizontalRule',
+                'SpecialChar',
+            ]},
+
+            {'name': 'clipboard', 'items': [
+                'Undo',
+                'Redo',
+            ]},
+
+            {'name': 'tools', 'items': [
+                'Maximize',
+                'ShowBlocks',
+            ]},
+
+        ],
+
+        'toolbar': 'ostinato',
+    }
+}

@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.admin import GenericTabularInline
+from ckeditor.fields import RichTextFormField
 
 from website.models import (
     HomePage,
@@ -42,7 +43,7 @@ class VideoInline(GenericTabularInline):
 
 
 class _ContentForm(forms.ModelForm):
-    content = forms.CharField(widget=forms.Textarea())
+    content = RichTextFormField()
 
 
 # Pages Admin Forms

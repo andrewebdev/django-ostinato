@@ -22,8 +22,6 @@ from django.conf import settings
 urlpatterns = [
     path('blog/', include('blog.urls')),
     path('admin/', admin.site.urls),
-    path('ostinato/', include('ostinato.admin.urls')),
-    path('tinymce/', include('tinymce.urls')),
     # path('browse/', include('ostinato.contentbrowser.urls')),
 ]
 
